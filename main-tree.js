@@ -71,13 +71,13 @@ function main() {
         renderProgramInfo = new ProgramInfo(GL, program);
 
         let addUniform = (...prop)=>renderProgramInfo.uniformConfig.addUniform(...prop);
+        addUniform("color", "3fv");
         addUniform("PMatrix", "Matrix4fv");
         addUniform("VMatrix", "Matrix4fv");
         addUniform("lightPMatrix", "Matrix4fv");
         addUniform("lightVMatrix", "Matrix4fv");
         addUniform("MMatrix", "Matrix4fv");
         addUniform("normalMatrix", "Matrix4fv");
-        addUniform("color", "3fv");
 
         addUniform("light_source_direction", "3fv");
         addUniform("light_source_ambient_color", "3fv");
@@ -110,28 +110,18 @@ function main() {
         addUniform("normalMatrix", "Matrix4fv");
     }
 
-    const defaultColor = [.7, .7, .7], yellow = [.7, .7, .3];
+    const color1 = [.7, .7, .7], color2 = [.7, .7, .3];
 
-    let yellowUniformConfig = renderProgramInfo.createUniformConfig();
-    yellowUniformConfig.addUniform("color", "3fv", yellow);
+    let objectUniformConfig1 = renderProgramInfo.createUniformConfig();
+    objectUniformConfig1.addUniform("color", "3fv", color1);
+
+    let objectUniformConfig2 = renderProgramInfo.createUniformConfig();
+    objectUniformConfig2.addUniform("color", "3fv", color2);
+
+    // let root = new GLObject(GL, [], []);
 
     let ellipsoidData = generateEllipsoid(100, 100, 30, 20, 10);
     let ellipsoid = new GLObject(GL, ellipsoidData.vertices, ellipsoidData.indices);
-
-    let hyperboloid1Data = generateHyperboloid1(100, 100, 1, 1, 0.5);
-    let hyperboloid1 = new GLObject(GL, hyperboloid1Data.vertices, hyperboloid1Data.indices);
-    
-    let hyperboloid2Data = generateHyperboloid2(100, 100, 1, 1, 1);
-    let hyperboloid2 = new GLObject(GL, hyperboloid2Data.vertices, hyperboloid2Data.indices);
-    
-    let ellipticConeData = generateEllipticCone(100, 100, 1, 1, 1);
-    let ellipticCone = new GLObject(GL, ellipticConeData.vertices, ellipticConeData.indices);
-    
-    let ellipticParaboloidData = generateEllipticParaboloid(500, 500, 2, 2, 5);
-    let ellipticParaboloid = new GLObject(GL, ellipticParaboloidData.vertices, ellipticParaboloidData.indices);
-
-    let hyperbolicParaboloidData = generateHyperbolicParaboloid(100, 100, 2, 2, 5);
-    let hyperbolicParaboloid = new GLObject(GL, hyperbolicParaboloidData.vertices, hyperbolicParaboloidData.indices);
 
     let floorData = {
         vertices: [
@@ -147,12 +137,13 @@ function main() {
     };
     let floor = new GLObject(GL, floorData.vertices, floorData.indices);
 
-    objects = [ellipsoid, hyperboloid1, hyperboloid2, ellipticCone, ellipticParaboloid, hyperbolicParaboloid, floor];
-    // objects = [ellipsoid, floor];
+    objects = [ellipsoid];
+    ellipsoid.addChild(floor);
     
     objects.forEach(obj => {
         obj.setup();
     });
+
 
     /*========================= UNIFORMS ========================= */
 
@@ -184,8 +175,8 @@ function main() {
     var THETA = 0, PHI = 0;
 
     {
-        let set = (...prop)=>renderProgramInfo.uniformConfig.setUniformValue(...prop);
-        set("color", defaultColor);
+        let set = (...prop)=>renderProgramInfo.uniformConfig.setAndApplyUniformValue(...prop);
+        set("color", color1);
         set("PMatrix", false, projMatrix);
         set("VMatrix", false, viewMatrix);
         set("lightPMatrix", false, lightProjMatrix);
@@ -207,14 +198,14 @@ function main() {
     }
 
     {
-        let set = (...prop)=>shadowProgramInfo.uniformConfig.setUniformValue(...prop);
+        let set = (...prop)=>shadowProgramInfo.uniformConfig.setAndApplyUniformValue(...prop);
         set("PMatrix", false, lightProjMatrix);
         set("VMatrix", false, lightViewMatrix);
     }
 
-    var depthTexture = GL.createTexture();
+    var unusedTexture = GL.createTexture();
     var depthTextureSize = 1024;
-    GL.bindTexture(GL.TEXTURE_2D, depthTexture);
+    GL.bindTexture(GL.TEXTURE_2D, unusedTexture);
     GL.texImage2D(
         GL.TEXTURE_2D,      // target
         0,                  // mip level
@@ -236,13 +227,13 @@ function main() {
         GL.FRAMEBUFFER,       // target
         GL.DEPTH_ATTACHMENT,  // attachment point
         GL.TEXTURE_2D,        // texture target
-        depthTexture,         // texture
+        unusedTexture,         // texture
         0                     // mip level
     );
     
     // create a color texture of the same size as the depth texture
-    const unusedTexture = GL.createTexture();
-    GL.bindTexture(GL.TEXTURE_2D, unusedTexture);
+    const depthTexture = GL.createTexture();
+    GL.bindTexture(GL.TEXTURE_2D, depthTexture);
     GL.texImage2D(
         GL.TEXTURE_2D,
         0,
@@ -264,7 +255,7 @@ function main() {
         GL.FRAMEBUFFER,        // target
         GL.COLOR_ATTACHMENT0,  // attachment point
         GL.TEXTURE_2D,         // texture target
-        unusedTexture,         // texture
+        depthTexture,         // texture
         0                      // mip level
     );
 
@@ -274,6 +265,8 @@ function main() {
     GL.clearColor(0., 0., 0., 0.);
     GL.clearDepth(1.);
 
+    LIBS.translateY(floor.localMatrix, 50);
+
     function animate() {
         /*========================= TRANSFORMATIONS ========================= */
         if (!drag) {
@@ -281,21 +274,19 @@ function main() {
             THETA += dX, PHI += dY;
         }
 
-        objects.forEach(object => {
-            LIBS.set_I4(object.localMatrix);
-            LIBS.scale(object.localMatrix, 0.3);
-            LIBS.rotateY(object.localMatrix, THETA);
-            LIBS.rotateX(object.localMatrix, PHI);
-        });
+        objects.forEach((obj) => {
+            LIBS.set_I4(obj.localMatrix);
+            LIBS.scale(obj.localMatrix, 0.3);
+            LIBS.rotateY(obj.localMatrix, THETA);
+            LIBS.rotateX(obj.localMatrix, PHI);
+        })
 
-        LIBS.translateX(ellipsoid.localMatrix, -20);
-        LIBS.translateZ(ellipsoid.localMatrix, -50);
-        LIBS.translateX(hyperbolicParaboloid.localMatrix, 20);
-        LIBS.translateY(hyperboloid1.localMatrix, 20);
-        LIBS.translateY(hyperboloid2.localMatrix, -15);
-        LIBS.translateZ(ellipticCone.localMatrix, -20);
-        LIBS.translateX(ellipticParaboloid.localMatrix, -40);
+        // LIBS.set_I4(ellipsoid.localMatrix);
+        // LIBS.scale(ellipsoid.localMatrix, 0.3);
 
+        // LIBS.translateX(ellipsoid.localMatrix, -20);
+        // LIBS.translateZ(ellipsoid.localMatrix, -50);
+    
 
         /*========================= RENDER SHADOW ========================= */
         function renderShadow() {
@@ -313,9 +304,9 @@ function main() {
             
             GL.clearColor(1., 1., 1., 1.);
             GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
-
-            objects.forEach(object => {
-                object.render();
+            
+            objects.forEach(obj => {
+                obj.render();
             });
         }
 
@@ -331,18 +322,17 @@ function main() {
             GL.clearColor(0.0, 0.0, 0.0, 1.0);
             GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
 
-            GL.bindTexture(GL.TEXTURE_2D, unusedTexture);
+            GL.bindTexture(GL.TEXTURE_2D, depthTexture);
 
             objects.forEach(obj => {
                 obj.programInfo = renderProgramInfo;
+                obj.objectUniformConfig = objectUniformConfig2;
             });
         
-            ellipticCone.objectUniformConfig = yellowUniformConfig;
+            // floor.objectUniformConfig = objectUniformConfig1;
 
-            
-
-            objects.forEach(object => {
-                object.render();
+            objects.forEach(obj => {
+                obj.render();
             });
         }
 

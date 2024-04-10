@@ -12,7 +12,6 @@ class GLObject {
 
     _parent = null;
     
-    worldMatrix = null;
     localMatrix = null;
     objectUniformConfig = null;
     _childs = null;
@@ -21,14 +20,16 @@ class GLObject {
         this._GL = GL;
         this._vertices = vertices;
         this._faces = faces;
-        this._programInfo = programInfo;
+        this._childs = [];
         
         this._triangle_vbo = this._GL.createBuffer();
         this._triangle_ebo = this._GL.createBuffer();
-        
+
         this.localMatrix = LIBS.get_I4();
         this.objectUniformConfig = objectUniformConfig;
-        this._childs = [];
+
+        if (programInfo != null)
+            this.programInfo = programInfo;
     }
 
     setup() {
@@ -53,13 +54,33 @@ class GLObject {
         this.objectUniformConfig = null;
 
         this._childs.forEach((child) => {
-            child.programInfo = this._programInfo;
+            child.programInfo = _programInfo;
         })
     }
 
     render(worldMatrix=null) {
-        this._GL.bindBuffer(this._GL.ARRAY_BUFFER, this._triangle_vbo);
+        let modelMatrix;
+        if (worldMatrix != null) {
+            modelMatrix = LIBS.multiplyCopy(worldMatrix, this.localMatrix);
+        } else {
+            modelMatrix = this.localMatrix;
+        }
 
+        let normalMatrix = LIBS.inverseCopy(modelMatrix);
+        LIBS.transpose(normalMatrix);
+
+        // Set all object uniform values
+        {
+            let setUniformValue = (...prop)=>this._programInfo.uniformConfig.setUniformValue(...prop);
+            setUniformValue("MMatrix", false, modelMatrix);
+            setUniformValue("normalMatrix", false, normalMatrix);
+            this._programInfo.uniformConfig.applyAll();
+            
+            if (this.objectUniformConfig != null)
+                this.objectUniformConfig.applyAll();
+        }
+
+        this._GL.bindBuffer(this._GL.ARRAY_BUFFER, this._triangle_vbo);
         var size = 3;
         var type = this._GL.FLOAT;
         var normalize = false;
@@ -73,7 +94,6 @@ class GLObject {
             stride,
             offset
         );
-        size = 3;
         offset = 3*4;
         this._GL.vertexAttribPointer(
             this._normalAttributeLocation,
@@ -83,47 +103,22 @@ class GLObject {
             stride,
             offset
         );
-
-        // Set all object uniform values
-        {
-            let setAndApplyUniformValue = (...prop)=>this._programInfo.uniformConfig.setAndApplyUniformValue(...prop);
-
-            let modelMatrix;
-            if (worldMatrix != null) {
-                modelMatrix = LIBS.multiplyCopy(worldMatrix, this.localMatrix);
-            } else {
-                modelMatrix = this.localMatrix;
-            }
-            let normalMatrix = LIBS.inverseCopy(modelMatrix);
-            LIBS.transpose(normalMatrix);
-
-            setAndApplyUniformValue("MMatrix", false, modelMatrix);
-            setAndApplyUniformValue("normalMatrix", false, normalMatrix);
-            
-            if (this.objectUniformConfig != null)
-                this.objectUniformConfig.applyAll();
-        }
-
-        this._GL.bindBuffer(this._GL.ARRAY_BUFFER, this._triangle_vbo);
         this._GL.bindBuffer(this._GL.ELEMENT_ARRAY_BUFFER, this._triangle_ebo);
         this._GL.drawElements(this._GL.TRIANGLES, this._faces.length, this._GL.UNSIGNED_INT, 0);
 
         this._childs.forEach((child) => {
-            child.render();
+            child.render(modelMatrix);
         })
     }
 
     addChild(childObj) {
-        this._childs.push(childObj);
+        GLObject._connect(this, childObj);
     }
 
     removeChild(childObj) {
-        let index = this.findChild(childObj);
-
-        if (index == -1)
+        if (!this.hasChild(childObj))
             throw new Error("Cannot remove child: no matching child found");
-
-        this._childs.splice(index, 1);
+        GLObject._disconnect(this, childObj);
     }
 
     hasChild(childObj) {
@@ -139,34 +134,49 @@ class GLObject {
     }
 
     setParent(parentObj) {
-        if (this._parent === parentObj)
-            return;
-
-        this.removeParent();
-
-        this._parent = parentObj;
-        parentObj.addChild(this);
+        GLObject._connect(parentObj, this);
     }
 
     removeParent() {
         GLObject._disconnect(this._parent, this);
     }
 
+    static _removeChildIfExists(parent, child) {
+        let index = parent.findChild(child);
+        
+        if (index != -1)
+            parent._childs.splice(index, 1);
+
+        return index != -1;  // status (success or not)
+    }
+
     static _disconnect(parent, child) {
-        if (parent == null || child == null)
-            return;
-        if (parent.hasChild(child))
-            parent.removeChild(child);
-        if (child._parent == parent)
-            child._parent = null;
+        if (parent == null)
+            throw new Error("Cannot disconnect, parent is null");
+        if (child == null)
+            throw new Error("Cannot disconnect, child is null");
+
+        if (child.parent == parent)
+            child.parent = null;
+
+        GLObject._removeChildIfExists(parent, child);
     }
 
     static _connect(parent, child) {
-        if (!parent.hasChild(child))
-            parent.addChild(child);
-        if (child._parent != null)
-            child.removeParent();
-        child._parent = parent;
+        if (parent == null)
+            throw new Error("Cannot connect, parent is null");
+        if (child == null)
+            throw new Error("Cannot connect, child is null");
+
+        GLObject._removeChildIfExists(parent, child);
+        parent._childs.push(child);
+        
+        if (child.parent == parent)
+            return;
+        
+        if (child.parent != null)
+            GLObject._removeChildIfExists(child.parent, child);
+        child.parent = parent;
     }
 }
 
