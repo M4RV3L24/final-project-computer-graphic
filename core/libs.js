@@ -195,21 +195,27 @@ var LIBS={
     return m;
   },
 
-  multiplyCopy: function(m1, m2) {
-    let numCols1 = m1[0].length, numRows1 = m2.length,
-        numCols2 = m2[0].length, numRows2 = m2.length;
+  createMatrix(rows, cols) {
+    return new Array(rows*cols);
+  },
 
-    if (numCols1 != numRows2.length) {
+  multiplyCopy: function(m1, m2, numCols1=4, numRows1=4, numCols2=4, numRows2=4) {
+    if (numCols1 * numRows1 != m1.length)
+      throw new Error("Invalid dimensions: numCols1 * numRows1 != m1.length");
+    if (numCols2 * numRows2 != m2.length)
+      throw new Error("Invalid dimensions: numCols2 * numRows2 != m2.length");
+
+    if (numCols1 != numRows2)
       throw new Error("Unable to multiply matrices: incompatible dimensions");
-    }
-    let result = [];
+
+    let result = LIBS.createMatrix(numRows1, numCols2), index = 0, tempVal;
     for (let i = 0; i < numRows1; i++) {
       for (let j = 0; j < numCols2; j++) {
-        let val = 0;
+        tempVal = 0;
         for (let k = 0; k < numCols1; k++) {
-          val += m1[i][k] + m2[k][j];
+          tempVal += m1[i*numCols2 + k] * m2[k*numCols2 + j];
         }
-        result[i][j] = 0;
+        result[index++] = tempVal;
       }
     }
 
