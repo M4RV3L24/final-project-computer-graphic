@@ -58,10 +58,14 @@ class GLObject {
         })
     }
 
+    isNullObject() {
+        return this._faces.length == 0;
+    }
+
     render(worldMatrix=null) {
         let modelMatrix;
         if (worldMatrix != null) {
-            modelMatrix = LIBS.multiplyCopy(worldMatrix, this.localMatrix);
+            modelMatrix = LIBS.multiplyCopy(this.localMatrix, worldMatrix);
         } else {
             modelMatrix = this.localMatrix;
         }
@@ -80,31 +84,33 @@ class GLObject {
                 this.objectUniformConfig.applyAll();
         }
 
-        this._GL.bindBuffer(this._GL.ARRAY_BUFFER, this._triangle_vbo);
-        var size = 3;
-        var type = this._GL.FLOAT;
-        var normalize = false;
-        var stride = 6*4;
-        var offset = 0;
-        this._GL.vertexAttribPointer(
-            this._positionAttributeLocation,
-            size,
-            type,
-            normalize,
-            stride,
-            offset
-        );
-        offset = 3*4;
-        this._GL.vertexAttribPointer(
-            this._normalAttributeLocation,
-            size,
-            type,
-            normalize,
-            stride,
-            offset
-        );
-        this._GL.bindBuffer(this._GL.ELEMENT_ARRAY_BUFFER, this._triangle_ebo);
-        this._GL.drawElements(this._GL.TRIANGLES, this._faces.length, this._GL.UNSIGNED_INT, 0);
+        if (!this.isNullObject()) {
+            this._GL.bindBuffer(this._GL.ARRAY_BUFFER, this._triangle_vbo);
+            var size = 3;
+            var type = this._GL.FLOAT;
+            var normalize = false;
+            var stride = 6*4;
+            var offset = 0;
+            this._GL.vertexAttribPointer(
+                this._positionAttributeLocation,
+                size,
+                type,
+                normalize,
+                stride,
+                offset
+            );
+            offset = 3*4;
+            this._GL.vertexAttribPointer(
+                this._normalAttributeLocation,
+                size,
+                type,
+                normalize,
+                stride,
+                offset
+            );
+            this._GL.bindBuffer(this._GL.ELEMENT_ARRAY_BUFFER, this._triangle_ebo);
+            this._GL.drawElements(this._GL.TRIANGLES, this._faces.length, this._GL.UNSIGNED_INT, 0);
+        }
 
         this._childs.forEach((child) => {
             child.render(modelMatrix);
@@ -113,6 +119,10 @@ class GLObject {
 
     addChild(childObj) {
         GLObject._connect(this, childObj);
+    }
+
+    addChilds(...childObjs) {
+        childObjs.forEach((childObj)=>{this.addChild(childObj)});
     }
 
     removeChild(childObj) {
