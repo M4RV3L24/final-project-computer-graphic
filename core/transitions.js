@@ -102,6 +102,18 @@ class MyObject{
 	}
 }
 
+class Transition{
+	callback = null
+	value = null
+	totalTime = null
+
+	constructor(callback, value, totalTime){
+		this.callback = callback
+		this.value = value
+		this.totalTime = totalTime
+	}
+}
+
 // class untuk memanage transisi dalam suatu model matrix
 // transitions akan dijalankan satu per satu dari awal hingga akhir
 // untuk membuat animasi pararel, buat beberapa TransitionManager 
@@ -109,7 +121,7 @@ class MyObject{
 class TransitionManager{
 	_transitions = []
 	_MMatrix = null
-	_time = 0
+	_timePassed = 0
 	_curIndex = 0
 
 	// model matrix yang ingin ditransisikan
@@ -121,27 +133,25 @@ class TransitionManager{
 	step(duration){		
 		if(this.isFinished()) return
 
-		let callback = this._transitions[this._curIndex][0]
-		let value = this._transitions[this._curIndex][1] 
-		let totalTime = this._transitions[this._curIndex][2]
-		
-		if(totalTime <= this._time + duration){
-			duration = totalTime - this._time
-		}
+		let callback = this._transitions[this._curIndex].callback
+		let value = this._transitions[this._curIndex].value
+		let totalTime = this._transitions[this._curIndex].totalTime
 		
 		let diff = duration / totalTime * value
 		callback(this._MMatrix, diff)
 
-		this._time += duration
-		if(this._time >= totalTime){
-			this._time = 0
+		this._timePassed += duration
+		if(this._timePassed >= totalTime){
+			let remainder = this._timePassed - totalTime
+			this._timePassed = 0
 			this._curIndex++
+			this.step(remainder)
 		}
 	}
 
 	// menambah transisi
 	addTransition(callback, value, duration){
-		this._transitions.push([callback, value, duration])
+		this._transitions.push(new Transition(callback, value, duration))
 		return this
 	}
 
