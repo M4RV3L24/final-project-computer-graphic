@@ -331,5 +331,36 @@ var LIBS={
       if (val == end1)
           return end2;
       return ((val - start1) * (end2 - start2) / (end1 - start1)) + start2;
+  }, 
+
+  //rotate on an arbitrary axis
+  rotateAlong: function(m, angle, tail, head) {
+    //     Rotation of a point in 3 dimensional space by theta about an arbitrary axes defined by a line between two points P1 = (x1,y1,z1) and P2 = (x2,y2,z2) can be achieved by the following steps
+    // (1) translate space so that the rotation axis passes through the origin
+    this.translateX(m, -tail[0]);
+    this.translateY(m, -tail[1]);
+    this.translateZ(m, -tail[2]);
+
+    let axis = this.normalize(head.map((x, i) => x - tail[i]));
+      
+    // (2) rotate space about the x axis so that the rotation axis lies in the xz plane
+    let a = Math.atan2(axis[1], axis[2]);
+    this.multMatrix(m, this.rotateX(m, a));
+    // (3) rotate space about the y axis so that the rotation axis lies along the z axis
+    let d = Math.sqrt(axis[1]*axis[1] + axis[2]*axis[2]);
+    let b = Math.atan2(axis[0], d);
+    this.multMatrix(m, this.rotateY(m, b));
+    // (4) perform the desired rotation by theta about the z axis
+    this.multMatrix(m, this.rotateZ(m, angle));
+
+    // (5) apply the inverse of step (3)
+    this.multMatrix(m, this.rotateY(m, -b));
+    this.multMatrix(m, this.rotateX(m, -a));
+    
+    // (6) translate back so that the original point is at the origin again   
+    this.translateX(m, tail[0]);
+    this.translateY(m, tail[1]);
+    this.translateZ(m, tail[2]);
+    
   }
 };
