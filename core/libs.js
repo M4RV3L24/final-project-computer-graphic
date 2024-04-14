@@ -31,14 +31,14 @@ var LIBS={
   },
 
   look_at: function(cameraPosition, target, up) {
-    var zAxis = LIBS.normalizeCopy(LIBS.sub(cameraPosition, target));
-    var xAxis = LIBS.normalize(LIBS.cross(up, zAxis));
-    var yAxis = LIBS.normalize(LIBS.cross(zAxis, xAxis));
+    var zAxis = Vector.sub(cameraPosition, target).normalize();
+    var xAxis = Vector.cross(up, zAxis).normalize();
+    var yAxis = zAxis.cross(xAxis).normalize();
  
     return [
-       xAxis[0], xAxis[1], xAxis[2], 0,
-       yAxis[0], yAxis[1], yAxis[2], 0,
-       zAxis[0], zAxis[1], zAxis[2], 0,
+       xAxis.get(0), xAxis.get(1), xAxis.get(2), 0,
+       yAxis.get(0), yAxis.get(1), yAxis.get(2), 0,
+       zAxis.get(0), zAxis.get(1), zAxis.get(2), 0,
        cameraPosition[0],
        cameraPosition[1],
        cameraPosition[2],
@@ -222,96 +222,6 @@ var LIBS={
     return result;
   },
 
-  length: function(vec) {
-    result = 0;
-    vec.forEach(element => {
-      result += element*element
-    });
-
-    return Math.sqrt(result);
-  },
-
-  checkSameDims: function(vec1, vec2) {
-    let l1 = vec1.length, l2 = vec2.length;
-    if (l1 != l2) {
-      throw new Error("Cannot do operation, different dimensions");
-    }
-    return true;
-  },
-
-  cross: function(vec1, vec2) {
-    LIBS.checkSameDims(vec1, vec2);
-    return [
-      vec1[1] * vec2[2] - vec1[2] * vec2[1],
-      vec1[2] * vec2[0] - vec1[0] * vec2[2],
-      vec1[0] * vec2[1] - vec1[1] * vec2[0]
-    ];
-  },
-
-  dot: function(vec1, vec2) {
-    LIBS.checkSameDims(vec1, vec2);
-
-    let result = 0;
-    for (let i = 0; i < vec1.length; i++) {
-      result += vec1[i] * vec2[i];
-    }
-
-    return result;
-  },
-
-  normalize: function(vec) {
-    let l = LIBS.length(vec)
-    if (l < 0.00001) {
-      return [0., 0., 0.];
-    }
-    for (let i = 0; i < vec.length; i++) {
-      vec[i] /= l;
-    }
-    return vec;
-  },
-
-  normalizeCopy: function(vec) {
-    let l = LIBS.length(vec)
-    if (l < 0.00001) {
-      return [0., 0., 0.];
-    }
-    result = [];
-    for (let i = 0; i < vec.length; i++) {
-      result[i] = vec[i]/l;
-    }
-    return result;
-  },
-
-  neg: function(vec) {
-    let l = LIBS.length(vec)
-    for (let i = 0; i < vec.length; i++) {
-      vec[i] = -vec[i];
-    }
-    return vec;
-  },
-
-  sub: function(vec1, vec2) {
-    LIBS.checkSameDims(vec1, vec2);
-
-    result = []
-    for (let i = 0; i < vec1.length; i++) {
-      result[i] = vec1[i] - vec2[i];
-    }
-
-    return result;
-  },
-
-  add: function(vec1, vec2) {
-    LIBS.checkSameDims(vec1, vec2);
-
-    result = []
-    for (let i = 0; i < vec1.length; i++) {
-      result[i] = vec1[i] + vec2[i];
-    }
-
-    return result;
-  },
-
   fequal(val1, val2, epsilon=1e-9) {
       return Math.abs(val1 - val2) <= epsilon;
   },
@@ -341,7 +251,7 @@ var LIBS={
     this.translateY(m, -tail[1]);
     this.translateZ(m, -tail[2]);
 
-    let axis = this.normalize(head.map((x, i) => x - tail[i]));
+    let axis = Vector.sub(head, tail).normalize().arr();
       
     // (2) rotate space about the x axis so that the rotation axis lies in the xz plane
     let a = Math.atan2(axis[1], axis[2]);

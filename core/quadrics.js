@@ -32,15 +32,15 @@ function generateEllipsoid(uCount, vCount, a, b, c) {
                 c * cv
             ];
             // Calculate cross product
-            let n = LIBS.cross(dp_du, dp_dv);
+            let n = Vector.cross(dp_du, dp_dv);
             // Normalize the normal vector
-            LIBS.normalize(n);
+            n.normalize();
             // Determine orientation of normal vector
-            if (LIBS.dot(n, LIBS.sub(p, insidePoint)) < 0)
-                LIBS.neg(n);
+            if (Vector.sub(p, insidePoint).dot(n) < 0)
+                n.neg();
 
             vertices.push(...p);
-            vertices.push(...n);
+            vertices.push(...n.arr());
         }
     }
 
@@ -95,15 +95,15 @@ function generateHyperboloid1(uCount, vCount, a, b, c) {
                 c / (cv*cv)
             ]
             // Calculate cross product
-            let n = LIBS.cross(dp_du, dp_dv);
+            let n = Vector.cross(dp_du, dp_dv);
             // Normalize the normal vector
-            LIBS.normalize(n);
+            n.normalize();
             // Determine orientation of normal vector
-            if (LIBS.dot(n, LIBS.sub(p, insidePoint)) < 0)
-                LIBS.neg(n);
+            if (Vector.sub(p, insidePoint).dot(n) < 0)
+                n.neg();
 
             vertices.push(...p);
-            vertices.push(...n);
+            vertices.push(...n.arr());
 
             rowLength++;
             vertexCount++;
@@ -171,15 +171,15 @@ function generateHyperboloid2(uCount, vCount, a, b, c) {
                 ];
                 
                 // Calculate cross product
-                let n = LIBS.cross(dp_du, dp_dv);
+                let n = Vector.cross(dp_du, dp_dv);
                 // Normalize the normal vector
-                LIBS.normalize(n);
+                n.normalize();
                 // Determine orientation of normal vector
-                if (LIBS.dot(n, LIBS.sub([x, y, z], insidePoint[part])) < 0)
-                    LIBS.neg(n);
+                if (Vector.sub([x, y, z], insidePoint[part]).dot(n) < 0)
+                    n.neg();
 
                 vertices.push(x, y, z);
-                vertices.push(...n);
+                vertices.push(...n.arr());
 
                 rowLength++;
                 vertexCount++;
@@ -229,12 +229,12 @@ function generateEllipticCone(uCount, vCount, a, b, c) {
                 c
             ];
             // Calculate cross product
-            let n = LIBS.cross(dp_du, dp_dv);
+            let n = Vector.cross(dp_du, dp_dv);
             // Normalize the normal vector
-            LIBS.normalize(n);
+            n.normalize();
 
             vertices.push(...p);
-            vertices.push(...n);
+            vertices.push(...n.arr());
         }
     }
 
@@ -280,12 +280,12 @@ function generateEllipticParaboloid(uCount, vCount, a, b, c) {
                 2*v
             ];
             // Calculate cross product
-            let n = LIBS.cross(dp_du, dp_dv);
+            let n = Vector.cross(dp_du, dp_dv);
             // Normalize the normal vector
-            LIBS.normalize(n);
+            n.normalize();
 
             vertices.push(...p);
-            vertices.push(...n);
+            vertices.push(...n.arr());
         }
     }
 
@@ -333,14 +333,14 @@ function generateHyperbolicParaboloid(uCount, vCount, a, b, c) {
                 2*v
             ];
             // Calculate cross product
-            let n = LIBS.cross(dp_du, dp_dv);
+            let n = Vector.cross(dp_du, dp_dv);
             // Normalize the normal vector
-            LIBS.normalize(n);
-            if (LIBS.dot(n, LIBS.sub(outsidePoint, p)) < 0)
-                LIBS.neg(n);
+            n.normalize();
+            if (Vector.sub(outsidePoint, p).dot(n) < 0)
+                n.neg();
 
             vertices.push(...p);
-            vertices.push(...n);
+            vertices.push(...n.arr());
         }
     }
 
