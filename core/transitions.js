@@ -116,20 +116,15 @@ class BasicTransition{
 	}
 }
 
-// class untuk memanage transisi dalam suatu model matrix
+// class untuk memanage transisi basic
 // transitions akan dijalankan satu per satu dari awal hingga akhir
 // untuk membuat animasi pararel, buat beberapa TransitionManager 
-// dengan model matrix yang sama
 class BasicTransitionManager{
 	_transitions = []
-	_MMatrix = null
 	_timePassed = 0
 	_curIndex = 0
 
-	// model matrix yang ingin ditransisikan
-	constructor(MODEL_MATRIX){
-		this._MMatrix = MODEL_MATRIX
-	}
+	constructor(){}
 
 	// menjalankan transisi dengan duration tertentu (dalam ms)
 	step(duration){		
@@ -147,7 +142,7 @@ class BasicTransitionManager{
 		}
 
 		let diff = duration / totalTime * value
-		callback(this._MMatrix, diff)	
+		callback(diff)	
 		
 		if(remainder > 0){
 			this._timePassed = 0
@@ -249,6 +244,8 @@ class TransitionManager {
 	}
 }
 
+var object = null
+var object2 = null
 var object3 = null
 
 function translateObject3(diffs, interpolatedValues){
@@ -258,6 +255,10 @@ function translateObject3(diffs, interpolatedValues){
 	LIBS.translateY(_MMatrix, interpolatedValues[1])
 	
 	object3.MODEL_MATRIX = _MMatrix
+}
+
+function translateXObject2(diff){
+	LIBS.translateX(object2.MODEL_MATRIX, diff)
 }
 	
 function main(){
@@ -383,23 +384,24 @@ function main(){
 	var MODEL_MATRIX2 = LIBS.get_I4();
 	var MODEL_MATRIX3 = LIBS.get_I4();
 
-	
 	LIBS.translateZ(VIEW_MATRIX,-15);
 	LIBS.translateX(MODEL_MATRIX, -4);
 	LIBS.translateX(MODEL_MATRIX2, 3);
 	
 
 
-
 	var object = new MyObject(cube, cube_faces, shader_vertex_source, shader_fragment_source);
-	var object2 = new MyObject(cube, cube_faces, shader_vertex_source, shader_fragment_source);
+	object2 = new MyObject(cube, cube_faces, shader_vertex_source, shader_fragment_source);
 	object3 = new MyObject(cube, cube_faces, shader_vertex_source, shader_fragment_source);
-	//   object2.setup();
-	object.childs.push(object2);
-	object.setup();
-	object3.setup();
 
+	object.childs.push(object2);
+	object.childs.push(object3)
+	object.setup();
+
+	object.MODEL_MATRIX = MODEL_MATRIX
+	object2.MODEL_MATRIX = MODEL_MATRIX2
 	object3.MODEL_MATRIX = MODEL_MATRIX3
+	
 	/*========================= DRAWING ========================= */
 	GL.clearColor(0.0, 0.0, 0.0, 0.0);
 
@@ -407,27 +409,13 @@ function main(){
 	GL.enable(GL.DEPTH_TEST);
 	GL.depthFunc(GL.LEQUAL);
 
+	let basicTransitions = new BasicTransitionManager()
+	basicTransitions.addTransition(translateXObject2, 5, 500)
+	.addTransition(translateXObject2, -10, 1000)
+	.addTransition(translateXObject2, 7, 1800)
 
-	let transitions = new BasicTransitionManager(MODEL_MATRIX)
-	transitions.addTransition(LIBS.translateX, 3, 2000)
-	.addTransition(LIBS.translateY, 3, 2000)
-	.addTransition(LIBS.translateZ, 3, 2000)
-
-	let transitions2 = new BasicTransitionManager(MODEL_MATRIX)
-	transitions2.addTransition(LIBS.rotateX, LIBS.degToRad(90), 3000)
-	.addTransition(LIBS.rotateZ, LIBS.degToRad(90), 3000)
-
-	let transitions3 = new BasicTransitionManager(MODEL_MATRIX2)
-	transitions3.addTransition(LIBS.translateX, -3, 2000)
-	.addTransition(LIBS.translateY, -3, 2000)
-	.addTransition(LIBS.translateZ, -3, 2000)
-
-	let transitions4 = new BasicTransitionManager(MODEL_MATRIX2)
-	transitions4.addTransition(LIBS.rotateX, LIBS.degToRad(180), 3000)
-	.addTransition(LIBS.rotateZ, LIBS.degToRad(180), 3000)
-
-	let transitions5 = new TransitionManager()
-	transitions5.addTransition(translateObject3, [10, 10], [-10, 0], 3000)
+	let transitions = new TransitionManager()
+	transitions.addTransition(translateObject3, [10, 10], [-10, 0], 3000)
 	.addTransition(translateObject3, [-10, 0], [2, -5], 3000)
 
 	var time_prev = 0;
@@ -437,16 +425,10 @@ function main(){
 
 		var dt = time-time_prev;
 		time_prev=time;
+		basicTransitions.step(dt)
 		transitions.step(dt)
-		transitions2.step(dt)
-		transitions3.step(dt)
-		transitions4.step(dt)
-		transitions5.step(dt)
 
-		object.MODEL_MATRIX = MODEL_MATRIX;
-		object2.MODEL_MATRIX = MODEL_MATRIX2;
 		object.render(VIEW_MATRIX, PROJECTION_MATRIX);
-		object3.render(VIEW_MATRIX, PROJECTION_MATRIX);
 
 		window.requestAnimationFrame(animate);
 	};
