@@ -102,7 +102,9 @@ class MyObject{
 	}
 }
 
-class Transition{
+// transisi basic yang hanya bisa mengubah state thd state skrg
+// misal rotateX 30, berarti rotateX 30 dari state sekarang
+class BasicTransition{
 	callback = null
 	value = null
 	totalTime = null
@@ -118,7 +120,7 @@ class Transition{
 // transitions akan dijalankan satu per satu dari awal hingga akhir
 // untuk membuat animasi pararel, buat beberapa TransitionManager 
 // dengan model matrix yang sama
-class TransitionManager{
+class BasicTransitionManager{
 	_transitions = []
 	_MMatrix = null
 	_timePassed = 0
@@ -136,13 +138,18 @@ class TransitionManager{
 		let callback = this._transitions[this._curIndex].callback
 		let value = this._transitions[this._curIndex].value
 		let totalTime = this._transitions[this._curIndex].totalTime
-		
-		let diff = duration / totalTime * value
-		callback(this._MMatrix, diff)
+		let remainder = 0
 
 		this._timePassed += duration
 		if(this._timePassed >= totalTime){
-			let remainder = this._timePassed - totalTime
+			remainder = this._timePassed - totalTime
+			duration -= remainder
+		}
+
+		let diff = duration / totalTime * value
+		callback(this._MMatrix, diff)	
+		
+		if(remainder > 0){
 			this._timePassed = 0
 			this._curIndex++
 			this.step(remainder)
@@ -151,7 +158,7 @@ class TransitionManager{
 
 	// menambah transisi
 	addTransition(callback, value, duration){
-		this._transitions.push(new Transition(callback, value, duration))
+		this._transitions.push(new BasicTransition(callback, value, duration))
 		return this
 	}
 
@@ -160,6 +167,97 @@ class TransitionManager{
 		if(this._curIndex >= this._transitions.length) return true
 		return false
 	}
+}
+
+// bentuk abstraksi dari BasicTransition dan harus dihandle setiap callback
+// start dan end berupa array
+class Transition{
+	callback = null
+	start = null
+	end = null
+	lastInterpolatedValue = null
+	totalTime = null
+
+	constructor(callback, start, end, totalTime){
+		this.callback = callback
+		this.start = start
+		this.end = end
+		this.totalTime = totalTime
+		this.lastInterpolatedValue = []
+
+		for(let i = 0; i < start.length ; i++){
+			this.lastInterpolatedValue.push(start[i])
+		}
+	}
+}
+
+class TransitionManager {
+	_transitions = []
+	_timePassed = 0
+	_curIndex = 0
+
+	constructor(){}
+
+	// menjalankan transisi dengan duration tertentu (dalam ms)
+	step(duration){	
+		if(this.isFinished()) return
+
+		let callback = this._transitions[this._curIndex].callback
+		let start = this._transitions[this._curIndex].start
+		let end = this._transitions[this._curIndex].end
+		let totalTime = this._transitions[this._curIndex].totalTime
+		let lastInterpolatedValue = this._transitions[this._curIndex].lastInterpolatedValue
+		let remainder = 0
+
+		this._timePassed += duration
+		if(this._timePassed >= totalTime){
+			remainder = this._timePassed - totalTime
+			duration -= remainder
+		}
+		
+		let diffs = []
+		let interpolatedValues = []
+
+		for(let i = 0; i < start.length ; i++){
+			let diff = duration * (end[i] - start[i]) / totalTime
+			let interpolatedValue = lastInterpolatedValue[i] + diff
+			lastInterpolatedValue[i] = interpolatedValue
+
+			diffs.push(diff)
+			interpolatedValues.push(interpolatedValue)
+		}
+
+		callback(diffs, interpolatedValues)	
+		
+		if(remainder > 0){
+			this._timePassed = 0
+			this._curIndex++
+			this.step(remainder)
+		}
+	}
+
+	// menambah transisi
+	addTransition(callback, start, end, duration){
+		this._transitions.push(new Transition(callback, start, end, duration))
+		return this
+	}
+
+	// cek apakah seluruh transisi telah dijalankan
+	isFinished(){
+		if(this._curIndex >= this._transitions.length) return true
+		return false
+	}
+}
+
+var object3 = null
+
+function translateObject3(diffs, interpolatedValues){
+	console.log(interpolatedValues)
+	let _MMatrix = LIBS.get_I4()
+	LIBS.translateX(_MMatrix, interpolatedValues[0])
+	LIBS.translateY(_MMatrix, interpolatedValues[1])
+	
+	object3.MODEL_MATRIX = _MMatrix
 }
 	
 function main(){
@@ -174,6 +272,7 @@ function main(){
 		return false;
 	}
 
+	
 
 	//shaders
 	var shader_vertex_source=`
@@ -282,18 +381,25 @@ function main(){
 	var VIEW_MATRIX = LIBS.get_I4();
 	var MODEL_MATRIX = LIBS.get_I4();
 	var MODEL_MATRIX2 = LIBS.get_I4();
+	var MODEL_MATRIX3 = LIBS.get_I4();
 
-
+	
 	LIBS.translateZ(VIEW_MATRIX,-15);
 	LIBS.translateX(MODEL_MATRIX, -4);
 	LIBS.translateX(MODEL_MATRIX2, 3);
+	
+
 
 
 	var object = new MyObject(cube, cube_faces, shader_vertex_source, shader_fragment_source);
 	var object2 = new MyObject(cube, cube_faces, shader_vertex_source, shader_fragment_source);
+	object3 = new MyObject(cube, cube_faces, shader_vertex_source, shader_fragment_source);
 	//   object2.setup();
 	object.childs.push(object2);
 	object.setup();
+	object3.setup();
+
+	object3.MODEL_MATRIX = MODEL_MATRIX3
 	/*========================= DRAWING ========================= */
 	GL.clearColor(0.0, 0.0, 0.0, 0.0);
 
@@ -302,24 +408,27 @@ function main(){
 	GL.depthFunc(GL.LEQUAL);
 
 
-	let transitions = new TransitionManager(MODEL_MATRIX)
+	let transitions = new BasicTransitionManager(MODEL_MATRIX)
 	transitions.addTransition(LIBS.translateX, 3, 2000)
 	.addTransition(LIBS.translateY, 3, 2000)
 	.addTransition(LIBS.translateZ, 3, 2000)
 
-	let transitions2 = new TransitionManager(MODEL_MATRIX)
+	let transitions2 = new BasicTransitionManager(MODEL_MATRIX)
 	transitions2.addTransition(LIBS.rotateX, LIBS.degToRad(90), 3000)
 	.addTransition(LIBS.rotateZ, LIBS.degToRad(90), 3000)
 
-	let transitions3 = new TransitionManager(MODEL_MATRIX2)
+	let transitions3 = new BasicTransitionManager(MODEL_MATRIX2)
 	transitions3.addTransition(LIBS.translateX, -3, 2000)
 	.addTransition(LIBS.translateY, -3, 2000)
 	.addTransition(LIBS.translateZ, -3, 2000)
 
-	let transitions4 = new TransitionManager(MODEL_MATRIX2)
+	let transitions4 = new BasicTransitionManager(MODEL_MATRIX2)
 	transitions4.addTransition(LIBS.rotateX, LIBS.degToRad(180), 3000)
 	.addTransition(LIBS.rotateZ, LIBS.degToRad(180), 3000)
 
+	let transitions5 = new TransitionManager()
+	transitions5.addTransition(translateObject3, [10, 10], [-10, 0], 3000)
+	.addTransition(translateObject3, [-10, 0], [2, -5], 3000)
 
 	var time_prev = 0;
 	var animate = function(time) {
@@ -332,11 +441,12 @@ function main(){
 		transitions2.step(dt)
 		transitions3.step(dt)
 		transitions4.step(dt)
-
+		transitions5.step(dt)
 
 		object.MODEL_MATRIX = MODEL_MATRIX;
 		object2.MODEL_MATRIX = MODEL_MATRIX2;
 		object.render(VIEW_MATRIX, PROJECTION_MATRIX);
+		object3.render(VIEW_MATRIX, PROJECTION_MATRIX);
 
 		window.requestAnimationFrame(animate);
 	};
