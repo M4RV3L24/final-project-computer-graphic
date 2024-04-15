@@ -1,5 +1,5 @@
-class EasingFunction {
-	// An easing function is a function
+class TweeningFunction {
+	// A tweening function is a function
 	// that receives number in range [0,1]
 	// and returns number in the same range.
 
@@ -44,14 +44,14 @@ class Transition {
 	_callback = null;
 	_interpolator = null;
 	_duration = null
-	_easingFunction = null;
+	_tweeningFunction = null;
 
 	_passedTime = 0;
 	_interpolateFunc = null;
 	_prevValue = null;
 	_currValue = null;
 
-	constructor(callback, interpolator, duration, easingFunction = EasingFunction.linear) {
+	constructor(callback, interpolator, duration, tweeningFunction = tweeningFunction.linear) {
 		this._callback = callback;
 		this._interpolator = interpolator;
 		console.assert(
@@ -59,7 +59,7 @@ class Transition {
 			"doesn't support multidimensional transition"
 		);
 		this._duration = duration;
-		this._easingFunction = easingFunction;
+		this._tweeningFunction = tweeningFunction;
 
 		this._passedTime = 0;
 		this._prevValue = interpolator.getStart();
@@ -79,7 +79,7 @@ class Transition {
 	}
 
 	calcValue() {
-		return this._interpolator.interpolate(this.easedNormalizedTime());
+		return this._interpolator.interpolate(this.tweenedNormalizedTime());
 	}
 
 	progress() {
@@ -88,7 +88,7 @@ class Transition {
 			this._prevValue,
 			this._passedTime,
 			this.normalizedTime(),
-			this.easedNormalizedTime()
+			this.tweenedNormalizedTime()
 		);
 	}
 
@@ -96,8 +96,8 @@ class Transition {
 		return this._passedTime / this._duration;
 	}
 
-	easedNormalizedTime() {
-		return this._easingFunction(this.normalizedTime());
+	tweenedNormalizedTime() {
+		return this._tweeningFunction(this.normalizedTime());
 	}
 
 	isFinished() {
