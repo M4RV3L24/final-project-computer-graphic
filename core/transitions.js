@@ -1,439 +1,147 @@
-var GL;
+class EasingFunction {
+	// An easing function is a function
+	// that receives number in range [0,1]
+	// and returns number in the same range.
 
-class MyObject{
-	canvas = null;
-	vertex = [];
-	faces = [];
-
-	SHADER_PROGRAM = null;
-	_color = null;
-	_position = null;
-
-	_MMatrix = LIBS.get_I4();
-	_PMatrix = LIBS.get_I4();
-	_VMatrix = LIBS.get_I4();
-	_greyScality = 0;
-
-	TRIANGLE_VERTEX = null;
-	TRIANGLE_FACES = null;
-
-	MODEL_MATRIX = LIBS.get_I4();
-
-	childs = [];
-
-
-	constructor(vertex, faces, source_shader_vertex, source_shader_fragment){
-		this.vertex = vertex;
-		this.faces = faces;
-
-		var compile_shader = function(source, type, typeString) {
-			var shader = GL.createShader(type);
-			GL.shaderSource(shader, source);
-			GL.compileShader(shader);
-			if (!GL.getShaderParameter(shader, GL.COMPILE_STATUS)) {
-			alert("ERROR IN " + typeString + " SHADER: " + GL.getShaderInfoLog(shader));
-			return false;
-			}
-			return shader;
-		};
-	
-		var shader_vertex = compile_shader(source_shader_vertex, GL.VERTEX_SHADER, "VERTEX");
-		var shader_fragment = compile_shader(source_shader_fragment, GL.FRAGMENT_SHADER, "FRAGMENT");
-	
-		this.SHADER_PROGRAM = GL.createProgram();
-		GL.attachShader(this.SHADER_PROGRAM, shader_vertex);
-		GL.attachShader(this.SHADER_PROGRAM, shader_fragment);
-		GL.linkProgram(this.SHADER_PROGRAM);
-
-
-		//vao
-		this._color = GL.getAttribLocation(this.SHADER_PROGRAM, "color");
-		this._position = GL.getAttribLocation(this.SHADER_PROGRAM, "position");
-
-		//uniform
-		this._PMatrix = GL.getUniformLocation(this.SHADER_PROGRAM,"PMatrix"); //projection
-		this._VMatrix = GL.getUniformLocation(this.SHADER_PROGRAM,"VMatrix"); //View
-		this._MMatrix = GL.getUniformLocation(this.SHADER_PROGRAM,"MMatrix"); //Model
-		this._greyScality = GL.getUniformLocation(this.SHADER_PROGRAM, "greyScality");//GreyScality
-
-		GL.enableVertexAttribArray(this._color);
-		GL.enableVertexAttribArray(this._position);
-		GL.useProgram(this.SHADER_PROGRAM);
-
-		this.TRIANGLE_VERTEX = GL.createBuffer();
-		this.TRIANGLE_FACES = GL.createBuffer();
+	static linear(t) {
+		return t;
 	}
 
-
-	setup(){
-		GL.bindBuffer(GL.ARRAY_BUFFER, this.TRIANGLE_VERTEX);
-		GL.bufferData(GL.ARRAY_BUFFER,
-		new Float32Array(this.vertex),
-		GL.STATIC_DRAW);
-
-		GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.TRIANGLE_FACES);
-		GL.bufferData(GL.ELEMENT_ARRAY_BUFFER,
-		new Uint16Array(this.faces),
-		GL.STATIC_DRAW);
-
-		this.childs.forEach(child => {
-			child.setup();
-		})
+	static jump(t) {
+		return t < 0.5 ? 0 : 1;
 	}
 
+	static quadratic(t) {
+		return t * t;
+	}
 
-	render(VIEW_MATRIX, PROJECTION_MATRIX){
-		GL.useProgram(this.SHADER_PROGRAM);  
-		GL.bindBuffer(GL.ARRAY_BUFFER, this.TRIANGLE_VERTEX);
-		GL.bindBuffer(GL.ELEMENT_ARRAY_BUFFER, this.TRIANGLE_FACES);
-		GL.vertexAttribPointer(this._position, 3, GL.FLOAT, false, 4*(3+3), 0);
-		GL.vertexAttribPointer(this._color, 3, GL.FLOAT, false, 4*(3+3), 3*4);
+	static cubic(t) {
+		return t * t * t;
+	}
 
-		GL.uniformMatrix4fv(this._PMatrix,false,PROJECTION_MATRIX);
-		GL.uniformMatrix4fv(this._VMatrix,false,VIEW_MATRIX);
-		GL.uniformMatrix4fv(this._MMatrix,false,this.MODEL_MATRIX);
-		GL.uniform1f(this._greyScality, 1);
-
-		GL.drawElements(GL.TRIANGLES, this.faces.length, GL.UNSIGNED_SHORT, 0);
-
-		this.childs.forEach(child => {
-			child.render(VIEW_MATRIX, PROJECTION_MATRIX);
-		})
+	static sin(t) {
+		return Math.sin(2 * t / Math.PI);
 	}
 }
 
-// transisi basic yang hanya bisa mengubah state thd state skrg
-// misal rotateX 30, berarti rotateX 30 dari state sekarang
-class BasicTransition{
-	callback = null
-	value = null
-	totalTime = null
 
-	constructor(callback, value, totalTime){
-		this.callback = callback
-		this.value = value
-		this.totalTime = totalTime
+class TransitionProgress {
+	value;
+	diff;
+	time;
+	normalizedTime;
+
+	constructor(value, diff, time, normalizedTime) {
+		if (value instanceof Vector)
+			this.value = value.copy();
+		else
+			this.value = value;
+
+		if (diff instanceof Vector)
+			this.diff = diff.copy();
+		else
+			this.diff = diff;
+
+		this.time = time;
+		this.normalizedTime = normalizedTime;
 	}
 }
 
-// class untuk memanage transisi basic
-// transitions akan dijalankan satu per satu dari awal hingga akhir
-// untuk membuat animasi pararel, buat beberapa TransitionManager 
-class BasicTransitionManager{
-	_transitions = []
-	_timePassed = 0
-	_curIndex = 0
 
-	constructor(){}
+class Transition {
+	_callback = null;
+	_interpolator = null;
+	_duration = null
+	_easingFunction = null;
 
-	// menjalankan transisi dengan duration tertentu (dalam ms)
-	step(duration){		
-		if(this.isFinished()) return
+	_passedTime = 0;
+	_interpolateFunc = null;
+	_prevValue = null;
+	_currValue = null;
 
-		let callback = this._transitions[this._curIndex].callback
-		let value = this._transitions[this._curIndex].value
-		let totalTime = this._transitions[this._curIndex].totalTime
-		let remainder = 0
+	constructor(callback, interpolator, duration, easingFunction = EasingFunction.linear) {
+		this._callback = callback;
+		this._interpolator = interpolator;
+		console.assert(
+			interpolator.dim() == 1,
+			"doesn't support multidimensional transition"
+		);
+		this._duration = duration;
+		this._easingFunction = easingFunction;
 
-		this._timePassed += duration
-		if(this._timePassed >= totalTime){
-			remainder = this._timePassed - totalTime
-			duration -= remainder
-		}
-
-		let diff = duration / totalTime * value
-		callback(diff)	
-		
-		if(remainder > 0){
-			this._timePassed = 0
-			this._curIndex++
-			this.step(remainder)
-		}
+		this._passedTime = 0;
+		this._prevValue = interpolator.getStart();
+		this._currValue = this._prevValue;
 	}
 
-	// menambah transisi
-	addTransition(callback, value, duration){
-		this._transitions.push(new BasicTransition(callback, value, duration))
-		return this
+	// Run the transition for a given duration
+	step(duration) {
+		let naiveTime = this._passedTime + duration;
+		this._passedTime = Math.min(naiveTime, this._duration);
+
+		this._prevValue = this._currValue;
+		this._currValue = this.calcValue();
+		this._callback(this.progress());
+
+		return naiveTime - this._passedTime;
 	}
 
-	// cek apakah seluruh transisi telah dijalankan
-	isFinished(){
-		if(this._curIndex >= this._transitions.length) return true
-		return false
+	calcValue() {
+		this._interpolator(this.easedNormalizedTime());
 	}
-}
 
-// bentuk abstraksi dari BasicTransition dan harus dihandle setiap callback
-// start dan end berupa array
-class Transition{
-	callback = null
-	start = null
-	end = null
-	lastInterpolatedValue = null
-	totalTime = null
+	progress() {
+		return TransitionProgress(
+			this._currValue,
+			this._currValue - this._prevValue,
+			this._passedTime,
+			this.normalizedTime(),
+			this.easedNormalizedTime()
+		);
+	}
 
-	constructor(callback, start, end, totalTime){
-		this.callback = callback
-		this.start = start
-		this.end = end
-		this.totalTime = totalTime
-		this.lastInterpolatedValue = []
+	normalizedTime() {
+		return this._passedTime / this._duration;
+	}
 
-		for(let i = 0; i < start.length ; i++){
-			this.lastInterpolatedValue.push(start[i])
-		}
+	easedNormalizedTime() {
+		return this._easingFunction(this.normalizedTime());
+	}
+
+	isFinished() {
+		return this._passedTime == this._duration;
 	}
 }
+
 
 class TransitionManager {
 	_transitions = []
-	_timePassed = 0
-	_curIndex = 0
+	_currIndex = 0
 
-	constructor(){}
+	constructor() { }
 
-	// menjalankan transisi dengan duration tertentu (dalam ms)
-	step(duration){	
-		if(this.isFinished()) return
+	step(duration) {
+		if (this.isFinished())
+			return;
 
-		let callback = this._transitions[this._curIndex].callback
-		let start = this._transitions[this._curIndex].start
-		let end = this._transitions[this._curIndex].end
-		let totalTime = this._transitions[this._curIndex].totalTime
-		let lastInterpolatedValue = this._transitions[this._curIndex].lastInterpolatedValue
-		let remainder = 0
-
-		this._timePassed += duration
-		if(this._timePassed >= totalTime){
-			remainder = this._timePassed - totalTime
-			duration -= remainder
-		}
-		
-		let diffs = []
-		let interpolatedValues = []
-
-		for(let i = 0; i < start.length ; i++){
-			let diff = duration * (end[i] - start[i]) / totalTime
-			let interpolatedValue = lastInterpolatedValue[i] + diff
-			lastInterpolatedValue[i] = interpolatedValue
-
-			diffs.push(diff)
-			interpolatedValues.push(interpolatedValue)
-		}
-
-		callback(diffs, interpolatedValues)	
-		
-		if(remainder > 0){
-			this._timePassed = 0
-			this._curIndex++
+		let remainder = this.currTransition().step(duration);
+		if (remainder > 0) {
+			this.next();
 			this.step(remainder)
 		}
 	}
 
-	// menambah transisi
-	addTransition(callback, start, end, duration){
-		this._transitions.push(new Transition(callback, start, end, duration))
-		return this
+	add(...args) {
+		this._transitions.push(new Transition(...args));
+		return this;
 	}
 
-	// cek apakah seluruh transisi telah dijalankan
-	isFinished(){
-		if(this._curIndex >= this._transitions.length) return true
-		return false
-	}
-}
-
-var object = null
-var object2 = null
-var object3 = null
-
-function translateObject3(diffs, interpolatedValues){
-	console.log(interpolatedValues)
-	let _MMatrix = LIBS.get_I4()
-	LIBS.translateX(_MMatrix, interpolatedValues[0])
-	LIBS.translateY(_MMatrix, interpolatedValues[1])
-	
-	object3.MODEL_MATRIX = _MMatrix
-}
-
-function translateXObject2(diff){
-	LIBS.translateX(object2.MODEL_MATRIX, diff)
-}
-	
-function main(){
-	var CANVAS = document.getElementById("myCanvas");
-	CANVAS.width = window.innerWidth;
-	CANVAS.height = window.innerHeight;
-
-	try{
-		GL = CANVAS.getContext("webgl", {antialias: true});
-	}catch(e){
-		alert("WebGL context cannot be initialized");
-		return false;
+	next() {
+		this._timePassed = 0;
+		this._currIndex++;
 	}
 
-	
-
-	//shaders
-	var shader_vertex_source=`
-		attribute vec3 position;
-		attribute vec3 color;
-
-		uniform mat4 PMatrix;
-		uniform mat4 VMatrix;
-		uniform mat4 MMatrix;
-		
-		varying vec3 vColor;
-		void main(void) {
-		gl_Position = PMatrix*VMatrix*MMatrix*vec4(position, 1.);
-		vColor = color;
-
-		gl_PointSize=20.0;
-	}`;
-	var shader_fragment_source =`
-		precision mediump float;
-		varying vec3 vColor;
-		// uniform vec3 color;
-
-		uniform float greyScality;
-
-		void main(void) {
-		float greyScaleValue = (vColor.r + vColor.g + vColor.b)/3.;
-		vec3 greyScaleColor = vec3(greyScaleValue, greyScaleValue, greyScaleValue);
-		vec3 color = mix(greyScaleColor, vColor, greyScality);
-		gl_FragColor = vec4(color, 1.);
-	}`;
-	
-
-	/*========================= THE TRIANGLE ========================= */
-	// POINTS:
-	var cube = [
-		//belakang
-		-1,-1,-1,   1,1,0,
-		1,-1,-1,     1,1,0,
-		1,1,-1,     1,1,0,
-		-1,1,-1,    1,1,0,
-
-
-		//depan
-		-1,-1,1,    0,0,1,
-		1,-1,1,     0,0,1,
-		1,1,1,      0,0,1,
-		-1,1,1,     0,0,1,
-
-
-		//kiri
-		-1,-1,-1,   0,1,1,
-		-1,1,-1,    0,1,1,
-		-1,1,1,     0,1,1,
-		-1,-1,1,    0,1,1,
-
-
-		//kanan
-		1,-1,-1,    1,0,0,
-		1,1,-1,     1,0,0,
-		1,1,1,      1,0,0,
-		1,-1,1,     1,0,0,
-
-
-		//bawah
-		-1,-1,-1,   1,0,1,
-		-1,-1,1,    1,0,1,
-		1,-1,1,     1,0,1,
-		1,-1,-1,    1,0,1,
-
-
-		//atas
-		-1,1,-1,    0,1,0,
-		-1,1,1,     0,1,0,
-		1,1,1,      0,1,0,
-		1,1,-1,     0,1,0
-	]
-	// FACES:
-	var cube_faces = [
-		0,1,2,
-		0,2,3,
-
-
-		4,5,6,
-		4,6,7,
-
-
-		8,9,10,
-		8,10,11,
-
-
-		12,13,14,
-		12,14,15,
-
-
-		16,17,18,
-		16,18,19,
-
-
-		20,21,22,
-		20,22,23
-	];
-
-
-	//matrix
-	var PROJECTION_MATRIX = LIBS.get_projection(40, CANVAS.width/CANVAS.height, 1,100);
-	var VIEW_MATRIX = LIBS.get_I4();
-	var MODEL_MATRIX = LIBS.get_I4();
-	var MODEL_MATRIX2 = LIBS.get_I4();
-	var MODEL_MATRIX3 = LIBS.get_I4();
-
-	LIBS.translateZ(VIEW_MATRIX,-15);
-	LIBS.translateX(MODEL_MATRIX, -4);
-	LIBS.translateX(MODEL_MATRIX2, 3);
-	
-
-
-	var object = new MyObject(cube, cube_faces, shader_vertex_source, shader_fragment_source);
-	object2 = new MyObject(cube, cube_faces, shader_vertex_source, shader_fragment_source);
-	object3 = new MyObject(cube, cube_faces, shader_vertex_source, shader_fragment_source);
-
-	object.childs.push(object2);
-	object.childs.push(object3)
-	object.setup();
-
-	object.MODEL_MATRIX = MODEL_MATRIX
-	object2.MODEL_MATRIX = MODEL_MATRIX2
-	object3.MODEL_MATRIX = MODEL_MATRIX3
-	
-	/*========================= DRAWING ========================= */
-	GL.clearColor(0.0, 0.0, 0.0, 0.0);
-
-
-	GL.enable(GL.DEPTH_TEST);
-	GL.depthFunc(GL.LEQUAL);
-
-	let basicTransitions = new BasicTransitionManager()
-	basicTransitions.addTransition(translateXObject2, 5, 500)
-	.addTransition(translateXObject2, -10, 1000)
-	.addTransition(translateXObject2, 7, 1800)
-
-	let transitions = new TransitionManager()
-	transitions.addTransition(translateObject3, [10, 10], [-10, 0], 3000)
-	.addTransition(translateObject3, [-10, 0], [2, -5], 3000)
-
-	var time_prev = 0;
-	var animate = function(time) {
-		GL.viewport(0, 0, CANVAS.width, CANVAS.height);
-		GL.clear(GL.COLOR_BUFFER_BIT | GL.D_BUFFER_BIT);
-
-		var dt = time-time_prev;
-		time_prev=time;
-		basicTransitions.step(dt)
-		transitions.step(dt)
-
-		object.render(VIEW_MATRIX, PROJECTION_MATRIX);
-
-		window.requestAnimationFrame(animate);
-	};
-
-
-	animate(0);
+	isFinished() {
+		return (this._currIndex >= this._transitions.length);
+	}
 }
-window.addEventListener('load',main);
