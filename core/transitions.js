@@ -19,7 +19,7 @@ class EasingFunction {
 		return t * t * t;
 	}
 
-	static sin(t) {
+	static sine(t) {
 		return Math.sin(t * Math.PI/2);
 	}
 }

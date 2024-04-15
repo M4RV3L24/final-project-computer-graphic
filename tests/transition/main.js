@@ -291,7 +291,7 @@ function main() {
             translateObject3,
             new VectorInterpolator([0, 10, 50], [-50, 10, -20]),
             5,
-            EasingFunction.sin
+            EasingFunction.sine
         )
         .add(
             translateXObject2,
