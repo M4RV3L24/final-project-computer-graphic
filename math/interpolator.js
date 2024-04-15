@@ -7,6 +7,10 @@ class AbstractInterpolator {
         throw new Error("interpolate method is not overridden");
     }
 
+    getStart() {
+        throw new Error("getStart method is not overridden");
+    }
+
     dim() {
         throw new Error("dim method is not overridden");
     }
@@ -20,6 +24,7 @@ class NumberInterpolator extends AbstractInterpolator {
     _start;
     _ends;
     constructor(start, ...ends) {
+        super();
         this._start = start;
         this._ends = ends;
     }
@@ -30,7 +35,7 @@ class NumberInterpolator extends AbstractInterpolator {
             "the number of weights is not equal to the number of ends"
         );
 
-        let result = start;
+        let result = this._start;
         for (let i = 0; i < this.dim(); i++) {
             result += normalizedWeights[i] * (this._ends[i] - this._start);
         }
@@ -38,8 +43,12 @@ class NumberInterpolator extends AbstractInterpolator {
         return result;
     }
 
+    getStart() {
+        return this._start;
+    }
+
     dim() {
-        return this._ends.length();
+        return this._ends.length;
     }
 }
 
@@ -51,6 +60,7 @@ class VectorInterpolator extends AbstractInterpolator {
     _start;
     _ends;
     constructor(start, ...ends) {
+        super();
         if (Array.isArray(start))  // auto convert array to vector
             start = new Vector(start);
         console.assert(
@@ -79,7 +89,7 @@ class VectorInterpolator extends AbstractInterpolator {
             "the number of weights is not equal to the number of ends"
         );
 
-        let result = start.copy();
+        let result = this._start.copy();
         for (let i = 0; i < this.dim(); i++) {
             result.add(Vector.sub(this._ends[i], this._start).mul(normalizedWeights[i]));
         }
@@ -87,7 +97,11 @@ class VectorInterpolator extends AbstractInterpolator {
         return result;
     }
 
+    getStart() {
+        return this._start.copy();
+    }
+
     dim() {
-        return this._ends.length();
+        return this._ends.length;
     }
 }

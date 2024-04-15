@@ -20,28 +20,20 @@ class EasingFunction {
 	}
 
 	static sin(t) {
-		return Math.sin(2 * t / Math.PI);
+		return Math.sin(t * Math.PI/2);
 	}
 }
 
 
 class TransitionProgress {
 	value;
-	diff;
+	prevValue;
 	time;
 	normalizedTime;
 
-	constructor(value, diff, time, normalizedTime) {
-		if (value instanceof Vector)
-			this.value = value.copy();
-		else
-			this.value = value;
-
-		if (diff instanceof Vector)
-			this.diff = diff.copy();
-		else
-			this.diff = diff;
-
+	constructor(value, prevValue, time, normalizedTime) {
+		this.value = value;
+		this.prevValue = prevValue;
 		this.time = time;
 		this.normalizedTime = normalizedTime;
 	}
@@ -87,13 +79,13 @@ class Transition {
 	}
 
 	calcValue() {
-		this._interpolator(this.easedNormalizedTime());
+		return this._interpolator.interpolate(this.easedNormalizedTime());
 	}
 
 	progress() {
-		return TransitionProgress(
+		return new TransitionProgress(
 			this._currValue,
-			this._currValue - this._prevValue,
+			this._prevValue,
 			this._passedTime,
 			this.normalizedTime(),
 			this.easedNormalizedTime()
@@ -129,6 +121,10 @@ class TransitionManager {
 			this.next();
 			this.step(remainder)
 		}
+	}
+
+	currTransition() {
+		return this._transitions[this._currIndex];
 	}
 
 	add(...args) {
