@@ -291,13 +291,13 @@ function main() {
             translateObject3,
             new VectorInterpolator([0, 10, 50], [-50, 10, -20]),
             5,
-            TweeningFunction.sine
+            Easing.sineInOut
         )
         .add(
             translateXObject2,
             new NumberInterpolator(0, 100),
             5,
-            TweeningFunction.linear
+            Easing.quadraticOut
         );
 
     /*========================= DRAWING ========================= */
