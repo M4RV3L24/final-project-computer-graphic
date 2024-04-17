@@ -1,5 +1,6 @@
 class Matrix {
     _arr = null;
+    _isTransposed = false;
 
     constructor(data = null, numRow = null, numCol = null) {
         if (numRow != null) {
@@ -15,6 +16,8 @@ class Matrix {
             );
         }
 
+        this._isTransposed = false;
+
         let arr;
         if (data != null) {
             if (data instanceof Matrix) {
@@ -26,6 +29,7 @@ class Matrix {
                 if (numCol == null) {
                     numCol = data._numCol;
                 }
+                this._isTransposed = data._isTransposed;
             } else if (Array.isArray(data)) {
                 for (let i = 0; i < data.length; i++) {
                     let row = data[i];
@@ -68,6 +72,8 @@ class Matrix {
     }
 
     _toIndex(row, col) {
+        if (this._isTransposed)
+            return col * this._numCol + row;
         return row * this._numCol + col;
     }
 
@@ -87,6 +93,8 @@ class Matrix {
     }
 
     dim() {
+        if (this._isTransposed)
+            return [this._numCol, this._numRow];
         return [this._numRow, this._numCol];
     }
 
@@ -140,6 +148,10 @@ class Matrix {
         return this;
     }
 
+    inverse() {
+        return Matrix.inverse(this);
+    }
+
     neg() {
         this.mul(-1);
         return this;
@@ -150,15 +162,61 @@ class Matrix {
         return this;
     }
 
+    transpose() {
+        this._isTransposed = !this._isTransposed;
+        return this;
+    }
+
+    swap(row1, col1, row2, col2) {
+        if (row1 == row2 && col1 == col2)
+            return this;
+
+        let temp = this.get(row1, col1);
+        this.set(row1, col1, this.get(row2, col2));
+        this.set(row2, col2, temp);
+
+        return this;
+    }
+
+    swapRow(row1, row2) {
+        if (row1 == row2)
+            return this;
+
+        let cols = this.dim()[1];
+        for (let j = 0; j < cols; j++) {
+            this.swap(row1, j, row2, j);
+        }
+
+        return this;
+    }
+
+    swapCol(col1, col2) {
+        if (col1 == col2)
+            return this;
+
+        let rows = this.dim()[0];
+        for (let i = 0; i < rows; i++) {
+           this.swap(i, col1, i, col2);
+        }
+
+        return this;
+    }
+
+    isSquare() {
+        let dim = this.dim();
+        return dim[0] == dim[1];
+    }
+
     copy() {
         return new Matrix(this);
     }
 
     arr() {
-        let result = new Array(this._numRow);
-        for (let i = 0; i < this._numRow; i++) {
-            result[i] = new Array(this._numCol);
-            for (let j = 0; j < this._numCol; j++) {
+        let [row, col] = this.dim();
+        let result = new Array(row);
+        for (let i = 0; i < row; i++) {
+            result[i] = new Array(col);
+            for (let j = 0; j < col; j++) {
                 result[i][j] = this.get(i, j);
             }
         }
@@ -166,7 +224,11 @@ class Matrix {
     }
 
     arrFlat() {
-        // return a copy of this._arr
+        // return a copy of all element
+        // as 1D array in row major order
+        if (this._isTransposed)
+            return this.arr().flat();
+
         // this method works since
         // all elements of this._arr are numbers.
         return [...this._arr];
@@ -232,7 +294,7 @@ class Matrix {
 
         let [numRows1, numCols1] = mat1.dim(),
             [numRows2, numCols2] = mat2.dim();
-        
+
         console.assert(
             numCols1 == numRows2,
             "invalid dimensions",
@@ -266,9 +328,89 @@ class Matrix {
         return Matrix._arithmetic(arg1, Matrix._rdiv, Matrix._div, arg2);
     }
 
+    static inverse(mat) {
+        // source: http://web.archive.org/web/20210406035905/http://blog.acipo.com/matrix-inversion-in-javascript/
+        
+        // Using Gaussian Elimination to calculate the inverse:
+        // (1) 'augment' the matrix (left) by the identity (on the right)
+        // (2) Turn the matrix on the left into the identity by elemetry row ops
+        // (3) The matrix on the right is the inverse (was the identity matrix)
+        // There are 3 elemtary row ops: (b and c are combined in this code)
+        // (a) Swap 2 rows
+        // (b) Multiply a row by a scalar
+        // (c) Add 2 rows
+
+        //if the matrix isn't square: exit (error)
+        if (!mat.isSquare()) {
+            throw new Error("cannot find inverse of non-square matrix");
+        }
+
+        //create the identity matrix (I), and a copy (C) of the original
+        var i, j, ii, e, dim = mat.dim()[0];
+        var I = Matrix.identity(dim), C = mat.copy();
+
+        // Perform elementary row operations
+        for (i = 0; i < dim; i += 1) {
+            // get the element e on the diagonal
+            e = C.get(i, i);
+
+            // if we have a 0 on the diagonal (we'll need to swap with a lower row)
+            if (e == 0) {
+                //look through every row below the i'th row
+                for (ii = i + 1; ii < dim; ii += 1) {
+                    //if the ii'th row has a non-0 in the i'th col
+                    if (C.get(ii, i) != 0) {
+                        //it would make the diagonal have a non-0 so swap it
+                        C.swapRow(ii, i);
+                        I.swapRow(ii, i);
+                        //don't bother checking other rows since we've swapped
+                        break;
+                    }
+                }
+                //get the new diagonal
+                e = C.get(i, i);
+                //if it's still 0, not invertable (error)
+                console.assert(
+                    e != 0,
+                    "the given matrix is not invertible"
+                );
+            }
+
+            // Scale this row down by e (so we have a 1 on the diagonal)
+            for (j = 0; j < dim; j++) {
+                C.set(i, j, C.get(i, j) / e); //apply to original matrix
+                I.set(i, j, I.get(i, j) / e); //apply to identity
+            }
+
+            // Subtract this row (scaled appropriately for each row) from ALL of
+            // the other rows so that there will be 0's in this column in the
+            // rows above and below this one
+            for (ii = 0; ii < dim; ii++) {
+                // Only apply to other rows (we want a 1 on the diagonal)
+                if (ii == i) { continue; }
+
+                // We want to change this element to 0
+                e = C.get(ii, i);
+
+                // Subtract (the row above(or below) scaled by e) from (the
+                // current row) but start at the i'th column and assume all the
+                // stuff left of diagonal is 0 (which it should be if we made this
+                // algorithm correctly)
+                for (j = 0; j < dim; j++) {
+                    C.set(ii, j, C.get(ii, j) - e * C.get(i, j)); //apply to original matrix
+                    I.set(ii, j, I.get(ii, j) - e * I.get(i, j)); //apply to identity
+                }
+            }
+        }
+
+        //we've done all operations, C should be the identity
+        //matrix I should be the inverse:
+        return I;
+    }
+
     static fill(row, col, value) {
         let mat = new Matrix(null, row, col);
-        Matrix._applyToAll(mat, ()=>value);
+        Matrix._applyToAll(mat, () => value);
         return mat;
     }
 
@@ -292,43 +434,30 @@ class Matrix {
         return mat;
     }
 
-    static copy() {
-        return new Matrix([this._arr], this._numRow, this._numCol);
-    }
-
     static _assertSameDims(mat1, mat2) {
-
-        console.assert(Matrix.arrayIsEqual(mat1.dim(), mat2.dim()), "Different dimensions", mat1, mat2);
-    }
-
-    static arrayIsEqual(arr1, arr2) {
-        if (arr1 === arr2) return true;
-        if (arr1 == null || arr2 == null) return false;
-        if (arr1.length !== arr2.length) return false;
-
-        for (var i = 0; i < arr1.length; ++i) {
-            if (Array.isArray(arr1[i]) && Array.isArray(arr2[i])) {
-                // Recursive check
-                if (!Matrix.arrayIsEqual(arr1[i], arr2[i]))
-                    return false;
-            }
-            if (arr1[i] !== arr2[i]) return false;
-        }
-        return true;
+        let dim1 = mat1.dim();
+        let dim2 = mat2.dim()
+        console.assert(
+            (dim1[0] == dim2[0]) && (dim1[1] == dim2[1]),
+            "Different dimensions",
+            mat1, mat2
+        );
     }
 
     static _applyElementWise(mat1, operator, mat2) {
         Matrix._assertSameDims(mat1, mat2);
-        for (let i = 0; i < mat1._numRow; i++) {
-            for (let j = 0; j < mat1._numCol; j++) {
+        let [row, col] = mat1.dim();
+        for (let i = 0; i < row; i++) {
+            for (let j = 0; j < col; j++) {
                 mat1.set(i, j, operator(mat1.get(i, j), mat2.get(i, j)));
             }
         }
     }
 
     static _applyToAll(mat, operator, ...args) {
-        for (let i = 0; i < mat._numRow; i++) {
-            for (let j = 0; j < mat._numCol; j++) {
+        let [row, col] = mat.dim();
+        for (let i = 0; i < row; i++) {
+            for (let j = 0; j < col; j++) {
                 mat.set(i, j, operator(mat.get(i, j), ...args));
             }
         }
