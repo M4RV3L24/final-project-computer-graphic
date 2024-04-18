@@ -2,14 +2,14 @@ var object = null
 var object2 = null
 var object3 = null
 
-function translateXObject2({value, prevValue}){
-	LIBS.translateX(object2.localMatrix, value);
+function translateXObject2({value}){
+	object2.transform.translateX(value);
 }
 
 function translateObject3({value}){
-	LIBS.set_I4(object3.localMatrix);
-	LIBS.translateX(object3.localMatrix, value.get(0));
-	LIBS.translateY(object3.localMatrix, value.get(1));
+	object3.transform.reset();
+	object3.transform.translateX(value.get(0));
+	object3.transform.translateY(value.get(1));
 }
 	
 function main() {
@@ -176,10 +176,10 @@ function main() {
     const projMatrix = LIBS.get_ortho_proj(40, CANVAS.width / CANVAS.height, 1, 500);
 
     const cameraPosition = [0.,30.,140.];
-    const cameraTarget = [0., 0., 0.]
+    const cameraTarget = [0., 0., 0.];
     const cameraMatrix = LIBS.look_at(cameraPosition, cameraTarget, [0, 1, 0]);
     const viewDirection = Vector.sub(cameraTarget, cameraPosition).normalize().arr();
-    const viewMatrix = LIBS.inverseCopy(cameraMatrix);
+    const viewMatrix = Matrix.inverse(Matrix.fromGLMatrix(cameraMatrix, 4, 4)).toGLMatrix();
     
     const lightSourceAmbientColor = [1.,1.,1.];
     const lightSourceDiffuseColor = [1.,1.,1.];
@@ -195,8 +195,16 @@ function main() {
     const lightSourceDirection = Vector.sub(lightSourcePosition, lightSourceTarget).normalize().arr();
 
     const lightProjMatrix = LIBS.get_ortho_proj(40, CANVAS.width / CANVAS.height, 1, 1000);
-    const lightViewMatrix = LIBS.inverseCopy(LIBS.look_at(lightSourcePosition, lightSourceTarget, [0, 1, 0]));
-    LIBS.translateZ(lightViewMatrix, -60);
+    const lightViewMatrix = Transform3.translateZ(
+        Matrix.fromGLMatrix(
+            LIBS.look_at(
+                lightSourcePosition,
+                lightSourceTarget,
+                [0, 1, 0]
+            ), 4, 4
+        ).inverse(),
+        -60
+    ).toGLMatrix();
 
     var THETA = 0, PHI = 0;
 
@@ -315,20 +323,18 @@ function main() {
         }
 
         objects.forEach(object => {
-            LIBS.set_I4(object.localMatrix);
-            LIBS.scale(object.localMatrix, 0.3);
-            LIBS.rotateY(object.localMatrix, THETA);
-            LIBS.rotateX(object.localMatrix, PHI);
+            object.transform.reset();
+            object.transform.scaleUniform(0.3);
+            object.transform.rotateY(THETA);
+            object.transform.rotateX(PHI);
         });
 
-        LIBS.translateX(ellipsoid.localMatrix, -20);
-        LIBS.translateZ(ellipsoid.localMatrix, -50);
-        LIBS.translateX(hyperbolicParaboloid.localMatrix, 20);
-        LIBS.translateY(hyperboloid1.localMatrix, 20);
-        LIBS.translateY(hyperboloid2.localMatrix, -15);
-        LIBS.translateZ(ellipticCone.localMatrix, -20);
-        LIBS.translateX(ellipticParaboloid.localMatrix, -40);
-
+        ellipsoid.transform.translateX(-20).translateZ(-50);
+        hyperbolicParaboloid.transform.translateX(20);
+        hyperboloid1.transform.translateY(20);
+        hyperboloid2.transform.translateY(-15);
+        ellipticCone.transform.translateZ(-20);
+        ellipticParaboloid.transform.translateX(-40);
 
         /*========================= ANIMATION ========================= */
         dt = time-prevTime;
