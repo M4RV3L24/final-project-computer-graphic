@@ -3,6 +3,9 @@ class Matrix {
     _isTransposed = false;
 
     constructor(data = null, numRow = null, numCol = null) {
+        if (data == null && numRow == null && numCol == null) {
+            return new Matrix([[]]);
+        }
         if (numRow != null) {
             console.assert(
                 Number.isInteger(numRow),
