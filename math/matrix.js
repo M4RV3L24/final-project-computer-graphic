@@ -131,11 +131,18 @@ class Matrix {
     }
 
     matMul(matrix) {
-        return Matrix.matMul(this, matrix);
+        // matrix multiplication
+        let result = Matrix.matMul(this, matrix);
+        this.load(result);
+        return this;
     }
 
     rmatMul(matrix) {
-        return Matrix.rmatMul(this, matrix);
+        // reverse matrix multiplication
+        // inplace and reverse matrix multiplication
+        let result = Matrix.rmatMul(this, matrix);
+        this.load(result);
+        return this;
     }
 
     div(arg) {
@@ -149,7 +156,8 @@ class Matrix {
     }
 
     inverse() {
-        return Matrix.inverse(this);
+        this.load(Matrix.inverse(this));
+        return this;
     }
 
     neg() {
@@ -211,6 +219,18 @@ class Matrix {
         return new Matrix(this);
     }
 
+    load(mat) {
+        if (!mat instanceof Matrix)
+            throw new Error("value error: expected matrix");
+
+        this._arr = [...mat._arr];
+        this.numRow = mat._numRow;
+        this.numCol = mat._numCol;
+        this._isTransposed = mat._isTransposed;
+
+        return this;
+    }
+
     arr() {
         let [row, col] = this.dim();
         let result = new Array(row);
@@ -232,6 +252,13 @@ class Matrix {
         // this method works since
         // all elements of this._arr are numbers.
         return [...this._arr];
+    }
+
+    toGLMatrix() {
+        // Matrix in WebGL follows column major order
+        let result = this.transpose().arrFlat();
+        this.transpose();
+        return result
     }
 
     _arithmetic(operator, arg) {

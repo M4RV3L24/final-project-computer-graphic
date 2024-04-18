@@ -198,13 +198,13 @@ function main() {
         mat1 = new Matrix([[2983, 9435, 93095, 24, 78, 9927]], 2, 3);
         mat2 = new Matrix([[50, 2345, 999]], 3, 1);
 
-        mat3 = mat1.matMul(mat2);
+        mat3 = Matrix.matMul(mat1, mat2);
         arrayIsEqual(mat3.arr(), [[115276130], [10101183]]);
 
-        mat3 = mat1.matMul(Matrix.identity(3));
+        mat3 = Matrix.matMul(mat1, Matrix.identity(3));
         arrayIsEqual(mat3.arr(), mat1.arr());
 
-        mat3 = Matrix.identity(3).rmatMul(mat1);
+        mat3 = Matrix.rmatMul(Matrix.identity(3), mat1);
         arrayIsEqual(mat3.arr(), mat1.arr());
     }
 
@@ -225,11 +225,11 @@ function main() {
     // Matrix Multiplicative Inverse
     {
         mat1 = new Matrix([[72, 47616768, 40824, 10918583]], 2, 2);
-        mat2 = mat1.matMul(Matrix.inverse(mat1));
+        mat2 = Matrix.matMul(mat1, Matrix.inverse(mat1));
         assertArrayFloatEqual(mat2.arr(), Matrix.identity(2).arr());
 
         mat1 = new Matrix([[6, 3984, 54, 689]], 2, 2);
-        mat2 = mat1.matMul(Matrix.inverse(mat1));
+        mat2 = Matrix.matMul(mat1, Matrix.inverse(mat1));
         assertArrayFloatEqual(mat2.arr(), Matrix.identity(2).arr());
     }
 
@@ -323,7 +323,7 @@ function main() {
         mat1.transpose();
         mat2.transpose();
         
-        mat3 = mat1.matMul(mat2);
+        mat3 = Matrix.matMul(mat1, mat2);
         arrayIsEqual(mat3.arr(), [[115276130], [10101183]]);
 
 
@@ -346,7 +346,7 @@ function main() {
         // Matrix Multiplicative Inverse
         mat1 = new Matrix([[72, 47616768, 40824, 10918583]], 2, 2);
         mat1.transpose();
-        mat2 = mat1.matMul(Matrix.inverse(mat1));
+        mat2 = Matrix.matMul(mat1, Matrix.inverse(mat1));
         assertArrayFloatEqual(mat2.arr(), Matrix.identity(2).arr());
     }
     
