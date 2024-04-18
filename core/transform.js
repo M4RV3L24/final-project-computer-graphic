@@ -10,115 +10,78 @@ class Transform3 {
     }
 
     matMul(mat) {
-        this._mat = this._mat.matMul(mat);
+        this._mat.matMul(mat);
         return this;
     }
 
     rmatMul(mat) {
-        this._mat = mat.matMul(this._mat);
+        this._mat.rmatMul(mat);
         return this;
     }
 
     rotateX(a) {
-        let c = Math.cos(a);
-        let s = Math.sin(a);
-        
-        let rotationMatrix = [
-            [1, 0, 0, 0],
-            [0, c, -s, 0],
-            [0, s, c, 0],
-            [0, 0, 0, 1]
-        ];
-
-        this.rmatMul(new Matrix(rotationMatrix));
+        this._mat = Transform3.rotateX(this._mat, a);
         return this;
     }
 
     rotateY(a) {
-        let c = Math.cos(a);
-        let s = Math.sin(a);
-
-        let rotationMatrix = [
-            [c, 0, s, 0],
-            [0, 1, 0, 0],
-            [-s, 0, c, 0],
-            [0, 0, 0, 1]
-        ];
-
-        this.rmatMul(new Matrix(rotationMatrix));
+        this._mat = Transform3.rotateY(this._mat, a);
         return this;
     }
 
     rotateZ(a) {
-        let c = Math.cos(a);
-        let s = Math.sin(a);
-
-        let rotationMatrix = [
-            [c, -s, 0, 0],
-            [s, c, 0, 0],
-            [0, 0, 1, 0],
-            [0, 0, 0, 1]
-        ];
-
-        this.rmatMul(new Matrix(rotationMatrix));
+        this._mat = Transform3.rotateZ(this._mat, a);
         return this;
     }
 
     rotate(ax, ay, az) {
-        this.rotateX(ax);
-        this.rotateY(ay);
-        this.rotateZ(az);
+        this._mat = Transform3.rotate(this._mat, ax, ay, az);
         return this;
     }
 
     translateX(t) {
-        this._mat.set(0, 3, this._mat.get(0, 3) + t);
+        this._mat = Transform3.translateX(this._mat, t);
         return this;
     }
 
     translateY(t) {
-        this._mat.set(1, 3, this._mat.get(1, 3) + t);
+        this._mat = Transform3.translateY(this._mat, t);
         return this;
     }
 
     translateZ(t) {
-        this._mat.set(2, 3, this._mat.get(2, 3) + t);
+        this._mat = Transform3.translateZ(this._mat, t);
         return this;
     }
 
     translate(tx, ty, tz) {
-        this.translateX(tx);
-        this.translateY(ty);
-        this.translateZ(tz);
+        this._mat = Transform3.translate(this._mat, tx, ty, tz);
         return this;
     }
 
-    translateUniform(k) {
-        this.translateX(k);
-        this.translateY(k);
-        this.translateZ(k);
+    translateUniform(t) {
+        this._mat = Transform3.translateUniform(this._mat, t, t, t);
         return this;
     }
 
     scaleX(k) {
-        this._mat.set(0, 0, this._mat.get(0, 0) * k);
+        this._mat = Transform3.scaleX(this._mat, k);
         return this;
     }
 
     scaleY(k) {
-        this._mat.set(1, 1, this._mat.get(1, 1) * k);
+        this._mat = Transform3.scaleY(this._mat, k);
         return this;
     }
 
     scaleZ(k) {
-        this._mat.set(2, 2, this._mat.get(2, 2) * k);
+        this._mat = Transform3.scaleZ(this._mat, k);
         return this;
     }
 
-    scale(sx, sy, sz) {
-        this.scaleX(sx);
-        this.scaleY(sy);
-        this.scaleZ(sz);
+    scale(kx, ky, kz) {
+        this._mat = Transform3.scale(this._mat, kx, ky, kz);
+        return this;
     }
 
     scaleUniform(k) {
@@ -132,9 +95,126 @@ class Transform3 {
         return this._mat.copy();
     }
 
-    toGLMatrix() {
-        let result = this._mat.transpose().arr();
-        this._mat.transpose();
-        return result
+    matrixRef() {
+        // Return reference instead of copy
+        return this._mat;
+    }
+
+    copy() {
+        return new Transform3().load(this);
+    }
+
+    load(transform) {
+        if (!transform instanceof Transform3)
+            throw new Error("expected Transform3");
+        this._mat.load(transform._mat);
+        return this;
+    }
+
+    static rotateX(mat, a) {
+        let c = Math.cos(a);
+        let s = Math.sin(a);
+        
+        let rotationMatrix = [
+            [1, 0, 0, 0],
+            [0, c, -s, 0],
+            [0, s, c, 0],
+            [0, 0, 0, 1]
+        ];
+
+        return mat.rmatMul(new Matrix(rotationMatrix));
+    }
+
+    static rotateY(mat, a) {
+        let c = Math.cos(a);
+        let s = Math.sin(a);
+
+        let rotationMatrix = [
+            [c, 0, s, 0],
+            [0, 1, 0, 0],
+            [-s, 0, c, 0],
+            [0, 0, 0, 1]
+        ];
+
+        return mat.rmatMul(new Matrix(rotationMatrix));
+    }
+
+    static rotateZ(mat, a) {
+        let c = Math.cos(a);
+        let s = Math.sin(a);
+
+        let rotationMatrix = [
+            [c, -s, 0, 0],
+            [s, c, 0, 0],
+            [0, 0, 1, 0],
+            [0, 0, 0, 1]
+        ];
+
+        return mat.rmatMul(new Matrix(rotationMatrix));
+    }
+
+    static rotate(mat, ax, ay, az) {
+        Transform3.rotateX(mat, ax);
+        Transform3.rotateY(mat, ay);
+        Transform3.rotateZ(mat, az);
+        return mat;
+    }
+
+    static translateX(mat, t) {
+        mat.set(0, 3, mat.get(0, 3) + t);
+        return mat;
+    }
+
+    static translateY(mat, t) {
+        mat.set(1, 3, mat.get(1, 3) + t);
+        return mat;
+    }
+
+    static translateZ(mat, t) {
+        mat.set(2, 3, mat.get(2, 3) + t);
+        return mat;
+    }
+
+    static translate(mat, tx, ty, tz) {
+        Transform3.translateX(mat, tx);
+        Transform3.translateY(mat, ty);
+        Transform3.translateZ(mat, tz);
+        return mat;
+    }
+
+    static translateUniform(mat, k) {
+        Transform3.translateX(mat, k);
+        Transform3.translateY(mat, k);
+        Transform3.translateZ(mat, k);
+        return mat;
+    }
+
+    static scaleX(mat, k) {
+        mat.set(0, 0, mat.get(0, 0) * k);
+        return mat;
+    }
+
+    static scaleY(mat, k) {
+        mat.set(1, 1, mat.get(1, 1) * k);
+        return mat;
+    }
+
+    static scaleZ(mat, k) {
+        mat.set(2, 2, mat.get(2, 2) * k);
+        return mat;
+    }
+
+    static scale(mat, kx, ky, kz) {
+        Transform3.scaleX(mat, kx);
+        Transform3.scaleY(mat, ky);
+        Transform3.scaleZ(mat, kz);
+        return mat;
+    }
+
+    static scaleUniform(mat, k) {
+        Transform3.scaleX(mat, k);
+        Transform3.scaleY(mat, k);
+        Transform3.scaleZ(mat, k);
+        return mat;
     }
 }
