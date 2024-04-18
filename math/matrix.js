@@ -464,6 +464,10 @@ class Matrix {
         return mat;
     }
 
+    static fromGLMatrix(mat, row, col) {
+        return new Matrix([mat], row, col).transpose();
+    }
+
     static _assertSameDims(mat1, mat2) {
         let dim1 = mat1.dim();
         let dim2 = mat2.dim()
