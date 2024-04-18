@@ -39,6 +39,40 @@ class Transform3 {
         return this;
     }
 
+    rotateAlong(alpha, axis, origin) {
+        // Rotation of a point in 3 dimensional space by 'alpha'
+        // about an arbitrary axis defined by a line aligned
+        // with a normalized vector 'axis' = (a1, a2, a3)
+        // passing through point 'origin' = (p1, p2, p3)
+        // can be achieved by the following steps:
+
+        // (1) translate space so that the rotation axis passes through the origin
+        this.translateX(-origin[0]);
+        this.translateY(-origin[1]);
+        this.translateZ(-origin[2]);
+
+        // (2) rotate space about the x axis so that the rotation axis lies in the xz plane
+        let a = Math.atan2(axis[1], axis[2]);
+        this.rotateX(a);
+
+        // (3) rotate space about the y axis so that the rotation axis lies along the z axis
+        let d = Math.sqrt(axis[1] * axis[1] + axis[2] * axis[2]);
+        let b = Math.atan2(axis[0], d);
+        this.rotateY(b);
+
+        // (4) perform the desired rotation by theta about the z axis
+        this.rotateZ(alpha);
+
+        // (5) apply the inverse of step (3) and (2)
+        this.rotateY(-b);
+        this.rotateX(-a);
+
+        // (6) translate back so that the original point is at the origin again
+        this.translateX(origin[0]);
+        this.translateY(origin[1]);
+        this.translateZ(origin[2]);
+    }
+
     translateX(t) {
         this._mat = Transform3.translateX(this._mat, t);
         return this;
