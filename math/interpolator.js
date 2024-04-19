@@ -174,12 +174,10 @@ class RotQuatInterpolator extends AbstractInterpolator {
 
         // Calculate result
         let t_times_halfTheta = t * halfTheta;
-        let A = Math.sin(halfTheta - t_times_halfTheta);
-        let B = Math.sin(t_times_halfTheta);
+        let ratioA = Math.sin(halfTheta - t_times_halfTheta) / sinHalfTheta;
+        let ratioB = Math.sin(t_times_halfTheta) / sinHalfTheta;
 
-        result.mul(A)
-            .add(q2.copy().mul(B))
-            .div(sinHalfTheta);
+        result.mul(ratioA).add(q2.copy().mul(ratioB));
 
         return result;
     }
