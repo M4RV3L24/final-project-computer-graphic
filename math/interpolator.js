@@ -151,29 +151,36 @@ class RotQuatInterpolator extends AbstractInterpolator {
 
     static interpolate2(q1, q2, t) {
         // SLERP of two quaternions
-        // Source: https://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/slerp/index.htm
+        // Based on: https://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/slerp/index.htm
 
-        let result = new Quaternion();
+        let result = q1.copy();
+
         // Calculate angle between them.
         let cosHalfTheta = q1.dot(q2);
         // if q1=q2 or q1=-q2 then theta = 0 and we can return q1
         if (Math.abs(cosHalfTheta) >= 1.0) {
-            result.load(q1);
             return result;
         }
+
         // Calculate temporary values.
         let halfTheta = Math.acos(cosHalfTheta);
         let sinHalfTheta = Math.sqrt(1.0 - cosHalfTheta * cosHalfTheta);
         // if theta = 180 degrees then result is not fully defined
         // we could rotate around any axis normal to q1 or q2
         if (Math.abs(sinHalfTheta) < 0.001) {
-            result.load(q1).add(q2).mul(0.5);
+            result.add(q2).mul(0.5);
             return result;
         }
-        let ratioA = Math.sin((1 - t) * halfTheta) / sinHalfTheta;
-        let ratioB = Math.sin(t * halfTheta) / sinHalfTheta;
-        //calculate Quaternion.
-        result = (q1 * ratioA + q2 * ratioB);
+
+        // Calculate result
+        let t_times_halfTheta = t * halfTheta;
+        let A = Math.sin(halfTheta - t_times_halfTheta);
+        let B = Math.sin(t_times_halfTheta);
+
+        result.mul(A)
+            .add(q2.copy().mul(B))
+            .div(sinHalfTheta);
+
         return result;
     }
 }
