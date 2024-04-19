@@ -177,6 +177,9 @@ function main() {
             [-1,  0, 0, 0],
             [0, 0, 0, 1]
         ]);
+
+        tr = new Transform3();
+        
     }
 
     console.log("All Transform3 tests done!");
