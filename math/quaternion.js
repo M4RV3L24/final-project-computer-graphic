@@ -145,7 +145,7 @@ class Quaternion {
     }
 
     conjugate() {
-        this.load(Quaternion.conjugate(this));
+        this._imaj.neg();
         return this;
     }
 
@@ -198,7 +198,7 @@ class Quaternion {
         if (!q instanceof Quaternion) {
             throw new Error("expected Quaternion");
         }
-        return new Quaternion(q._real, q._imaj.copy().neg());
+        return q.copy().conjugate();
     }
 
     static inverse(q) {
