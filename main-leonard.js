@@ -138,7 +138,7 @@ function main() {
     const cameraPosition = [0.,30.,140.];
     const cameraTarget = [0., 0., 0.]
     const cameraMatrix = LIBS.look_at(cameraPosition, cameraTarget, [0, 1, 0]);
-    const viewDirection = LIBS.normalize(LIBS.sub(cameraTarget, cameraPosition));
+    const viewDirection = Vector.sub(cameraTarget, cameraPosition).normalize().arr();
     const viewMatrix = LIBS.inverseCopy(cameraMatrix);
     
     const lightSourceAmbientColor = [0.3,0.3,0.3];
@@ -152,7 +152,7 @@ function main() {
 
     const lightSourcePosition = [20., 20., 20.];
     const lightSourceTarget = [0., 0., 0.];
-    const lightSourceDirection = LIBS.normalize(LIBS.sub(lightSourcePosition, lightSourceTarget));
+    const lightSourceDirection = Vector.sub(lightSourcePosition, lightSourceTarget).normalize().arr();
 
     const cellSize = 1/1000;
     const spread = 2;
