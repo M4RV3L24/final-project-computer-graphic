@@ -29,6 +29,10 @@ var LIBS={
       0, 0,         B, 0
     ];
   },
+  radToDeg: function(radians) {
+    var pi = Math.PI;
+    return radians * (180/pi);
+  },
 
   look_at: function(cameraPosition, target, up) {
     var zAxis = Vector.sub(cameraPosition, target).normalize();
