@@ -68,7 +68,7 @@ class VectorInterpolator extends AbstractInterpolator {
             "expected Vector, given ",
             start
         );
-        this._start = start;
+        this._start = start.copy();
 
         this._ends = new Array(ends.length);
         for (let i = 0; i < ends.length; i++) {
@@ -117,7 +117,7 @@ class RotQuatInterpolator extends AbstractInterpolator {
         if (!start instanceof Quaternion) {
             throw new Error("expected Quaternion");
         }
-        this._start = start;
+        this._start = start.copy();
 
         this._ends = new Array(ends.length);
         for (let i = 0; i < ends.length; i++) {
