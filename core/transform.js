@@ -203,6 +203,8 @@ class Transform3 {
         Transform3.translateX(mat, origin[0]);
         Transform3.translateY(mat, origin[1]);
         Transform3.translateZ(mat, origin[2]);
+
+        return mat;
     }
 
     static translateX(mat, t) {
