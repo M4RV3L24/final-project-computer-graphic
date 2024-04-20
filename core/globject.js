@@ -63,9 +63,11 @@ class GLObject {
     }
 
     render(worldTransform=null) {
+        console.log(worldTransform)
         let modelTransform;
         if (worldTransform != null) {
-            modelTransform = this.transform.matrixRef().matMul(worldTransform);
+            modelTransform = this.transform.copy();
+            modelTransform.matMul(worldTransform.matrixRef())
         } else {
             modelTransform = this.transform;
         }
@@ -180,7 +182,7 @@ class GLObject {
 
         GLObject._removeChildIfExists(parent, child);
         parent._childs.push(child);
-        
+
         if (child.parent == parent)
             return;
         
