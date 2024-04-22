@@ -24,7 +24,7 @@ function arrayIsFloatEqual(arr1, arr2, precision=1e-9) {
     for (var i = 0; i < arr1.length; ++i) {
         if (Array.isArray(arr1[i]) && Array.isArray(arr2[i])) {
             // Recursive check
-            if (!arrayIsFloatEqual(arr1[i], arr2[i])) {
+            if (!arrayIsFloatEqual(arr1[i], arr2[i], precision)) {
                 return false;
             }
         } else if (Math.abs(arr1[i] - arr2[i]) > precision) {

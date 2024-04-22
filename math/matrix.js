@@ -227,8 +227,8 @@ class Matrix {
             throw new Error("value error: expected matrix");
 
         this._arr = [...mat._arr];
-        this.numRow = mat._numRow;
-        this.numCol = mat._numCol;
+        this._numRow = mat._numRow;
+        this._numCol = mat._numCol;
         this._isTransposed = mat._isTransposed;
 
         return this;
