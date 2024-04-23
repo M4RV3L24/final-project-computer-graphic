@@ -63,13 +63,12 @@ class GLObject {
     }
 
     render(worldTransform=null) {
-        console.log(worldTransform)
         let modelTransform;
         if (worldTransform != null) {
-            modelTransform = this.transform.copy();
-            modelTransform.matMul(worldTransform.matrixRef())
+            modelTransform = worldTransform.copy();
+            modelTransform.matrixRef().matMul(this.transform.matrixRef());
         } else {
-            modelTransform = this.transform;
+            modelTransform = this.transform.copy();
         }
 
         let modelMatrix = modelTransform.matrixRef().toGLMatrix(),
