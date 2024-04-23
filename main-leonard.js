@@ -139,7 +139,7 @@ function main() {
     const cameraTarget = [0., 0., 0.]
     const cameraMatrix = LIBS.look_at(cameraPosition, cameraTarget, [0, 1, 0]);
     const viewDirection = Vector.sub(cameraTarget, cameraPosition).normalize().arr();
-    const viewMatrix = LIBS.inverseCopy(cameraMatrix);
+    const viewMatrix = Matrix.fromGLMatrix(cameraMatrix, 4, 4).inverse().toGLMatrix();
     
     const lightSourceAmbientColor = [0.3,0.3,0.3];
     const lightSourceDiffuseColor = [1.,1.,1.];
@@ -159,8 +159,16 @@ function main() {
     const bias = 0.15;
 
     const lightProjMatrix = LIBS.get_ortho_proj(40, CANVAS.width / CANVAS.height, 1, 1000);
-    const lightViewMatrix = LIBS.inverseCopy(LIBS.look_at(lightSourcePosition, lightSourceTarget, [0, 1, 0]));
-    LIBS.translateZ(lightViewMatrix, -60);
+    const lightViewMatrix = Transform3.translateZ(
+        Matrix.fromGLMatrix(
+            LIBS.look_at(
+                lightSourcePosition,
+                lightSourceTarget,
+                [0, 1, 0]
+            ), 4, 4
+        ).inverse(),
+        -60
+    ).toGLMatrix();
 
     var THETA = 0, PHI = 0;
 
@@ -284,8 +292,7 @@ function main() {
     GL.clearColor(0., 0., 0., 0.);
     GL.clearDepth(1.);
 
-    LIBS.translateY(floor.localMatrix, 50);
-
+    /*========================= RENDER SHADOW ========================= */
     function renderShadow() {
         if (renderMode == 0) {
             GL.bindFramebuffer(GL.FRAMEBUFFER, depthFramebuffer);
@@ -339,9 +346,9 @@ function main() {
         }
 
         objects.forEach((obj) => {
-            LIBS.set_I4(obj.localMatrix);
-            LIBS.rotateY(obj.localMatrix, THETA);
-            LIBS.rotateX(obj.localMatrix, PHI);
+            obj.transform.reset();
+            obj.transform.rotateY(THETA);
+            obj.transform.rotateX(PHI);
         })
 
         renderShadow();
