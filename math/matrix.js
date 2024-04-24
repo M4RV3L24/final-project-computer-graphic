@@ -158,8 +158,8 @@ class Matrix {
         return this;
     }
 
-    inverse() {
-        this.load(Matrix.inverse(this));
+    inverse(precision=1e-9) {
+        this.load(Matrix.inverse(this, precision));
         return this;
     }
 
@@ -227,8 +227,8 @@ class Matrix {
             throw new Error("value error: expected matrix");
 
         this._arr = [...mat._arr];
-        this.numRow = mat._numRow;
-        this.numCol = mat._numCol;
+        this._numRow = mat._numRow;
+        this._numCol = mat._numCol;
         this._isTransposed = mat._isTransposed;
 
         return this;
@@ -358,7 +358,7 @@ class Matrix {
         return Matrix._arithmetic(arg1, Matrix._rdiv, Matrix._div, arg2);
     }
 
-    static inverse(mat) {
+    static inverse(mat, precision=1e-9) {
         // source: http://web.archive.org/web/20210406035905/http://blog.acipo.com/matrix-inversion-in-javascript/
         
         // Using Gaussian Elimination to calculate the inverse:
@@ -385,7 +385,7 @@ class Matrix {
             e = C.get(i, i);
 
             // if we have a 0 on the diagonal (we'll need to swap with a lower row)
-            if (e == 0) {
+            if (e < precision) {
                 //look through every row below the i'th row
                 for (ii = i + 1; ii < dim; ii += 1) {
                     //if the ii'th row has a non-0 in the i'th col
@@ -400,10 +400,9 @@ class Matrix {
                 //get the new diagonal
                 e = C.get(i, i);
                 //if it's still 0, not invertable (error)
-                console.assert(
-                    e != 0,
-                    "the given matrix is not invertible"
-                );
+                if (e == 0) {
+                    throw new Error("the given matrix is not invertible");
+                }
             }
 
             // Scale this row down by e (so we have a 1 on the diagonal)

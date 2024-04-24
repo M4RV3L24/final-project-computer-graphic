@@ -65,9 +65,10 @@ class GLObject {
     render(worldTransform=null) {
         let modelTransform;
         if (worldTransform != null) {
-            modelTransform = this.transform.matrixRef().matMul(worldTransform);
+            modelTransform = worldTransform.copy();
+            modelTransform.matrixRef().matMul(this.transform.matrixRef());
         } else {
-            modelTransform = this.transform;
+            modelTransform = this.transform.copy();
         }
 
         let modelMatrix = modelTransform.matrixRef().toGLMatrix(),
@@ -180,7 +181,7 @@ class GLObject {
 
         GLObject._removeChildIfExists(parent, child);
         parent._childs.push(child);
-        
+
         if (child.parent == parent)
             return;
         
