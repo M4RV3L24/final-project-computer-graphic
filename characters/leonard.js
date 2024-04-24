@@ -15,27 +15,27 @@ function createLeonard(GL, programInfo = null) {
     objs.root = createNullObject();
     {
         objs.head = createNullObject();
-        LIBS.translateY(objs.head.localMatrix, bodyHeight);
+        objs.head.transform.translateY(bodyHeight);
         {
             objs.baseHead = createObject(generateEllipsoid(100, 100, 30, 20, 15));
-            LIBS.translateY(objs.baseHead.localMatrix, 10);
+            objs.baseHead.transform.translateY(10);
 
             objs.eyes = createNullObject();
-            LIBS.translateY(objs.eyes.localMatrix, 10);
+            objs.eyes.transform.translateY(10);
             {
                 objs.leftEyeGroup = createNullObject();
-                LIBS.rotateZ(objs.leftEyeGroup.localMatrix, LIBS.degToRad(5));
-                LIBS.translateX(objs.leftEyeGroup.localMatrix, -12);
-                LIBS.translateY(objs.leftEyeGroup.localMatrix, 19);
+                objs.leftEyeGroup.transform.rotateZ(LIBS.degToRad(5));
+                objs.leftEyeGroup.transform.translateX(-12);
+                objs.leftEyeGroup.transform.translateY(19);
                 {
                     objs.leftEyeOuter = createObject(generateEllipsoid(100, 100, 8, 12, 7));
-                    LIBS.scale(objs.leftEyeOuter.localMatrix, 1.03);
+                    objs.leftEyeOuter.transform.scaleUniform(1.03);
                     {
                         objs.leftEyeBall = createObject(generateEllipsoid(100, 100, 6, 10, 7));
-                        LIBS.translateZ(objs.leftEyeBall.localMatrix, 2);
+                        objs.leftEyeBall.transform.translateZ(2);
                         {
                             objs.leftIris = createObject(generateEllipsoid(100, 100, 4, 7, 4));
-                            LIBS.translateZ(objs.leftIris.localMatrix, 3.5);
+                            objs.leftIris.transform.translateZ(3.5);
                         }
                         objs.leftEyeBall.addChilds(objs.leftIris);
                     }
@@ -44,18 +44,18 @@ function createLeonard(GL, programInfo = null) {
                 objs.leftEyeGroup.addChilds(objs.leftEyeOuter);
                 
                 objs.rightEyeGroup = createNullObject();
-                LIBS.rotateZ(objs.rightEyeGroup.localMatrix, LIBS.degToRad(-5));
-                LIBS.translateX(objs.rightEyeGroup.localMatrix, 12);
-                LIBS.translateY(objs.rightEyeGroup.localMatrix, 19);
+                objs.rightEyeGroup.transform.rotateZ(LIBS.degToRad(-5));
+                objs.rightEyeGroup.transform.translateX(12);
+                objs.rightEyeGroup.transform.translateY(19);
                 {
                     objs.rightEyeOuter = createObject(generateEllipsoid(100, 100, 8, 12, 7));
-                    LIBS.scale(objs.rightEyeOuter.localMatrix, 1.03);
+                    objs.rightEyeOuter.transform.scaleUniform(1.03);
                     {
                         objs.rightEyeBall = createObject(generateEllipsoid(100, 100, 6, 10, 7));
-                        LIBS.translateZ(objs.rightEyeBall.localMatrix, 2);
+                        objs.rightEyeBall.transform.translateZ(2);
                         {
                             objs.rightIris = createObject(generateEllipsoid(100, 100, 4, 7, 4));
-                            LIBS.translateZ(objs.rightIris.localMatrix, 3.5);
+                            objs.rightIris.transform.translateZ(3.5);
                         }
                         objs.rightEyeBall.addChilds(objs.rightIris);
                     }
@@ -68,42 +68,42 @@ function createLeonard(GL, programInfo = null) {
         objs.head.addChilds(objs.baseHead, objs.eyes);
 
         objs.body = createObject(generateUnitCylinder())
-        LIBS.scaleX(objs.body.localMatrix, bodyWidth);
-        LIBS.scaleY(objs.body.localMatrix, bodyHeight);
-        LIBS.scaleZ(objs.body.localMatrix, 8);
+        objs.body.transform.scaleX(bodyWidth);
+        objs.body.transform.scaleY(bodyHeight);
+        objs.body.transform.scaleZ(8);
 
         objs.legs = createNullObject();
-        LIBS.translateY(objs.legs.localMatrix, -bodyHeight);
+        objs.legs.transform.translateY(-bodyHeight);
         {
             objs.leftLegGroup = createNullObject();
-            LIBS.translateX(objs.leftLegGroup.localMatrix, -9);
-            LIBS.translateY(objs.leftLegGroup.localMatrix, -8);
-            LIBS.rotateZ(objs.leftLegGroup.localMatrix, LIBS.degToRad(-3));
+            objs.leftLegGroup.transform.translateX(-9);
+            objs.leftLegGroup.transform.translateY(-8);
+            objs.leftLegGroup.transform.rotateZ(LIBS.degToRad(-3));
             {
                 objs.leftLeg = createObject(generateUnitCylinder());
-                LIBS.scaleX(objs.leftLeg.localMatrix, 9);
-                LIBS.scaleY(objs.leftLeg.localMatrix, 8);
-                LIBS.scaleZ(objs.leftLeg.localMatrix, 5);
+                objs.leftLeg.transform.scaleX(9);
+                objs.leftLeg.transform.scaleY(8);
+                objs.leftLeg.transform.scaleZ(5);
                 
                 objs.leftFoot = createObject(generateEllipsoid(100, 100, 10, 5, 7));
-                LIBS.translateY(objs.leftFoot.localMatrix, -8);
-                LIBS.translateZ(objs.leftFoot.localMatrix, 1.2);
+                objs.leftFoot.transform.translateY(-8);
+                objs.leftFoot.transform.translateZ(1.2);
             }
             objs.leftLegGroup.addChilds(objs.leftLeg, objs.leftFoot);
 
             objs.rightLegGroup = createNullObject();
-            LIBS.translateX(objs.rightLegGroup.localMatrix, 9);
-            LIBS.translateY(objs.rightLegGroup.localMatrix, -8);
-            LIBS.rotateZ(objs.rightLegGroup.localMatrix, LIBS.degToRad(3));
+            objs.rightLegGroup.transform.translateX(9);
+            objs.rightLegGroup.transform.translateY(-8);
+            objs.rightLegGroup.transform.rotateZ(LIBS.degToRad(3));
             {
                 objs.rightLeg = createObject(generateUnitCylinder());
-                LIBS.scaleX(objs.rightLeg.localMatrix, 9);
-                LIBS.scaleY(objs.rightLeg.localMatrix, 8);
-                LIBS.scaleZ(objs.rightLeg.localMatrix, 5);
+                objs.rightLeg.transform.scaleX(9);
+                objs.rightLeg.transform.scaleY(8);
+                objs.rightLeg.transform.scaleZ(5);
                 
                 objs.rightFoot = createObject(generateEllipsoid(100, 100, 10, 5, 7));
-                LIBS.translateY(objs.rightFoot.localMatrix, -8);
-                LIBS.translateZ(objs.rightFoot.localMatrix, 1.2);
+                objs.rightFoot.transform.translateY(-8);
+                objs.rightFoot.transform.translateZ(1.2);
             }
             objs.rightLegGroup.addChilds(objs.rightLeg, objs.rightFoot);
         }
@@ -112,44 +112,44 @@ function createLeonard(GL, programInfo = null) {
         objs.arms = createNullObject();
         {
             objs.leftArm = createNullObject();
-            LIBS.rotateZ(objs.leftArm.localMatrix, -LIBS.degToRad(-90));
-            LIBS.translateX(objs.leftArm.localMatrix, -bodyWidth)
+            objs.leftArm.transform.rotateZ(-LIBS.degToRad(-90));
+            objs.leftArm.transform.translateX(-bodyWidth)
             {
                 objs.leftUpperArm = createObject(generateUnitCylinder());
-                LIBS.scaleX(objs.leftUpperArm.localMatrix, armsWidth);
-                LIBS.scaleY(objs.leftUpperArm.localMatrix, armsWidth);
-                LIBS.scaleZ(objs.leftUpperArm.localMatrix, armsWidth);
-                LIBS.translateY(objs.leftUpperArm.localMatrix, armsWidth-5);
+                objs.leftUpperArm.transform.scaleX(armsWidth);
+                objs.leftUpperArm.transform.scaleY(armsWidth);
+                objs.leftUpperArm.transform.scaleZ(armsWidth);
+                objs.leftUpperArm.transform.translateY(armsWidth-5);
 
                 objs.leftForeArm = createObject(generateUnitCylinder());
-                LIBS.scaleX(objs.leftForeArm.localMatrix, armsWidth);
-                LIBS.scaleY(objs.leftForeArm.localMatrix, armsWidth);
-                LIBS.scaleZ(objs.leftForeArm.localMatrix, armsWidth);
-                LIBS.translateY(objs.leftForeArm.localMatrix, armsWidth*2);
+                objs.leftForeArm.transform.scaleX(armsWidth);
+                objs.leftForeArm.transform.scaleY(armsWidth);
+                objs.leftForeArm.transform.scaleZ(armsWidth);
+                objs.leftForeArm.transform.translateY(armsWidth*2);
 
                 objs.leftHand = createObject(generateEllipsoid(100, 100, 8, 7.1, 8));
-                LIBS.translateY(objs.leftHand.localMatrix, 18);
+                objs.leftHand.transform.translateY(18);
             }
             objs.leftArm.addChilds(objs.leftUpperArm, objs.leftForeArm, objs.leftHand);
 
             objs.rightArm = createNullObject();
-            LIBS.rotateZ(objs.rightArm.localMatrix, -LIBS.degToRad(90));
-            LIBS.translateX(objs.rightArm.localMatrix, bodyWidth)
+            objs.rightArm.transform.rotateZ(-LIBS.degToRad(90));
+            objs.rightArm.transform.translateX(bodyWidth)
             {
                 objs.rightUpperArm = createObject(generateUnitCylinder());
-                LIBS.scaleX(objs.rightUpperArm.localMatrix, armsWidth);
-                LIBS.scaleY(objs.rightUpperArm.localMatrix, armsWidth);
-                LIBS.scaleZ(objs.rightUpperArm.localMatrix, armsWidth);
-                LIBS.translateY(objs.rightUpperArm.localMatrix, armsWidth-5);
+                objs.rightUpperArm.transform.scaleX(armsWidth);
+                objs.rightUpperArm.transform.scaleY(armsWidth);
+                objs.rightUpperArm.transform.scaleZ(armsWidth);
+                objs.rightUpperArm.transform.translateY(armsWidth-5);
 
                 objs.rightForeArm = createObject(generateUnitCylinder());
-                LIBS.scaleX(objs.rightForeArm.localMatrix, armsWidth);
-                LIBS.scaleY(objs.rightForeArm.localMatrix, armsWidth);
-                LIBS.scaleZ(objs.rightForeArm.localMatrix, armsWidth);
-                LIBS.translateY(objs.rightForeArm.localMatrix, armsWidth*2);
+                objs.rightForeArm.transform.scaleX(armsWidth);
+                objs.rightForeArm.transform.scaleY(armsWidth);
+                objs.rightForeArm.transform.scaleZ(armsWidth);
+                objs.rightForeArm.transform.translateY(armsWidth*2);
 
                 objs.rightHand = createObject(generateEllipsoid(100, 100, 8, 7.1, 8));
-                LIBS.translateY(objs.rightHand.localMatrix, 18);
+                objs.rightHand.transform.translateY(18);
             }
             objs.rightArm.addChilds(objs.rightUpperArm, objs.rightForeArm, objs.rightHand);
         }

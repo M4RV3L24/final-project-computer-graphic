@@ -12,7 +12,7 @@ class GLObject {
 
     _parent = null;
     
-    localMatrix = null;
+    transform = null;
     objectUniformConfig = null;
     _childs = null;
 
@@ -25,7 +25,7 @@ class GLObject {
         this._triangle_vbo = this._GL.createBuffer();
         this._triangle_ebo = this._GL.createBuffer();
 
-        this.localMatrix = LIBS.get_I4();
+        this.transform = new Transform3();
         this.objectUniformConfig = objectUniformConfig;
 
         if (programInfo != null)
@@ -62,16 +62,17 @@ class GLObject {
         return this._faces.length == 0;
     }
 
-    render(worldMatrix=null) {
-        let modelMatrix;
-        if (worldMatrix != null) {
-            modelMatrix = LIBS.multiplyCopy(this.localMatrix, worldMatrix);
+    render(worldTransform=null) {
+        let modelTransform;
+        if (worldTransform != null) {
+            modelTransform = worldTransform.copy();
+            modelTransform.matrixRef().matMul(this.transform.matrixRef());
         } else {
-            modelMatrix = this.localMatrix;
+            modelTransform = this.transform.copy();
         }
 
-        let normalMatrix = LIBS.inverseCopy(modelMatrix);
-        LIBS.transpose(normalMatrix);
+        let modelMatrix = modelTransform.matrixRef().toGLMatrix(),
+            normalMatrix = Matrix.inverse(modelTransform.matrixRef()).transpose().toGLMatrix();
 
         // Set all object uniform values
         {
@@ -113,7 +114,7 @@ class GLObject {
         }
 
         this._childs.forEach((child) => {
-            child.render(modelMatrix);
+            child.render(modelTransform);
         })
     }
 
@@ -180,7 +181,7 @@ class GLObject {
 
         GLObject._removeChildIfExists(parent, child);
         parent._childs.push(child);
-        
+
         if (child.parent == parent)
             return;
         

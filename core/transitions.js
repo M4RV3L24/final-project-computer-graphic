@@ -7,8 +7,8 @@ class TweeningFunction {
 		return t;
 	}
 
-	static jump(t) {
-		return t < 0.5 ? 0 : 1;
+	static zero(t) {
+		return 0;
 	}
 
 	static quadratic(t) {
@@ -20,8 +20,81 @@ class TweeningFunction {
 	}
 
 	static sine(t) {
-		return Math.sin(t * Math.PI/2);
+		return 1 - Math.cos(t * Math.PI/2);
 	}
+
+	static inverse(tween) {
+		return (t) => (1 - tween(t));
+	}
+
+	static reverse(tween) {
+		return (t) => tween(1 - t);
+	}
+
+	static conjugate(tween) {
+		// reverse and inverse
+		return (t) => (1 - tween(1 - t));
+	}
+}
+
+class Easing {
+	constructor(tweenIn=null, tweenOut=null) {
+		if (tweenIn == null && tweenOut == null) {
+			throw new Error("tweenIn and tweenOut can't be both be null");
+		}
+
+		this._tweenIn = tweenIn;
+		this._tweenOut = tweenOut;
+	}
+
+	ease(t) {
+		if (this._tweenOut == null) {
+			return this._tweenIn(t);
+		}
+		if (this._tweenIn == null) {
+			return this._tweenOut(t);
+		}
+
+		// Combine tween in and out
+		// using scaled version of them
+
+		if (t < 0.5) {
+			return this._tweenIn(2 * t) / 2;
+		} else {
+			t -= 0.5;
+			return this._tweenOut(2 * t) / 2 + 0.5;
+		}
+	}
+
+	static createIn(tween) {
+		return new Easing(tween, null);
+	}
+
+	static createOut(tween) {
+		return new Easing(null, TweeningFunction.conjugate(tween));
+	}
+
+	static createInOut(tween) {
+		return new Easing(tween, TweeningFunction.conjugate(tween));
+	}
+
+	static linear = new Easing(TweeningFunction.linear);
+
+	static jumpIn = Easing.createIn(TweeningFunction.zero);
+	static jumpOut = Easing.createOut(TweeningFunction.zero);
+	static jumpInOut = Easing.createInOut(TweeningFunction.zero);
+
+	static quadraticIn = Easing.createIn(TweeningFunction.quadratic);
+	static quadraticOut = Easing.createOut(TweeningFunction.quadratic);
+	static quadraticInOut = Easing.createInOut(TweeningFunction.quadratic);
+
+	static cubicIn = Easing.createIn(TweeningFunction.cubic);
+	static cubicOut = Easing.createOut(TweeningFunction.cubic);
+	static cubicInOut = Easing.createInOut(TweeningFunction.cubic);
+
+	static sineIn = Easing.createIn(TweeningFunction.sine);
+	static sineOut = Easing.createOut(TweeningFunction.sine);
+	static sineInOut = Easing.createInOut(TweeningFunction.sine);
 }
 
 
@@ -44,14 +117,13 @@ class Transition {
 	_callback = null;
 	_interpolator = null;
 	_duration = null
-	_tweeningFunction = null;
+	_easing = null;
 
 	_passedTime = 0;
-	_interpolateFunc = null;
 	_prevValue = null;
 	_currValue = null;
 
-	constructor(callback, interpolator, duration, tweeningFunction = tweeningFunction.linear) {
+	constructor(callback, interpolator, duration, easing = Easing.linear) {
 		this._callback = callback;
 		this._interpolator = interpolator;
 		console.assert(
@@ -59,7 +131,7 @@ class Transition {
 			"doesn't support multidimensional transition"
 		);
 		this._duration = duration;
-		this._tweeningFunction = tweeningFunction;
+		this._easing = easing;
 
 		this._passedTime = 0;
 		this._prevValue = interpolator.getStart();
@@ -79,7 +151,7 @@ class Transition {
 	}
 
 	calcValue() {
-		return this._interpolator.interpolate(this.tweenedNormalizedTime());
+		return this._interpolator.interpolate(this.easedNormalizedTime());
 	}
 
 	progress() {
@@ -88,7 +160,7 @@ class Transition {
 			this._prevValue,
 			this._passedTime,
 			this.normalizedTime(),
-			this.tweenedNormalizedTime()
+			this.easedNormalizedTime()
 		);
 	}
 
@@ -96,8 +168,9 @@ class Transition {
 		return this._passedTime / this._duration;
 	}
 
-	tweenedNormalizedTime() {
-		return this._tweeningFunction(this.normalizedTime());
+	easedNormalizedTime() {
+		console.log(this._easing);
+		return this._easing.ease(this.normalizedTime());
 	}
 
 	isFinished() {

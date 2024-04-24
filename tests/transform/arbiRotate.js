@@ -1,17 +1,3 @@
-var object = null
-var object2 = null
-var object3 = null
-
-function translateXObject2({value}){
-	object2.transform.translateX(value);
-}
-
-function translateObject3({value}){
-	object3.transform.reset();
-	object3.transform.translateX(value.get(0));
-	object3.transform.translateY(value.get(1));
-}
-	
 function main() {
     var CANVAS = document.getElementById("canvas");
     CANVAS.width = window.innerWidth;
@@ -131,19 +117,16 @@ function main() {
 
     let ellipsoidData = generateEllipsoid(100, 100, 30, 20, 10);
     let ellipsoid = new GLObject(GL, ellipsoidData.vertices, ellipsoidData.indices);
-    object = ellipsoid;
 
     let hyperboloid1Data = generateHyperboloid1(100, 100, 1, 1, 0.5);
     let hyperboloid1 = new GLObject(GL, hyperboloid1Data.vertices, hyperboloid1Data.indices);
-    object2 = hyperboloid1;
-
+    
     let hyperboloid2Data = generateHyperboloid2(100, 100, 1, 1, 1);
     let hyperboloid2 = new GLObject(GL, hyperboloid2Data.vertices, hyperboloid2Data.indices);
     
     let ellipticConeData = generateEllipticCone(100, 100, 1, 1, 1);
     let ellipticCone = new GLObject(GL, ellipticConeData.vertices, ellipticConeData.indices);
-    object3 = ellipticCone;
-
+    
     let ellipticParaboloidData = generateEllipticParaboloid(500, 500, 2, 2, 5);
     let ellipticParaboloid = new GLObject(GL, ellipticParaboloidData.vertices, ellipticParaboloidData.indices);
 
@@ -164,7 +147,7 @@ function main() {
     };
     let floor = new GLObject(GL, floorData.vertices, floorData.indices);
 
-    let objects = [ellipsoid, hyperboloid1, hyperboloid2, ellipticCone, ellipticParaboloid, hyperbolicParaboloid, floor];
+    objects = [ellipsoid, hyperboloid1, hyperboloid2, ellipticCone, ellipticParaboloid, hyperbolicParaboloid, floor];
     // objects = [ellipsoid, floor];
     
     objects.forEach(obj => {
@@ -293,29 +276,13 @@ function main() {
         0                      // mip level
     );
 
-    /*========================= TRANSITION ========================= */
-    let transition1 = new TransitionManager()
-        .add(
-            translateObject3,
-            new VectorInterpolator([0, 10, 50], [-50, 10, -20]),
-            5,
-            Easing.sineInOut
-        )
-        .add(
-            translateXObject2,
-            new NumberInterpolator(0, 100),
-            5,
-            Easing.quadraticOut
-        );
-
     /*========================= DRAWING ========================= */
     GL.enable(GL.DEPTH_TEST);
     GL.depthFunc(GL.LEQUAL);
     GL.clearColor(0., 0., 0., 0.);
     GL.clearDepth(1.);
 
-    let prevTime = 0;
-    function animate(time) {
+    function animate() {
         /*========================= TRANSFORMATIONS ========================= */
         if (!drag) {
             dX *= AMORTIZATION, dY *= AMORTIZATION;
@@ -330,16 +297,14 @@ function main() {
         });
 
         ellipsoid.transform.translateX(-20).translateZ(-50);
-        hyperbolicParaboloid.transform.translateX(20);
+        hyperbolicParaboloid.transform.translateX(0);
+        hyperbolicParaboloid.transform.rotateAlong(THETA, Vector.sub([0, 40, -20],[0, 0,-20]).normalize().arr(),[0, 0, -20]);
+
         hyperboloid1.transform.translateY(20);
         hyperboloid2.transform.translateY(-15);
         ellipticCone.transform.translateZ(-20);
         ellipticParaboloid.transform.translateX(-40);
 
-        /*========================= ANIMATION ========================= */
-        dt = time-prevTime;
-        prevTime = time;
-        transition1.step(dt/1000);
 
         /*========================= RENDER SHADOW ========================= */
         function renderShadow() {
