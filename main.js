@@ -13,6 +13,7 @@ function main() {
 
     var mouseDown = function (e) {
         drag = true;
+        console.log(e.pageX, e.pageY);
         x_prev = e.pageX, y_prev = e.pageY;
         e.preventDefault();
         return false;

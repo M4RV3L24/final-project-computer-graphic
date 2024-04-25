@@ -13,6 +13,8 @@ function main() {
 
     var mouseDown = function (e) {
         drag = true;
+        
+        console.log(e.pageX, e.pageY);
         x_prev = e.pageX, y_prev = e.pageY;
         e.preventDefault();
         return false;
@@ -122,9 +124,9 @@ function main() {
     };
     let floor = new GLObject(GL, floorData.vertices, floorData.indices);
 
-    let leonard = createLeonard(GL);
+    let conny = createConny(GL);
 
-    objects = [leonard.root, floor];
+    objects = [conny.root, floor];
     
     objects.forEach(obj => {
         obj.setup();
@@ -139,7 +141,7 @@ function main() {
     const cameraTarget = [0., 0., 0.]
     const cameraMatrix = LIBS.look_at(cameraPosition, cameraTarget, [0, 1, 0]);
     const viewDirection = Vector.sub(cameraTarget, cameraPosition).normalize().arr();
-    const viewMatrix = LIBS.inverseCopy(cameraMatrix);
+    const viewMatrix = Matrix.fromGLMatrix(cameraMatrix, 4, 4).inverse().toGLMatrix();
     
     const lightSourceAmbientColor = [0.3,0.3,0.3];
     const lightSourceDiffuseColor = [1.,1.,1.];
@@ -159,8 +161,16 @@ function main() {
     const bias = 0.15;
 
     const lightProjMatrix = LIBS.get_ortho_proj(40, CANVAS.width / CANVAS.height, 1, 1000);
-    const lightViewMatrix = LIBS.inverseCopy(LIBS.look_at(lightSourcePosition, lightSourceTarget, [0, 1, 0]));
-    LIBS.translateZ(lightViewMatrix, -60);
+    const lightViewMatrix = Transform3.translateZ(
+        Matrix.fromGLMatrix(
+            LIBS.look_at(
+                lightSourcePosition,
+                lightSourceTarget,
+                [0, 1, 0]
+            ), 4, 4
+        ).inverse(),
+        -60
+    ).toGLMatrix();
 
     var THETA = 0, PHI = 0;
 
@@ -188,30 +198,41 @@ function main() {
     }
 
     const
-        leonardColor = [0.0, 0.6, 0.2],
-        leonardEyeBallColor = [.9, .9, .9],
-        leonardIrisColor = [.1, .1, .1];
+        connyColor = [1, 1, 1],
+        connyBottomEarColor = [1, 0.57, 0.87],
+        connyEyeBallColor = [.0, .0, .0],
+        connyCheekColor = [0.94, 0.82, 0.9];
 
-    let leonardDefaultConfig = renderProgramInfo.createUniformConfig();
-    leonardDefaultConfig.addUniform("color", "3fv", leonardColor);
 
-    let leonardEyeBallConfig = renderProgramInfo.createUniformConfig();
-    leonardEyeBallConfig.addUniform("color", "3fv", leonardEyeBallColor);
+    let connyDefaultConfig = renderProgramInfo.createUniformConfig();
+    connyDefaultConfig.addUniform("color", "3fv", connyColor);
 
-    let leonardIrisConfig = renderProgramInfo.createUniformConfig();
-    leonardIrisConfig.addUniform("color", "3fv", leonardIrisColor);
+    let connyBottomEarConfig = renderProgramInfo.createUniformConfig();
+    connyBottomEarConfig.addUniform("color", "3fv", connyBottomEarColor);
 
-    const leonardEyeBalls = [leonard.leftEyeBall, leonard.rightEyeBall];
-    const leonardIris = [leonard.leftIris, leonard.rightIris];
-    function setLeonardConfig() {
-        Object.values(leonard).forEach((obj) => {
-            obj.objectUniformConfig = leonardDefaultConfig;
+    let connyEyeConfig = renderProgramInfo.createUniformConfig();
+    connyEyeConfig.addUniform("color", "3fv", connyEyeBallColor);
+
+    let connyCheekConfig = renderProgramInfo.createUniformConfig();
+    connyCheekConfig.addUniform("color", "3fv", connyCheekColor);
+    const connyEyes = [conny.leftEyeGroup, conny.rightEyeGroup, conny.nose, conny.nose2, conny.line];
+
+    const connyEars = [conny.leftEarBottom, conny.rightEarBottom];
+    const connyCheek = [conny.leftCheek, conny.rightCheek];
+
+    
+    function setConnyConfig() {
+        Object.values(conny).forEach((obj) => {
+            obj.objectUniformConfig = connyDefaultConfig;
         });
-        leonardEyeBalls.forEach((obj) => {
-            obj.objectUniformConfig = leonardEyeBallConfig;
+        connyEars.forEach((obj) => {
+            obj.objectUniformConfig = connyBottomEarConfig;
         });
-        leonardIris.forEach((obj) => {
-            obj.objectUniformConfig = leonardIrisConfig;
+        connyEyes.forEach((obj) => {
+            obj.objectUniformConfig = connyEyeConfig;
+        });
+        connyCheek.forEach((obj) => {
+            obj.objectUniformConfig = connyCheekConfig;
         });
     }
 
@@ -284,8 +305,7 @@ function main() {
     GL.clearColor(0., 0., 0., 0.);
     GL.clearDepth(1.);
 
-    LIBS.translateY(floor.localMatrix, 50);
-
+    /*========================= RENDER SHADOW ========================= */
     function renderShadow() {
         if (renderMode == 0) {
             GL.bindFramebuffer(GL.FRAMEBUFFER, depthFramebuffer);
@@ -324,7 +344,7 @@ function main() {
             obj.programInfo = renderProgramInfo;
         });
 
-        setLeonardConfig();
+        setConnyConfig();
 
         objects.forEach(obj => {
             obj.render();
@@ -339,9 +359,9 @@ function main() {
         }
 
         objects.forEach((obj) => {
-            LIBS.set_I4(obj.localMatrix);
-            LIBS.rotateY(obj.localMatrix, THETA);
-            LIBS.rotateX(obj.localMatrix, PHI);
+            obj.transform.reset();
+            obj.transform.rotateY(THETA);
+            obj.transform.rotateX(PHI);
         })
 
         renderShadow();
