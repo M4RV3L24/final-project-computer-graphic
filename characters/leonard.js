@@ -9,7 +9,7 @@ function createLeonard(GL, programInfo = null) {
 
     const
         bodyHeight = 12, bodyWidth = 18,
-        armsWidth = 6;
+        armsWidth = 6, candyHeight = 5;
 
     let objs = {};
     objs.root = createNullObject();
@@ -129,11 +129,26 @@ function createLeonard(GL, programInfo = null) {
 
                 objs.leftHand = createObject(generateEllipsoid(100, 100, 8, 7.1, 8));
                 objs.leftHand.transform.translateY(18);
+                {
+                    objs.candy = createNullObject();
+                    objs.candy.transform.scaleUniform(candyHeight/7).translate(2, 10, 2);
+                    {
+                        objs.candyHeadTail = createObject(generateEllipticCone(5, 5, 0.3, 0.3, 7/9));
+                        objs.candyHeadTail.transform.rotateY(Math.PI/2);
+                        objs.candyUpperBody = createObject(generateEllipticParaboloid(5, 5, 2, 2, 7/2));
+                        objs.candyUpperBody.transform.rotateY(-Math.PI/2).translateX(7**2 / 4);
+                        objs.candyLowerBody = createObject(generateEllipticParaboloid(5, 5, 2, 2, 7/2));
+                        objs.candyLowerBody.transform.rotateY(Math.PI/2).translateX(-(7**2) / 4);
+                    }
+                    objs.candy.addChilds(objs.candyHeadTail, objs.candyUpperBody, objs.candyLowerBody);
+                }
+                objs.leftHand.addChilds(objs.candy);
             }
             objs.leftArm.addChilds(objs.leftUpperArm, objs.leftForeArm, objs.leftHand);
 
             objs.rightArm = createNullObject();
             objs.rightArm.transform.rotateZ(-LIBS.degToRad(90));
+            objs.rightArm.transform.rotateX(-LIBS.degToRad(180));
             objs.rightArm.transform.translateX(bodyWidth)
             {
                 objs.rightUpperArm = createObject(generateUnitCylinder());
@@ -157,5 +172,58 @@ function createLeonard(GL, programInfo = null) {
     }
     objs.root.addChilds(objs.head, objs.body, objs.arms, objs.legs);
 
-    return objs;
+    let pose = {}, objsArr = Object.values(objs);
+    pose.T = new Pose(objsArr);
+
+    objs.leftArm.transform
+    .localRotateY(Math.PI/6)
+    .localRotateZ(Math.PI/6);
+
+    objs.rightArm.transform
+    .localRotateY(-Math.PI/6)
+    .localRotateZ(-Math.PI/6)
+
+    pose.stand = new Pose(objsArr);
+
+    pose.T.apply();
+
+    objs.leftArm.transform
+    .localRotateY(Math.PI/4)
+    .localRotateZ(Math.PI/4);
+    
+    objs.rightArm.transform
+    .localRotateY(Math.PI/8)
+    .localRotateZ(-Math.PI/4)
+    .translateZ(-4);
+    
+    objs.leftLegGroup.transform
+    .rotateX(Math.PI/4);
+    
+    objs.rightLegGroup.transform
+    .rotateX(-Math.PI/4);
+    
+    pose.walkRight = new Pose(objsArr);
+    
+    pose.T.apply();
+    
+    objs.leftArm.transform
+    .localRotateY(-Math.PI/8)
+    .localRotateZ(Math.PI/4)
+    .translateZ(-4);
+
+    objs.rightArm.transform
+    .localRotateY(-Math.PI/4)
+    .localRotateZ(-Math.PI/4);
+
+    objs.leftLegGroup.transform
+    .rotateX(-Math.PI/4);
+    
+    objs.rightLegGroup.transform
+    .rotateX(Math.PI/4);
+    
+    pose.walkLeft = new Pose(objsArr);
+    
+    pose.T.apply();
+
+    return {objs, pose};
 }
