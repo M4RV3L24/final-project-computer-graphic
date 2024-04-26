@@ -230,7 +230,7 @@ function main() {
     const brownBaseFace = [brown.baseFace];
     const brownNose = [brown.nose];
     const brownInnerEar = [brown.leftInnerEar, brown.rightInnerEar];
-    const brownRibbon = [brown.ribbon];
+    const brownRibbon = [brown.mainRibbon, brown.middleRibbon];
     function setbrownConfig() {
         Object.values(brown).forEach((obj) => {
             obj.objectUniformConfig = brownDefaultConfig;
@@ -380,9 +380,12 @@ function main() {
 
         objects.forEach((obj) => {
             obj.transform.reset();
+            obj.transform.scaleUniform(0.6);
             obj.transform.rotateY(THETA);
             obj.transform.rotateX(PHI);
         })
+
+        brown.arms.transform.rotateX(-0.01)
 
         renderShadow();
         renderFull();

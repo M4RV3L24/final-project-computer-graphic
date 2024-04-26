@@ -92,17 +92,26 @@ function createBrown(GL, programInfo = null) {
             objs.mainBody = createObject(generateUnitCylinder());
             objs.mainBody.transform.scaleUniform(20);
 
-            objs.ribbon = createObject(generateHyperboloid1(100, 100, .015, .2, .3));
-            objs.ribbon.transform.translateY(6);
-            objs.ribbon.transform.translateX(-25);
-            objs.ribbon.transform.rotateY(LIBS.degToRad(90));
-            objs.ribbon.transform.rotateX(LIBS.degToRad(-15));
-            objs.ribbon.transform.scaleUniform(0.7);
+            objs.ribbonGroup = createNullObject();
+            {
+                objs.mainRibbon = createObject(generateHyperboloid1(100, 100, .015, .2, .3));
+                objs.middleRibbon = createObject(generateEllipsoid(100, 100, 3, 3, 2.4));
+            }
+            objs.ribbonGroup.addChilds(objs.mainRibbon, objs.middleRibbon);
+            objs.ribbonGroup.transform.translateY(6);
+            objs.ribbonGroup.transform.translateX(-25);
+            objs.ribbonGroup.transform.rotateY(LIBS.degToRad(90));
+            objs.ribbonGroup.transform.rotateX(LIBS.degToRad(-15));
+            objs.ribbonGroup.transform.scaleUniform(0.7);
 
             objs.lowerBody = createObject(generateEllipsoid(100, 100, 28, 34, 28));
             objs.lowerBody.transform.translateY(-8);
+
+            objs.tail = createObject(generateEllipsoid(100, 100, 5, 5, 5));
+            objs.tail.transform.translateZ(-26);
+            objs.tail.transform.translateY(-25);
         }
-        objs.body.addChilds(objs.mainBody, objs.ribbon, objs.lowerBody);
+        objs.body.addChilds(objs.mainBody, objs.ribbonGroup, objs.lowerBody, objs.tail);
         objs.body.transform.translateY(-10);
 
         objs.legs = createNullObject();
