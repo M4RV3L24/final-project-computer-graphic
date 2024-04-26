@@ -96,10 +96,28 @@ class Transform3 {
         return this;
     }
 
-
-
     rotateAlong(alpha, axis, origin = [0, 0, 0]) {
         this._mat = Transform3.rotateAlong(this._mat, alpha, axis, origin);
+        return this;
+    }
+
+    localRotateX(a = 0) {
+        this._mat = Transform3.localRotateX(this._mat, a);
+        return this;
+    }
+
+    localRotateY(a = 0) {
+        this._mat = Transform3.localRotateY(this._mat, a);
+        return this;
+    }
+
+    localRotateZ(a = 0) {
+        this._mat = Transform3.localRotateZ(this._mat, a);
+        return this;
+    }
+
+    localRotateAlong(alpha, axis, origin = [0, 0, 0]) {
+        this._mat = Transform3.localRotateAlong(this._mat, alpha, axis, origin);
         return this;
     }
 
@@ -125,6 +143,11 @@ class Transform3 {
 
     translateUniform(t = 0) {
         this._mat = Transform3.translateUniform(this._mat, t, t, t);
+        return this;
+    }
+
+    resetTranslation() {
+        this._mat = Transform3.resetTranslation(mat);
         return this;
     }
 
@@ -321,6 +344,36 @@ class Transform3 {
         return mat;
     }
 
+    static _preTranslationTransform(transformFunction, mat, ...args) {
+        let translation = Transform3.getTranslation(mat);
+        Transform3.resetTranslation(mat);
+        mat = transformFunction(mat, ...args);
+        Transform3.translate(mat, ...translation);
+        return mat;
+    }
+
+    // Local rotations are rotations ignoring the translations,
+    // the effect will be as the rotation is done before the translation
+
+    static localRotateX(mat, a = 0) {
+        Transform3._preTranslationTransform(Transform3.rotateX, mat, a);
+        return mat;
+    }
+
+    static localRotateY(mat, a = 0) {
+        Transform3._preTranslationTransform(Transform3.rotateY, mat, a);
+        return mat;
+    }
+
+    static localRotateZ(mat, a = 0) {
+        Transform3._preTranslationTransform(Transform3.rotateZ, mat, a);
+        return mat;
+    }
+
+    static localRotateAlong(mat, alpha, axis, origin = [0, 0, 0]) {
+        Transform3._preTranslationTransform(Transform3.rotateAlong, mat, alpha, axis, origin);
+    }
+
     static translateX(mat, t = 0) {
         mat.set(0, 3, mat.get(0, 3) + t);
         return mat;
@@ -348,6 +401,16 @@ class Transform3 {
         Transform3.translateY(mat, t);
         Transform3.translateZ(mat, t);
         return mat;
+    }
+
+    static getTranslation(mat) {
+        return [mat.get(0, 3), mat.get(1, 3), mat.get(2, 3)];
+    }
+
+    static resetTranslation(mat) {
+        mat.set(0, 3, 0);
+        mat.set(1, 3, 0);
+        mat.set(2, 3, 0);
     }
 
     // Do all scale before any other transformation
@@ -401,23 +464,6 @@ class Transform3 {
         // For shorter reference
         let { w, x, y, z } = q;
 
-        /*
-        // First row of the rotation matrix
-        let r00 = 2 * (w * w + x * x) - 1;
-        let r01 = 2 * (x * y - w * z);
-        let r02 = 2 * (x * z + w * y);
-         
-        // Second row of the rotation matrix
-        let r10 = 2 * (x * y + w * z);
-        let r11 = 2 * (w * w + y * y) - 1;
-        let r12 = 2 * (y * z - w * x);
-         
-        // Third row of the rotation matrix
-        let r20 = 2 * (x * z - w * y);
-        let r21 = 2 * (y * z + w * x);
-        let r22 = 2 * (w * w + z * z) - 1;
-        /*/
-
         let r00 = 1 - 2 * y * y - 2 * z * z;
         let r01 = 2 * x * y - 2 * z * w;
         let r02 = 2 * x * z + 2 * y * w;
@@ -431,7 +477,6 @@ class Transform3 {
         let r20 = 2 * x * z - 2 * y * w;
         let r21 = 2 * y * z + 2 * x * w;
         let r22 = 1 - 2 * x * x - 2 * y * y;
-        /**/
 
         return new Matrix([[
             r00, r01, r02, 0,
