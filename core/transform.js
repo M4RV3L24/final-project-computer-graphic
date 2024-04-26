@@ -1,6 +1,6 @@
 class Transform3Interpolator extends AbstractInterpolator {
-    _translateInterpolator;
-    _rotateInterpolator;
+    _translationInterpolator;
+    _rotationInterpolator;
     _scaleInterpolator;
     _start;
     _dim;
@@ -12,13 +12,13 @@ class Transform3Interpolator extends AbstractInterpolator {
         this._dim = ends.length;
         this._start = start.copy();
 
-        translate = []
-        rotate = []
-        scale = []
+        let translation = []
+        let rotation = []
+        let scale = []
         {
             let transformData = start.decompose();
-            translate.push(transformData.translate);
-            rotate.push(transformData.rotate);
+            translation.push(transformData.translation);
+            rotation.push(transformData.rotation);
             scale.push(transformData.scale);
         }
 
@@ -45,7 +45,7 @@ class Transform3Interpolator extends AbstractInterpolator {
         let transformData = {
             translation: this._translationInterpolator.interpolate(...normalizedWeights).arr(),
             rotation: this._rotationInterpolator.interpolate(...normalizedWeights),
-            scale: this.scaleInterpolator.interpolate(...normalizedWeights).arr()
+            scale: this._scaleInterpolator.interpolate(...normalizedWeights).arr()
         }
 
         return Transform3.compose(transformData);
