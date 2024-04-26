@@ -169,7 +169,6 @@ class Transition {
 	}
 
 	easedNormalizedTime() {
-		console.log(this._easing);
 		return this._easing.ease(this.normalizedTime());
 	}
 
