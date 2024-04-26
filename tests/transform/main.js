@@ -177,9 +177,53 @@ function main() {
             [-1,  0, 0, 0],
             [0, 0, 0, 1]
         ]);
+    }
+
+    // Decompose
+    {
+        tr = new Transform3();
+        tr.translateX(5);
+        tr.translateY(2);
+        tr.translateZ(1);
+
+        let {translation} = tr.decompose();
+        assertArrayEqual(translation, [5, 2, 1]);
 
         tr = new Transform3();
-        
+        tr.rotateX(Math.PI/2);
+        tr.rotateY(Math.PI/2);
+        tr.rotateZ(Math.PI/2);
+        let {rotation} = tr.decompose();
+        assertArrayFloatEqual(rotation.arr(), [0.7071068, 0, 0.7071068, 0], 1e-7);
+
+        tr = new Transform3();
+        tr.rotateX(Math.PI/2);
+        tr.rotateY(Math.PI/4);
+        tr.rotateZ(Math.PI/4);
+        rotation = tr.decompose().rotation;
+        assertArrayFloatEqual(rotation.arr(), [0.7071068, 0.5, 0.5, 0], 1e-7);
+
+        tr = new Transform3();
+        tr.scaleX(5);
+        tr.scaleY(2);
+        tr.scaleZ(1);
+
+        let {scale} = tr.decompose();
+        assertArrayEqual(scale, [5, 2, 1]);
+    }
+
+    // Compose
+    {
+        tr1 = new Transform3();
+        tr1.translate(0, 2, 3.5);
+        tr1.scale(4, 0.5, 100);
+        tr1.rotateX(0.5);
+        tr1.rotateY(0.2);
+        tr1.rotateZ(1.9);
+        tr1.translate(0, 10, -2);
+
+        tr2 = Transform3.compose(tr1.decompose());;
+        assertArrayFloatEqual(tr1.matrixRef().arr(), tr2.matrixRef().arr());
     }
 
     console.log("All Transform3 tests done!");

@@ -168,6 +168,11 @@ class Quaternion {
         return Math.sqrt(this.length2());
     }
 
+    normalize() {
+        this.div(this.length());
+        return this;
+    }
+
     load(q) {
         if (!q instanceof Quaternion) {
             throw new Error("expected Quaternion object");
