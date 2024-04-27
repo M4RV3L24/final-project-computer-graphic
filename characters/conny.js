@@ -150,7 +150,7 @@ function createConny(GL, programInfo = null) {
             objs.rightLegGroup.transform.translateX(7);
             objs.rightLegGroup.transform.translateY(-bodyHeight+22);
             objs.rightLegGroup.transform.rotateZ(LIBS.degToRad(4.5));
-            objs.rightLegGroup.transform.rotateAlong(LIBS.degToRad(60), [1,0,0], [-8,bodyHeight-26,0]);
+            // objs.rightLegGroup.transform.rotateAlong(LIBS.degToRad(60), [1,0,0], [-8,bodyHeight-26,0]);
             
             {
                 objs.rightLeg = createObject(generateUnitCylinder());
@@ -177,7 +177,7 @@ function createConny(GL, programInfo = null) {
             objs.leftArm = createNullObject();
             objs.leftArm.transform.rotateZ(-LIBS.degToRad(-90));
             objs.leftArm.transform.translateX(-bodyWidth);
-            objs.leftArm.transform.rotateAlong(LIBS.degToRad(45), [0,0,1], [-8,bodyHeight-26,0]);
+            // objs.leftArm.transform.rotateAlong(LIBS.degToRad(45), [0,0,1], [-8,bodyHeight-26,0]);
             {
                 objs.leftUpperArm = createObject(generateUnitCylinder());
                 objs.leftUpperArm.transform.scaleX(armsWidth);
@@ -221,6 +221,61 @@ function createConny(GL, programInfo = null) {
         objs.arms.addChilds(objs.leftArm, objs.rightArm);
     }
     objs.root.addChilds(objs.head, objs.body, objs.arms, objs.legs);
+    
+    //Pose setting
+    
+    let pose = {}, objsArr = Object.values(objs);
+    pose.T = new Pose(objsArr);
 
-    return objs;
+    objs.leftArm.transform
+    .localRotateY(Math.PI/6)
+    .localRotateZ(Math.PI/6);
+
+    objs.rightArm.transform
+    .localRotateY(-Math.PI/6)
+    .localRotateZ(-Math.PI/6)
+
+    pose.stand = new Pose(objsArr);
+
+    pose.T.apply();
+
+    objs.leftArm.transform
+    .localRotateY(Math.PI/4)
+    .localRotateZ(Math.PI/4);
+    
+    objs.rightArm.transform
+    .localRotateY(Math.PI/8)
+    .localRotateZ(-Math.PI/4)
+    .translateZ(-4);
+    
+    objs.leftLegGroup.transform
+    .rotateX(Math.PI/4);
+    
+    objs.rightLegGroup.transform
+    .rotateX(-Math.PI/4);
+    
+    pose.walkRight = new Pose(objsArr);
+    
+    pose.T.apply();
+    
+    objs.leftArm.transform
+    .localRotateY(-Math.PI/8)
+    .localRotateZ(Math.PI/4)
+    .translateZ(-4);
+
+    objs.rightArm.transform
+    .localRotateY(-Math.PI/4)
+    .localRotateZ(-Math.PI/4);
+
+    objs.leftLegGroup.transform
+    .rotateX(-Math.PI/4);
+    
+    objs.rightLegGroup.transform
+    .rotateX(Math.PI/4);
+    
+    pose.walkLeft = new Pose(objsArr);
+    
+    pose.T.apply();
+
+    return {objs, pose};
 }

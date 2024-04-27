@@ -126,7 +126,7 @@ function main() {
 
     let conny = createConny(GL);
 
-    objects = [conny.root, floor];
+    objects = [conny.objs.root, floor];
     
     objects.forEach(obj => {
         obj.setup();
@@ -227,17 +227,17 @@ function main() {
 
     let connyCheekConfig = renderProgramInfo.createUniformConfig();
     connyCheekConfig.addUniform("color", "3fv", connyCheekColor);
-    const connyBlacks = [conny.leftEyeGroup, conny.rightEyeGroup, conny.nose, conny.nose2, conny.line, conny.outerMouth1,conny.outerMouth2];
+    const connyBlacks = [conny.objs.leftEyeGroup, conny.objs.rightEyeGroup, conny.objs.nose, conny.objs.nose2, conny.objs.line, conny.objs.outerMouth1,conny.objs.outerMouth2];
 
-    const connyEars = [conny.leftEarBottom, conny.rightEarBottom];
-    const connyCheek = [conny.leftCheek, conny.rightCheek];
-    const connyReds = [conny.mouth, conny.tape2];
-    const connySoftReds = [conny.mouth2];
-    const connySolidPinks = [conny.tape];
+    const connyEars = [conny.objs.leftEarBottom, conny.objs.rightEarBottom];
+    const connyCheek = [conny.objs.leftCheek, conny.objs.rightCheek];
+    const connyReds = [conny.objs.mouth, conny.objs.tape2];
+    const connySoftReds = [conny.objs.mouth2];
+    const connySolidPinks = [conny.objs.tape];
 
     
     function setConnyConfig() {
-        Object.values(conny).forEach((obj) => {
+        Object.values(conny.objs).forEach((obj) => {
             obj.objectUniformConfig = connyDefaultConfig;
         });
         connyEars.forEach((obj) => {
@@ -262,6 +262,10 @@ function main() {
             obj.objectUniformConfig = connySolidPinkConfig;
         });
     }
+
+
+
+
 
     {
         let set = (...prop)=>shadowProgramInfo.uniformConfig.setAndApplyUniformValue(...prop);
@@ -378,12 +382,29 @@ function main() {
         });
     }
 
+    /*========================= ANIMATIONS ========================= */
+    function poseApplier({value}) {
+        value.apply();
+    }
+    let transition = new TransitionManager()
+        .add(poseApplier, new PoseInterpolator(conny.pose.T, conny.pose.stand), 2000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(conny.pose.stand, conny.pose.walkRight), 1000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(conny.pose.walkRight, conny.pose.walkLeft), 1000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(conny.pose.walkLeft, conny.pose.walkRight), 1000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(conny.pose.walkRight, conny.pose.stand), 1000, Easing.sineInOut);
+    
+    let prevTime = 0;
+
     function animate(time) {
         /*========================= TRANSFORMATIONS ========================= */
         if (!drag) {
             dX *= AMORTIZATION, dY *= AMORTIZATION;
             THETA += dX, PHI += dY;
         }
+        let dt = time - prevTime;
+        prevTime = time;
+
+        transition.step(dt);
 
         objects.forEach((obj) => {
             obj.transform.reset();
