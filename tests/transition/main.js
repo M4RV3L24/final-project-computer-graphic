@@ -2,14 +2,16 @@ var object = null
 var object2 = null
 var object3 = null
 
-function translateXObject2({value}){
-	object2.transform.translateX(value);
+function translateXObject2(value){
+	object2.transform.translateX(value.value);
 }
 
-function translateObject3({value}){
+function translateObject3({value, prevValue}){
+    console.log("PREV = " + prevValue.get(0))
+    console.log("VAL 2  = " +  value.get(2))
 	object3.transform.reset();
-	object3.transform.translateX(value.get(0));
-	object3.transform.translateY(value.get(1));
+	object3.transform.translateX(prevValue.get(0));
+	object3.transform.translateY(prevValue.get(1));
 }
 	
 function main() {
@@ -165,7 +167,7 @@ function main() {
     let floor = new GLObject(GL, floorData.vertices, floorData.indices);
 
     let objects = [ellipsoid, hyperboloid1, hyperboloid2, ellipticCone, ellipticParaboloid, hyperbolicParaboloid, floor];
-    // objects = [ellipsoid, floor];
+    objects = [hyperboloid1, floor];
     
     objects.forEach(obj => {
         obj.setup();
