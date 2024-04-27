@@ -139,6 +139,11 @@ class Quaternion {
         return this;
     }
 
+    neg() {
+        this.mul(-1);
+        return this;
+    }
+
     inverse() {
         this.load(Quaternion.inverse(this));
         return this;
