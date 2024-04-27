@@ -162,6 +162,12 @@ class RotQuatInterpolator extends AbstractInterpolator {
             return result;
         }
 
+        if (cosHalfTheta < 0) {
+            q2 = q2.copy();
+            q2.neg();
+            cosHalfTheta = q1.dot(q2);
+        }
+
         // Calculate temporary values.
         let halfTheta = Math.acos(cosHalfTheta);
         let sinHalfTheta = Math.sqrt(1.0 - cosHalfTheta * cosHalfTheta);

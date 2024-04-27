@@ -369,3 +369,63 @@ function generateHyperbolicParaboloid(uCount, vCount, a, b, c) {
 
     return {vertices, indices};
 }
+
+function generateEllipsDivider(uCount, vCount, a, b, c, div) {
+    var vertices = [];
+
+    let insidePoint = [0, 0, 0];
+    for (let i = 0; i < uCount; i++) {
+        let u = LIBS.map(i, 0, uCount-1, -Math.PI, Math.PI);
+        
+        let cu = Math.cos(u), su = Math.sin(u);
+        for (let j = 0; j < vCount/div; j++) {
+            let v = LIBS.map(j, 0, vCount-1, -Math.PI/2, Math.PI/(1.9));
+
+            let cv = Math.cos(v), sv = Math.sin(v);
+
+            // Position
+            let p = [
+                a * cv * cu,
+                b * cv * su,
+                c * sv
+            ];
+
+            /* Calculate normal vector */
+            // Calculate first tangent vector
+            let dp_du = [
+                -a * cv * su,
+                b * cv * cu,
+                0
+            ];
+            // Calculate second tangent vector
+            let dp_dv = [
+                -a * sv * cu,
+                -b * sv * su,
+                c * cv
+            ];
+            // Calculate cross product
+            let n = Vector.cross(dp_du, dp_dv);
+            // Normalize the normal vector
+            n.normalize();
+            // Determine orientation of normal vector
+            if (Vector.sub(p, insidePoint).dot(n) < 0)
+                n.neg();
+
+            vertices.push(...p);
+            vertices.push(...n.arr());
+        }
+    }
+
+    var indices = [];
+    for (let i = 0; i < uCount - 1; i++) {
+        for (let j = 0; j < vCount - 2; j++) {
+            let k1 = i * vCount + j;
+            let k2 = k1 + vCount;
+            indices.push(k1, k1 + 1, k2);
+            indices.push(k1 + 1, k2, k2 + 1);
+        }
+    }
+
+    return {vertices, indices};
+}
+

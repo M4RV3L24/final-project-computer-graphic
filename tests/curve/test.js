@@ -3,7 +3,7 @@ function main() {
     CANVAS.width = window.innerWidth;
     CANVAS.height = window.innerHeight;
 
-    /*========================= CAPTURE MOUSE EVENTS ========================= */
+    /*========================= CAPTURE EVENTS ========================= */
 
     var AMORTIZATION = 0.95;
     var drag = false;
@@ -13,6 +13,7 @@ function main() {
 
     var mouseDown = function (e) {
         drag = true;
+        
         console.log(e.pageX, e.pageY);
         x_prev = e.pageX, y_prev = e.pageY;
         e.preventDefault();
@@ -45,7 +46,7 @@ function main() {
     CANVAS.addEventListener("mousemove", mouseMove, false);
     document.addEventListener("keypress", keyPress);
 
-    /*========================= GET WEBGL CONTEXT ========================= */
+    /*========================= WEBGL CONTEXT ========================= */
     var GL;
     try {
         GL = CANVAS.getContext("webgl", { antialias: true });
@@ -56,29 +57,24 @@ function main() {
         return false;
     }
 
-    /*========================= SHADERS ========================= */
-    var vertexShaderSource = document.querySelector("#vertexShader").text;
-    var fragmentShaderSource = document.querySelector("#fragmentShader").text;
-
-    var shadowVertexShaderSource = document.querySelector("#shadowVertexShader").text;
-    var shadowFragmentShaderSource = document.querySelector("#shadowFragmentShader").text;
-
-    /*========================= THE OBJECTS ========================= */
+    /*========================= PROGRAMS ========================= */
     let renderProgramInfo;
     {
-        vertexShader = createShader(GL, GL.VERTEX_SHADER, vertexShaderSource);
-        fragmentShader = createShader(GL, GL.FRAGMENT_SHADER, fragmentShaderSource);
-        program = createProgram(GL, vertexShader, fragmentShader);
+        let vertexShaderSource = document.querySelector("#vertexShader").text;
+        let fragmentShaderSource = document.querySelector("#fragmentShader").text;
+        let vertexShader = createShader(GL, GL.VERTEX_SHADER, vertexShaderSource);
+        let fragmentShader = createShader(GL, GL.FRAGMENT_SHADER, fragmentShaderSource);
+        let program = createProgram(GL, vertexShader, fragmentShader);
         renderProgramInfo = new ProgramInfo(GL, program);
 
         let addUniform = (...prop)=>renderProgramInfo.uniformConfig.addUniform(...prop);
+        addUniform("color", "3fv");
         addUniform("PMatrix", "Matrix4fv");
         addUniform("VMatrix", "Matrix4fv");
         addUniform("lightPMatrix", "Matrix4fv");
         addUniform("lightVMatrix", "Matrix4fv");
         addUniform("MMatrix", "Matrix4fv");
         addUniform("normalMatrix", "Matrix4fv");
-        addUniform("color", "3fv");
 
         addUniform("light_source_direction", "3fv");
         addUniform("light_source_ambient_color", "3fv");
@@ -99,6 +95,8 @@ function main() {
 
     let shadowProgramInfo;
     {
+        let shadowVertexShaderSource = document.querySelector("#shadowVertexShader").text;
+        let shadowFragmentShaderSource = document.querySelector("#shadowFragmentShader").text;
         let shadowVertexShader = createShader(GL, GL.VERTEX_SHADER, shadowVertexShaderSource);
         let shadowFragmentShader = createShader(GL, GL.FRAGMENT_SHADER, shadowFragmentShaderSource);
         let program = createProgram(GL, shadowVertexShader, shadowFragmentShader);
@@ -111,29 +109,7 @@ function main() {
         addUniform("normalMatrix", "Matrix4fv");
     }
 
-    const defaultColor = [.7, .7, .7], yellow = [.7, .7, .3];
-
-    let yellowUniformConfig = renderProgramInfo.createUniformConfig();
-    yellowUniformConfig.addUniform("color", "3fv", yellow);
-
-    let ellipsoidData = generateEllipsoid(100, 100, 30, 20, 10);
-    let ellipsoid = new GLObject(GL, ellipsoidData.vertices, ellipsoidData.indices);
-
-    let hyperboloid1Data = generateHyperboloid1(100, 100, 1, 1, 0.5);
-    let hyperboloid1 = new GLObject(GL, hyperboloid1Data.vertices, hyperboloid1Data.indices);
-    
-    let hyperboloid2Data = generateHyperboloid2(100, 100, 1, 1, 1);
-    let hyperboloid2 = new GLObject(GL, hyperboloid2Data.vertices, hyperboloid2Data.indices);
-    
-    let ellipticConeData = generateEllipticCone(100, 100, 1, 1, 1);
-    let ellipticCone = new GLObject(GL, ellipticConeData.vertices, ellipticConeData.indices);
-    
-    let ellipticParaboloidData = generateEllipticParaboloid(500, 500, 2, 2, 5);
-    let ellipticParaboloid = new GLObject(GL, ellipticParaboloidData.vertices, ellipticParaboloidData.indices);
-
-    let hyperbolicParaboloidData = generateHyperbolicParaboloid(100, 100, 2, 2, 5);
-    let hyperbolicParaboloid = new GLObject(GL, hyperbolicParaboloidData.vertices, hyperbolicParaboloidData.indices);
-
+    /*========================= OBJECTS ========================= */
     let floorData = {
         vertices: [
             -500., -200.,  500.,     0., 1., 0.,
@@ -146,10 +122,41 @@ function main() {
             2, 0, 3,
         ]
     };
-    let floor = new GLObject(GL, floorData.vertices, floorData.indices);
 
-    objects = [ellipsoid, hyperboloid1, hyperboloid2, ellipticCone, ellipticParaboloid, hyperbolicParaboloid, floor];
-    // objects = [ellipsoid, floor];
+
+
+    let curveData = new Curve(GL, [0, 10, -3, 50, 20, 0, 0, -10, 0, -50, 20, 0], 50, 2);
+    let circleData = generatePlainCircle(10, 10, 10, 10);
+    // console.log(circleData);
+
+    let circle = new GLObject(GL, circleData.vertices, circleData.indices, null, null, GL.TRIANGLE_FAN);
+    
+    curveData.addPoint([7 ,9,-3]);
+    curveData.setControlPoint([20, 10, -3, 50, 40, 0, 0, -40, 0, -50, 20, 0, 7, 9, -3]);
+    
+    
+    // curveData.addPoint([50 ,20, 0]);
+    // curveData.deletelastPoint();
+    console.log(curveData.getControlPoint().length);
+    
+
+
+    console.log(curveData.getControlPoint());
+    let curve = curveData.getCurveObject();
+    // curve.setDrawMode(GL.TRIANGLE_STRIP);
+    // GLObject.setDrawMode(curve, GL.LINE_STRIP);
+
+    // circle.setDrawMode(GL.TRIANGLE_STRIP);
+
+    // let conny = createConny();
+
+    let floor = new GLObject(GL, floorData.vertices, floorData.indices);
+    // Transform3.
+    curve.transform.rotateX(LIBS.degToRad(20));
+
+    
+
+    objects = [floor, curve];
     
     objects.forEach(obj => {
         obj.setup();
@@ -157,26 +164,31 @@ function main() {
 
     /*========================= UNIFORMS ========================= */
 
+    const defaultColor = [0.7, 0.7, 0.7];
     const projMatrix = LIBS.get_ortho_proj(40, CANVAS.width / CANVAS.height, 1, 500);
 
     const cameraPosition = [0.,30.,140.];
-    const cameraTarget = [0., 0., 0.];
+    const cameraTarget = [0., 0., 0.]
     const cameraMatrix = LIBS.look_at(cameraPosition, cameraTarget, [0, 1, 0]);
     const viewDirection = Vector.sub(cameraTarget, cameraPosition).normalize().arr();
-    const viewMatrix = Matrix.inverse(Matrix.fromGLMatrix(cameraMatrix, 4, 4)).toGLMatrix();
+    const viewMatrix = Matrix.fromGLMatrix(cameraMatrix, 4, 4).inverse().toGLMatrix();
     
-    const lightSourceAmbientColor = [1.,1.,1.];
+    const lightSourceAmbientColor = [0.3,0.3,0.3];
     const lightSourceDiffuseColor = [1.,1.,1.];
     const lightSourceSpecularColor = [1.,1.,1.];
     
-    const matAmbientColor = [0.3,0.3,0.3];
+    const matAmbientColor = [1.,1.,1.];
     const matDiffuseColor = [1.,1.,1.];
     const matSpecularColor = [1.,1.,1.];
     const matShininess = 20.;
 
-    const lightSourcePosition = [20., 10., 0.];
+    const lightSourcePosition = [20., 20., 20.];
     const lightSourceTarget = [0., 0., 0.];
     const lightSourceDirection = Vector.sub(lightSourcePosition, lightSourceTarget).normalize().arr();
+
+    const cellSize = 1/1000;
+    const spread = 2;
+    const bias = 0.15;
 
     const lightProjMatrix = LIBS.get_ortho_proj(40, CANVAS.width / CANVAS.height, 1, 1000);
     const lightViewMatrix = Transform3.translateZ(
@@ -193,7 +205,7 @@ function main() {
     var THETA = 0, PHI = 0;
 
     {
-        let set = (...prop)=>renderProgramInfo.uniformConfig.setUniformValue(...prop);
+        let set = (...prop)=>renderProgramInfo.uniformConfig.setAndApplyUniformValue(...prop);
         set("color", defaultColor);
         set("PMatrix", false, projMatrix);
         set("VMatrix", false, viewMatrix);
@@ -208,22 +220,70 @@ function main() {
         set("mat_diffuse_color", matDiffuseColor);
         set("mat_specular_color", matSpecularColor);
         set("mat_shininess", matShininess);
-        set("cellSize", 1/1000);
-        set("spread", 2);
-        set("bias", 0.05);
+        set("cellSize", cellSize);
+        set("spread", spread);
+        set("bias", bias);
 
         set("view_direction", viewDirection);
     }
 
+    const
+        connyColor = [1, 1, 1],
+        connyBottomEarColor = [1, 0.57, 0.87],
+        connyEyeBallColor = [.0, .0, .0],
+        connyCheekColor = [0.94, 0.82, 0.9];
+
+    let curveConfig = renderProgramInfo.createUniformConfig();
+    curveConfig.addUniform("color", "3fv", [1, 0, 0]);
+
+    let circleConfig = renderProgramInfo.createUniformConfig();
+    circleConfig.addUniform("color", "3fv", [0, 1, 0.5]);
+
+    // let connyDefaultConfig = renderProgramInfo.createUniformConfig();
+    // connyDefaultConfig.addUniform("color", "3fv", connyColor);
+
+    // let connyBottomEarConfig = renderProgramInfo.createUniformConfig();
+    // connyBottomEarConfig.addUniform("color", "3fv", connyBottomEarColor);
+
+    // let connyEyeConfig = renderProgramInfo.createUniformConfig();
+    // connyEyeConfig.addUniform("color", "3fv", connyEyeBallColor);
+
+    // let connyCheekConfig = renderProgramInfo.createUniformConfig();
+    // connyCheekConfig.addUniform("color", "3fv", connyCheekColor);
+    // const connyEyes = [conny.leftEyeGroup, conny.rightEyeGroup, conny.nose, conny.nose2, conny.line];
+
+    // const connyEars = [conny.leftEarBottom, conny.rightEarBottom];
+    // const connyCheek = [conny.leftCheek, conny.rightCheek];
+
+    function setCurveConfig() {
+        curve.objectUniformConfig = curveConfig;
+        circle.objectUniformConfig = circleConfig;
+    }
+    // function setConnyConfig() {
+    //     Object.values(conny).forEach((obj) => {
+    //         obj.objectUniformConfig = connyDefaultConfig;
+    //     });
+    //     connyEars.forEach((obj) => {
+    //         obj.objectUniformConfig = connyBottomEarConfig;
+    //     });
+    //     connyEyes.forEach((obj) => {
+    //         obj.objectUniformConfig = connyEyeConfig;
+    //     });
+    //     connyCheek.forEach((obj) => {
+    //         obj.objectUniformConfig = connyCheekConfig;
+    //     });
+    // }
+
     {
-        let set = (...prop)=>shadowProgramInfo.uniformConfig.setUniformValue(...prop);
+        let set = (...prop)=>shadowProgramInfo.uniformConfig.setAndApplyUniformValue(...prop);
         set("PMatrix", false, lightProjMatrix);
         set("VMatrix", false, lightViewMatrix);
     }
 
-    var depthTexture = GL.createTexture();
+    /*========================= DEPTH FRAME BUFFER & TEXTURE ========================= */
+    var unusedTexture = GL.createTexture();
     var depthTextureSize = 1024;
-    GL.bindTexture(GL.TEXTURE_2D, depthTexture);
+    GL.bindTexture(GL.TEXTURE_2D, unusedTexture);
     GL.texImage2D(
         GL.TEXTURE_2D,      // target
         0,                  // mip level
@@ -245,13 +305,13 @@ function main() {
         GL.FRAMEBUFFER,       // target
         GL.DEPTH_ATTACHMENT,  // attachment point
         GL.TEXTURE_2D,        // texture target
-        depthTexture,         // texture
+        unusedTexture,         // texture
         0                     // mip level
     );
     
     // create a color texture of the same size as the depth texture
-    const unusedTexture = GL.createTexture();
-    GL.bindTexture(GL.TEXTURE_2D, unusedTexture);
+    const depthTexture = GL.createTexture();
+    GL.bindTexture(GL.TEXTURE_2D, depthTexture);
     GL.texImage2D(
         GL.TEXTURE_2D,
         0,
@@ -273,7 +333,7 @@ function main() {
         GL.FRAMEBUFFER,        // target
         GL.COLOR_ATTACHMENT0,  // attachment point
         GL.TEXTURE_2D,         // texture target
-        unusedTexture,         // texture
+        depthTexture,         // texture
         0                      // mip level
     );
 
@@ -283,77 +343,70 @@ function main() {
     GL.clearColor(0., 0., 0., 0.);
     GL.clearDepth(1.);
 
-    function animate() {
+    /*========================= RENDER SHADOW ========================= */
+    function renderShadow() {
+        if (renderMode == 0) {
+            GL.bindFramebuffer(GL.FRAMEBUFFER, depthFramebuffer);
+            GL.viewport(0, 0, depthTextureSize, depthTextureSize);
+        } else if (renderMode == 1) {
+            GL.bindFramebuffer(GL.FRAMEBUFFER, null);
+            GL.viewport(0, 0, CANVAS.width, CANVAS.height);
+        }
+
+        objects.forEach(obj => {
+            obj.programInfo = shadowProgramInfo;
+        });
+        
+        GL.clearColor(1., 1., 1., 1.);
+        GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
+        
+        objects.forEach(obj => {
+            obj.render();
+        });
+    }
+
+    function renderFull() {
+        if (renderMode == 0) {
+            GL.bindFramebuffer(GL.FRAMEBUFFER, null);
+        } else if (renderMode == 1) {
+            return;
+        }
+
+        GL.viewport(0, 0, CANVAS.width, CANVAS.height);
+        GL.clearColor(0.0, 0.0, 0.0, 1.0);
+        GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
+
+        GL.bindTexture(GL.TEXTURE_2D, depthTexture);
+
+        objects.forEach(obj => {
+            obj.programInfo = renderProgramInfo;
+        });
+
+        // setConnyConfig();
+        setCurveConfig();
+
+        objects.forEach(obj => {
+            obj.render();
+        });
+    }
+
+    function animate(time) {
         /*========================= TRANSFORMATIONS ========================= */
         if (!drag) {
             dX *= AMORTIZATION, dY *= AMORTIZATION;
             THETA += dX, PHI += dY;
         }
 
-        objects.forEach(object => {
-            object.transform.reset();
-            object.transform.scaleUniform(0.3);
-            object.transform.rotateY(THETA);
-            object.transform.rotateX(PHI);
+        objects.forEach((obj) => {
+            obj.transform.reset();
+        })
+        curve.transform.scaleY(LIBS.degToRad(90));
+
+        objects.forEach((obj) => {
+            obj.transform.rotateY(THETA);
+            obj.transform.rotateX(PHI);
+       
         });
-
-        ellipsoid.transform.translateX(-20).translateZ(-50);
-        hyperbolicParaboloid.transform.translateX(20);
-        hyperboloid1.transform.translateY(20);
-        hyperboloid2.transform.translateY(-15);
-        ellipticCone.transform.translateZ(-20);
-        ellipticParaboloid.transform.translateX(-40);
-
-
-        /*========================= RENDER SHADOW ========================= */
-        function renderShadow() {
-            if (renderMode == 0) {
-                GL.bindFramebuffer(GL.FRAMEBUFFER, depthFramebuffer);
-                GL.viewport(0, 0, depthTextureSize, depthTextureSize);
-            } else if (renderMode == 1) {
-                GL.bindFramebuffer(GL.FRAMEBUFFER, null);
-                GL.viewport(0, 0, CANVAS.width, CANVAS.height);
-            }
-
-            objects.forEach(obj => {
-                obj.programInfo = shadowProgramInfo;
-            });
-            
-            GL.clearColor(1., 1., 1., 1.);
-            GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
-
-            objects.forEach(object => {
-                object.render();
-            });
-        }
-
-        /*========================= RENDER FULL ========================= */
-        function renderFull() {
-            if (renderMode == 0) {
-                GL.bindFramebuffer(GL.FRAMEBUFFER, null);
-            } else if (renderMode == 1) {
-                return;
-            }
-
-            GL.viewport(0, 0, CANVAS.width, CANVAS.height);
-            GL.clearColor(0.0, 0.0, 0.0, 1.0);
-            GL.clear(GL.COLOR_BUFFER_BIT | GL.DEPTH_BUFFER_BIT);
-
-            GL.bindTexture(GL.TEXTURE_2D, unusedTexture);
-
-            objects.forEach(obj => {
-                obj.programInfo = renderProgramInfo;
-            });
-        
-            ellipticCone.objectUniformConfig = yellowUniformConfig;
-
-            
-
-            objects.forEach(object => {
-                object.render();
-            });
-        }
-
         renderShadow();
         renderFull();
 

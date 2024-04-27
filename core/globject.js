@@ -16,12 +16,15 @@ class GLObject {
     objectUniformConfig = null;
     _childs = null;
 
-    constructor(GL, vertices, faces, programInfo=null, objectUniformConfig=null) {
+    _mode = null;
+
+    constructor(GL, vertices, faces, programInfo=null, objectUniformConfig=null, mode = null) {
         this._GL = GL;
         this._vertices = vertices;
         this._faces = faces;
         this._childs = [];
-        
+        this._mode = mode !== null ? mode : GL.TRIANGLES; // default drawing mode is TRIANGLE if no mode is provided
+    
         this._triangle_vbo = this._GL.createBuffer();
         this._triangle_ebo = this._GL.createBuffer();
 
@@ -110,7 +113,7 @@ class GLObject {
                 offset
             );
             this._GL.bindBuffer(this._GL.ELEMENT_ARRAY_BUFFER, this._triangle_ebo);
-            this._GL.drawElements(this._GL.TRIANGLES, this._faces.length, this._GL.UNSIGNED_INT, 0);
+            this._GL.drawElements(this._mode, this._faces.length, this._GL.UNSIGNED_INT, 0);
         }
 
         this._childs.forEach((child) => {
@@ -188,6 +191,13 @@ class GLObject {
         if (child.parent != null)
             GLObject._removeChildIfExists(child.parent, child);
         child.parent = parent;
+    }
+    setDrawMode(mode=null) {
+        this._mode = mode!==null ? mode : this._GL.TRIANGLES;
+    }
+
+    static setDrawMode(obj, mode=null) {
+        obj.setDrawMode(mode!==null ? mode : obj._GL.TRIANGLES);
     }
 }
 
