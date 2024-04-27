@@ -308,9 +308,29 @@ function createBrown(GL, programInfo = null) {
     pose.initial.apply();
 
     objs.head.transform.rotateZ(LIBS.degToRad(-15))
-    objs.rightArmGroup.transform.rotateAlong(LIBS.degToRad(90), [0, 0, 0], [26, 7, 0]);
+    objs.rightArmGroup.transform.rotateAlong(LIBS.degToRad(90), [1, 0, 0], [26, 7, 0]);
     objs.eyes.transform.scaleUniform(1.2);
     pose.waveRightHand = new Pose(objsArr);
+    pose.initial.apply();
+
+    objs.rightArmGroup.transform.rotateAlong(LIBS.degToRad(90), [4, -2, 0], [26, 7, 0]);
+    objs.luckyCloverLeaves.transform.rotateZ(LIBS.degToRad(180));
+    pose.showLuckyClover = new Pose(objsArr);
+    pose.initial.apply();
+
+    objs.head.transform.rotateZ(LIBS.degToRad(10));
+    objs.rightArmGroup.transform.rotateAlong(LIBS.degToRad(90), [4, -2, 0], [26, 7, 0]);
+    objs.rightArmGroup.transform.rotateAlong(LIBS.degToRad(-45), [0, 0, 1], [23, 2, 4]);
+    objs.luckyCloverLeaves.transform.rotateZ(LIBS.degToRad(0));
+    objs.eyes.transform.scaleUniform(0.9);
+    pose.luckyCloverLeft = new Pose(objsArr);
+    pose.initial.apply();
+
+    objs.head.transform.rotateZ(LIBS.degToRad(-10));
+    objs.rightArmGroup.transform.rotateAlong(LIBS.degToRad(90), [4, -2, 0], [26, 7, 0]);
+    objs.rightArmGroup.transform.rotateAlong(LIBS.degToRad(45), [0, 0, 1], [23, 2, 4]);
+    objs.luckyCloverLeaves.transform.rotateZ(LIBS.degToRad(180));
+    pose.luckyCloverRight = new Pose(objsArr);
     pose.initial.apply();
 
     return {objs, pose};

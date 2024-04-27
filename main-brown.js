@@ -371,22 +371,35 @@ function main() {
     function poseApplier({value}) {
         value.apply();
     }
+    function spinClover({value, prevValue}){
+        brown.objs.luckyCloverLeaves.transform.rotateZ(value - prevValue);
+    }
    
     let transition = new TransitionManager()
-        .add(poseApplier, new PoseInterpolator(brown.pose.initial, brown.pose.nod), 1000, Easing.sineInOut)
-        .add(poseApplier, new PoseInterpolator(brown.pose.nod, brown.pose.initial), 1000, Easing.sineInOut)
-        .add(poseApplier, new PoseInterpolator(brown.pose.initial, brown.pose.nod), 1000, Easing.sineInOut)
-        .add(poseApplier, new PoseInterpolator(brown.pose.nod, brown.pose.initial), 1000, Easing.sineInOut)
-        .add(poseApplier, new PoseInterpolator(brown.pose.initial, brown.pose.leftFootWalk), 1000, Easing.sineInOut)
-        .add(poseApplier, new PoseInterpolator(brown.pose.leftFootWalk, brown.pose.rightFootWalk), 1000, Easing.sineInOut)
-        .add(poseApplier, new PoseInterpolator(brown.pose.rightFootWalk, brown.pose.leftFootWalk), 1000, Easing.sineInOut)
-        .add(poseApplier, new PoseInterpolator(brown.pose.leftFootWalk, brown.pose.rightFootWalk), 1000, Easing.sineInOut)
-        .add(poseApplier, new PoseInterpolator(brown.pose.rightFootWalk, brown.pose.initial), 1000, Easing.sineInOut)
-        .add(poseApplier, new PoseInterpolator(brown.pose.initial, brown.pose.waveRightHand), 1000, Easing.sineInOut)
-        .add(poseApplier, new PoseInterpolator(brown.pose.waveRightHand, brown.pose.initial), 1000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(brown.pose.initial, brown.pose.nod), 500, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(brown.pose.nod, brown.pose.initial), 500, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(brown.pose.initial, brown.pose.nod), 500, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(brown.pose.nod, brown.pose.initial), 500, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(brown.pose.initial, brown.pose.leftFootWalk), 800, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(brown.pose.leftFootWalk, brown.pose.rightFootWalk), 800, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(brown.pose.rightFootWalk, brown.pose.leftFootWalk), 800, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(brown.pose.leftFootWalk, brown.pose.rightFootWalk), 800, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(brown.pose.rightFootWalk, brown.pose.initial), 800, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(brown.pose.initial, brown.pose.waveRightHand), 800, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(brown.pose.waveRightHand, brown.pose.initial), 800, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(brown.pose.initial, brown.pose.showLuckyClover), 800, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(brown.pose.showLuckyClover, brown.pose.luckyCloverLeft), 800, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(brown.pose.luckyCloverLeft, brown.pose.luckyCloverRight), 1600, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(brown.pose.luckyCloverRight, brown.pose.luckyCloverLeft), 1600, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(brown.pose.luckyCloverLeft, brown.pose.luckyCloverRight), 1600, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(brown.pose.luckyCloverRight, brown.pose.showLuckyClover), 800, Easing.sineInOut)
+        .add(spinClover, new NumberInterpolator(0, 3600), 25000)
+
+
 
     let prev_time = 0;
     function animate(time) {
+        // brown.objs.rightArmGroup.transform.rotateAlong(LIBS.degToRad(1), [0, 0, 1], [23, 2, 4]);
         /*========================= TRANSFORMATIONS ========================= */
         if (!drag) {
             dX *= AMORTIZATION, dY *= AMORTIZATION;
