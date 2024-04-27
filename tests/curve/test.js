@@ -125,14 +125,22 @@ function main() {
 
 
 
-    let curveData = new createCurve(GL, [50, 20, 0, 0, -10, -3, -50, 20, 0], 50, 2);
+    let curveData = new Curve(GL, [0, 10, -3, 50, 20, 0, 0, -10, 0, -50, 20, 0], 50, 2);
     let circleData = generatePlainCircle(10, 10, 10, 10);
-    console.log(circleData);
+    // console.log(circleData);
 
     let circle = new GLObject(GL, circleData.vertices, circleData.indices, null, null, GL.TRIANGLE_FAN);
+    
+    curveData.addPoint([7 ,9,-3]);
+    curveData.setControlPoint([20, 10, -3, 50, 40, 0, 0, -40, 0, -50, 20, 0, 7, 9, -3]);
+    
+    
+    // curveData.addPoint([50 ,20, 0]);
+    // curveData.deletelastPoint();
+    console.log(curveData.getControlPoint().length);
+    
 
-    curveData.addPoint([0,30,0]);
-    curveData.deletelastPoint();
+
     console.log(curveData.getControlPoint());
     let curve = curveData.getCurveObject();
     // curve.setDrawMode(GL.TRIANGLE_STRIP);
@@ -148,7 +156,7 @@ function main() {
 
     
 
-    objects = [floor, curve, circle];
+    objects = [floor, curve];
     
     objects.forEach(obj => {
         obj.setup();

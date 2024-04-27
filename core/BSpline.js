@@ -7,7 +7,7 @@ function normalizeScreen(x, y, z, width, height) {
 }
 
 
-class createCurve {
+class Curve {
   controlPoint =  null;
   m = null;
   degree = null;
@@ -46,13 +46,17 @@ class createCurve {
   setControlPoint(controlPoint) {
     this.controlPoint = controlPoint;
     this.curve = generateBSpline(controlPoint, this.m, this.degree);
-  }
-  addPoint(index, point) {
-    this.controlPoint.splice(index, 0, point[0], point[1], point[2]);
-    this.curve = generateBSpline(this.controlPoint, this.m, this.degree);
     this.objs = new GLObject(this._GL, this.curve.vertices, this.curve.indices, null, null, this._GL.LINE_STRIP);
-  
   }
+  // addPointAt(index, point) {
+  //   var inserted = point;
+  //   var raw = this.controlPoint.slice();
+  //   raw.splice(index*3, 0, inserted[0], inserted[1], inserted[2]);
+
+  //   this.controlPoint = raw;
+  //   this.curve = generateBSpline(this.controlPoint, this.m, this.degree);
+  //   this.objs = new GLObject(this._GL, this.curve.vertices, this.curve.indices, null, null, this._GL.LINE_STRIP);
+  // }
 
   addPoint(point) {
     this.controlPoint.push(point[0], point[1], point[2]);
@@ -60,20 +64,20 @@ class createCurve {
     this.objs = new GLObject(this._GL, this.curve.vertices, this.curve.indices, null, null, this._GL.LINE_STRIP);
   }
 
-  static addPoint(object, point) {
-    object.controlPoint.push(point[0], point[1], point[2]);
-    object.curve = generateBSpline(object.controlPoint, object.m, object.degree);
-    this.objs = new GLObject(this._GL, this.curve.vertices, this.curve.indices, null, null, this._GL.LINE_STRIP);
+  // static addPoint(object, point) {
+  //   object.controlPoint.push(point[0], point[1], point[2]);
+  //   object.curve = generateBSpline(object.controlPoint, object.m, object.degree);
+  //   this.objs = new GLObject(this._GL, this.curve.vertices, this.curve.indices, null, null, this._GL.LINE_STRIP);
   
 
-  }
+  // }
 
-  static addPoint(object, index, point) {
-    object.controlPoint.splice(index, 0, point[0], point[1], point[2]);
-    object.curve = generateBSpline(object.controlPoint, object.m, object.degree);
-    this.objs = new GLObject(this._GL, this.curve.vertices, this.curve.indices, null, null, this._GL.LINE_STRIP);
+  // static addPointAt(object, index, point) {
+  //   object.controlPoint.splice(index, 0, point[0], point[1], point[2]);
+  //   object.curve = generateBSpline(object.controlPoint, object.m, object.degree);
+  //   this.objs = new GLObject(this._GL, this.curve.vertices, this.curve.indices, null, null, this._GL.LINE_STRIP);
   
-  }
+  // }
   deletelastPoint () {
     this.controlPoint.pop();
     this.controlPoint.pop();
