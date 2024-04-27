@@ -199,26 +199,36 @@ function main() {
 
     const
         connyColor = [1, 1, 1],
-        connyBottomEarColor = [1, 0.57, 0.87],
-        connyEyeBallColor = [.0, .0, .0],
-        connyCheekColor = [0.94, 0.82, 0.9];
+        connyPinkColor = [1, 0.57, 0.87],
+        connyBlackColor = [.0, .0, .0],
+        connyCheekColor = [0.94, 0.82, 0.9],
+        connyRed = [1, 0.26, 0.26],
+        connySoftRed = [1, 0.53, 0.53];
 
+
+    let connySoftRedConfig = renderProgramInfo.createUniformConfig();
+    connySoftRedConfig.addUniform("color", "3fv", connySoftRed);
+
+    let connyRedConfig = renderProgramInfo.createUniformConfig();
+    connyRedConfig.addUniform("color", "3fv", connyRed);
 
     let connyDefaultConfig = renderProgramInfo.createUniformConfig();
     connyDefaultConfig.addUniform("color", "3fv", connyColor);
 
-    let connyBottomEarConfig = renderProgramInfo.createUniformConfig();
-    connyBottomEarConfig.addUniform("color", "3fv", connyBottomEarColor);
+    let connyPinkConfig = renderProgramInfo.createUniformConfig();
+    connyPinkConfig.addUniform("color", "3fv", connyPinkColor);
 
-    let connyEyeConfig = renderProgramInfo.createUniformConfig();
-    connyEyeConfig.addUniform("color", "3fv", connyEyeBallColor);
+    let connyBlackConfig = renderProgramInfo.createUniformConfig();
+    connyBlackConfig.addUniform("color", "3fv", connyBlackColor);
 
     let connyCheekConfig = renderProgramInfo.createUniformConfig();
     connyCheekConfig.addUniform("color", "3fv", connyCheekColor);
-    const connyEyes = [conny.leftEyeGroup, conny.rightEyeGroup, conny.nose, conny.nose2, conny.line];
+    const connyBlacks = [conny.leftEyeGroup, conny.rightEyeGroup, conny.nose, conny.nose2, conny.line, conny.outerMouth1, conny.outerMouth2];
 
     const connyEars = [conny.leftEarBottom, conny.rightEarBottom];
     const connyCheek = [conny.leftCheek, conny.rightCheek];
+    const connyReds = [conny.mouth];
+    const connySoftReds = [conny.mouth2];
 
     
     function setConnyConfig() {
@@ -226,13 +236,21 @@ function main() {
             obj.objectUniformConfig = connyDefaultConfig;
         });
         connyEars.forEach((obj) => {
-            obj.objectUniformConfig = connyBottomEarConfig;
+            obj.objectUniformConfig = connyPinkConfig;
         });
-        connyEyes.forEach((obj) => {
-            obj.objectUniformConfig = connyEyeConfig;
+        connyBlacks.forEach((obj) => {
+            obj.objectUniformConfig = connyBlackConfig;
         });
         connyCheek.forEach((obj) => {
             obj.objectUniformConfig = connyCheekConfig;
+        });
+
+        connyReds.forEach((obj) => {
+            obj.objectUniformConfig = connyRedConfig;
+        });
+
+        connySoftReds.forEach((obj) => {
+            obj.objectUniformConfig = connySoftRedConfig;
         });
     }
 

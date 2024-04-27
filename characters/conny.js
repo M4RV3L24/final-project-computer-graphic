@@ -65,15 +65,30 @@ function createConny(GL, programInfo = null) {
                 
                 objs.nose = createObject(generateEllipticCone(100, 100, 0.12, 0.1, 0.5));   
                 objs.nose.transform.translateZ(-8).translateY(-3.5);
-                
-                
+
                 objs.nose2 = createObject(generateEllipticCone(100, 100, 0.11, 0.09, 0.5));   
                 objs.nose2.transform.translateZ(-8).translateY(-3.5);
+
+                objs.outerMouth1 = createObject(generateBSpline([10, 10, 10, 9, 8, 9, 0, 5, 8, -9, 8, 9, -10, 10, 10], 100, 2));
+                objs.outerMouth1.setDrawMode(GL.LINE_STRIP);
+                objs.outerMouth1.transform.translateZ(-9).scaleX(0.5).scaleY(2).translateY(-28);
+
+                objs.outerMouth2 = createObject(generateBSpline([10, 10, 10, 9, 8, 10, 0, 5, 10, -9, 8, 10, -10, 10, 10], 100, 2));
+                objs.outerMouth2.setDrawMode(GL.LINE_STRIP);
+                objs.outerMouth2.transform.translateZ(-9.1).scaleX(0.5).scaleY(0.2556).translateY(-10.2);
+
+                objs.mouth = createObject(generateBSpline([10, 10, 10, 9, 8, 9, 0, 5, 8, -9, 8, 9, -10, 10, 10], 100, 2));
+                objs.mouth.setDrawMode(GL.TRIANGLE_FAN);
+                objs.mouth.transform.translateZ(-9.01).scaleX(0.5).scaleY(2).translateY(-28);
+
+                objs.mouth2 = createObject(generateBSpline([10, 10, 10, 9, 8, 9, 0, 5, 8, -9, 8, 9, -10, 10, 10], 100, 2));
+                objs.mouth2.setDrawMode(GL.TRIANGLE_FAN);
+                objs.mouth2.transform.translateZ(-9.01).scaleX(0.37).scaleY(1).translateY(-22);
 
                 objs.line = createObject(generateUnitCylinder());
                 objs.line.transform.scaleY(1.5).scaleX(0.4).rotateX(LIBS.degToRad(0)).translateZ(1).translateY(-7);
             }
-            objs.faces.addChilds(objs.leftEyeGroup, objs.rightEyeGroup, objs.nose, objs.nose2, objs.leftCheek, objs.rightCheek, objs.line);
+            objs.faces.addChilds(objs.leftEyeGroup, objs.rightEyeGroup, objs.nose, objs.nose2, objs.leftCheek, objs.rightCheek, objs.line, objs.mouth, objs.mouth2, objs.outerMouth1, objs.outerMouth2);
         }
         objs.head.addChilds(objs.baseHead, objs.ears, objs.faces);
 
@@ -82,7 +97,8 @@ function createConny(GL, programInfo = null) {
         objs.body = createNullObject();
         {
             objs.chest = createObject(generateUnitCylinder());
-            objs.chest.transform.scaleX(bodyWidth).scaleY(bodyHeight).scaleZ(8)
+            objs.chest.transform.scaleX(bodyWidth).scaleY(bodyHeight).scaleZ(8);
+
             objs.stomach = createObject(generateEllipsoid(100,100,bodyWidth+2,bodyHeight+2.5,12.5));
             objs.stomach.transform.translateY(-bodyHeight+9).translateZ(1);
 
