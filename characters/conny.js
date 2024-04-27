@@ -104,22 +104,6 @@ function createConny(GL, programInfo = null) {
         {
             objs.chest = createObject(generateUnitCylinder());
             objs.chest.transform.scaleX(bodyWidth).scaleY(bodyHeight).scaleZ(8);
-            // objs.necklace = createNullObject();
-            // {
-            //     objs.necklace1 = createObject(generateBSpline([40, 10, 40, 9, 8, 40, 0, 5, 40, -9, 8, 40, -40, 10, 40], 100, 2));
-            //     objs.necklace1.transform.translateY(10).translateZ(1);
-
-            //     objs.liontin = createNullObject();
-            //     objs.liontin.transform.rotateX(LIBS.degToRad(90)).scaleX(2).scaleY(2).scaleZ(2).translateY(2).translateZ(14);
-            //     {
-            //         objs.necklace2 = createObject(generateHyperboloid1(5, 5, 0.5, 0.5, 3));
-            //         // objs.necklace2.transform.translateY(10).translateZ(40);
-            //         objs.necklace3 = createObject(generateHyperboloid1(5, 5, 0.5, 0.5, 2));
-            //         objs.necklace3.transform.rotateY(LIBS.degToRad(90));    
-            //     }
-            //     objs.liontin.addChilds(objs.necklace2, objs.necklace3);
-            //     }
-            // objs.necklace.addChilds(objs.necklace1, objs.liontin);
             objs.stomach = createObject(generateEllipsoid(100,100,bodyWidth+2,bodyHeight+2.5,12.5));
             objs.stomach.transform.translateY(-bodyHeight+9).translateZ(1);
 
@@ -172,7 +156,7 @@ function createConny(GL, programInfo = null) {
         objs.legs.addChilds(objs.leftLegGroup, objs.rightLegGroup);
 
         objs.arms = createNullObject();
-        objs.arms.transform.translateY(2.5);
+        objs.arms.transform.translateY(2.5).translateZ(1);
         {
             objs.leftArm = createNullObject();
             objs.leftArm.transform.rotateZ(-LIBS.degToRad(-90));
@@ -228,12 +212,14 @@ function createConny(GL, programInfo = null) {
     pose.T = new Pose(objsArr);
 
     objs.leftArm.transform
+    .localRotateX(Math.PI)
     .localRotateY(Math.PI/6)
-    .localRotateZ(Math.PI/6);
+    .localRotateZ(LIBS.degToRad(30));
 
     objs.rightArm.transform
+    .localRotateX(Math.PI)
     .localRotateY(-Math.PI/6)
-    .localRotateZ(-Math.PI/6)
+    .localRotateZ(LIBS.degToRad(-30));
 
     pose.stand = new Pose(objsArr);
 
@@ -246,7 +232,7 @@ function createConny(GL, programInfo = null) {
     objs.rightArm.transform
     .localRotateY(Math.PI/8)
     .localRotateZ(-Math.PI/4)
-    .translateZ(-4);
+    .translateZ(-2);
     
     objs.leftLegGroup.transform
     .rotateX(Math.PI/4);
@@ -276,6 +262,16 @@ function createConny(GL, programInfo = null) {
     pose.walkLeft = new Pose(objsArr);
     
     pose.T.apply();
+
+    objs.head.transform
+    .localRotateY(Math.PI/6);
+
+    pose.turnLeft = new Pose(objsArr);
+    pose.T.apply();
+
+    objs.head.transform
+    .localRotateY(-Math.PI/6);
+    pose.turnRight = new Pose(objsArr);
 
     return {objs, pose};
 }
