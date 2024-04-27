@@ -113,20 +113,25 @@ function main() {
     let floorData = {
         vertices: [
             -500., -200.,  500.,     0., 1., 0.,
-             500., -200.,  500.,     0., 1., 0.,
-             500., -200., -500.,     0., 1., 0.,
-            -500., -200., -500.,     0., 1., 0.,
+            500., -200.,  500.,     0., 1., 0.,
+            500., -200., -500.,     0., 1., 0.,
+           -500., -200., -500.,     0., 1., 0.
         ],
         indices: [
             0, 1, 2,
             2, 0, 3,
         ]
     };
+
+  
     let floor = new GLObject(GL, floorData.vertices, floorData.indices);
 
     let conny = createConny(GL);
 
-    objects = [conny.objs.root, floor];
+    let tree1 = createTree1(GL);
+    let tree2 = createTree2(GL);
+
+    objects = [conny.objs.root, floor,tree2.objs.root];
     
     objects.forEach(obj => {
         obj.setup();
