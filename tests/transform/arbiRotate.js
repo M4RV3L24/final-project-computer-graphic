@@ -124,7 +124,7 @@ function main() {
     let hyperboloid2Data = generateHyperboloid2(100, 100, 1, 1, 1);
     let hyperboloid2 = new GLObject(GL, hyperboloid2Data.vertices, hyperboloid2Data.indices);
     
-    let ellipticConeData = generateEllipticCone(100, 100, 1, 1, 1);
+    let ellipticConeData = generateEllipticCone(100, 100, 4, 4, 4);
     let ellipticCone = new GLObject(GL, ellipticConeData.vertices, ellipticConeData.indices);
     
     let ellipticParaboloidData = generateEllipticParaboloid(500, 500, 2, 2, 5);

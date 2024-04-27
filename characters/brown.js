@@ -8,8 +8,8 @@ function createBrown(GL, programInfo = null) {
     }
 
     const bodyHeight = 25;
-    const eyeSize = 1.7, eyeDistance = 3.5;
-    const baseFaceSizeX = 5, baseFaceSizeY = 6;
+    const eyeSize = 1.8, eyeDistance = 3.7;
+    const baseFaceSizeX = 6, baseFaceSizeY = 6.8;
     const earSize = 2.1, earDegree = 30, earDistance = 20;
     const legPosY = -40, legDistance = 14;
     const armPosY = -12, armDistance = 26;
@@ -44,8 +44,30 @@ function createBrown(GL, programInfo = null) {
                 objs.nose.transform.translateZ(-32);
                 objs.nose.transform.translateY(-2);
                 objs.nose.transform.rotateY(LIBS.degToRad(180));
+
+                objs.mouth = createNullObject();
+                {
+                    objs.leftMouth = createObject(generateBSpline([
+                        0, 0, 0, 
+                        0, -1, 0,
+                        -0.5, -1.5, 0, 
+                        -1, -1, 0
+                    ], 100, 2));
+                    objs.leftMouth.setDrawMode(GL.LINE_STRIP);
+
+                    objs.rightMouth = createObject(generateBSpline([
+                        0, 0, 0, 
+                        0, -1, 0,
+                        0.5, -1.5, 0, 
+                        1, -1, 0
+                    ], 100, 2));
+                    objs.rightMouth.setDrawMode(GL.LINE_STRIP);
+                }
+                objs.mouth.addChilds(objs.leftMouth, objs.rightMouth);
+                objs.mouth.transform.scaleUniform(4);
+                objs.mouth.transform.translateZ(31).translateY(-2.5);
             }
-            objs.face.addChilds(objs.baseFace, objs.nose);
+            objs.face.addChilds(objs.baseFace, objs.nose, objs.mouth);
 
             objs.ears = createNullObject();
             {
@@ -89,19 +111,15 @@ function createBrown(GL, programInfo = null) {
         
         objs.body = createNullObject();
         {
-            objs.mainBody = createObject(generateUnitCylinder());
-            objs.mainBody.transform.scaleUniform(20);
-
             objs.ribbonGroup = createNullObject();
             {
                 objs.mainRibbon = createObject(generateHyperboloid1(100, 100, .015, .2, .3));
                 objs.middleRibbon = createObject(generateEllipsoid(100, 100, 3, 3, 2.4));
             }
             objs.ribbonGroup.addChilds(objs.mainRibbon, objs.middleRibbon);
-            objs.ribbonGroup.transform.translateY(6);
-            objs.ribbonGroup.transform.translateX(-25);
+            objs.ribbonGroup.transform.translateX(-27);
             objs.ribbonGroup.transform.rotateY(LIBS.degToRad(90));
-            objs.ribbonGroup.transform.rotateX(LIBS.degToRad(-15));
+            objs.ribbonGroup.transform.rotateX(LIBS.degToRad(-20));
             objs.ribbonGroup.transform.scaleUniform(0.7);
 
             objs.lowerBody = createObject(generateEllipsoid(100, 100, 28, 34, 28));
@@ -111,7 +129,7 @@ function createBrown(GL, programInfo = null) {
             objs.tail.transform.translateZ(-26);
             objs.tail.transform.translateY(-25);
         }
-        objs.body.addChilds(objs.mainBody, objs.ribbonGroup, objs.lowerBody, objs.tail);
+        objs.body.addChilds(objs.ribbonGroup, objs.lowerBody, objs.tail);
         objs.body.transform.translateY(-10);
 
         objs.legs = createNullObject();
@@ -156,17 +174,139 @@ function createBrown(GL, programInfo = null) {
             {
                 objs.rightArm = createObject(generateEllipsoid(100, 100, 12, 21, 12));
                 objs.rightArm.transform.rotateZ(LIBS.degToRad(35));
+
+                objs.luckyCloverGroup = createNullObject();
+                {
+                    objs.luckyCloverStem = createObject(generateBSpline([
+                        0, 0, 0, 
+                        0.3, 0.5, 0,
+                        0.35, 1.5, 0,
+                        0.32, 1.75, 0, 
+                    ], 100, 2));
+                    objs.luckyCloverStem.setDrawMode(GL.LINE_STRIP);
+                    objs.luckyCloverStem.transform.scaleUniform(7);
+
+                    objs.luckyCloverLeaves = createNullObject();
+                    {
+                        objs.middleLeave = createObject(generateEllipsoid(100, 100, .3, .3, .3));
+
+                        objs.leave1 = createObject(generateBSpline([
+                            0, 0, 0,
+
+                            .1, 1.2, 0,
+                            .3, 1.5, 0,
+                            .7, 1.6, 0,
+                            .9, 1.2, 0,
+                            .95, .8, 0,
+                            .7, .7, 0,
+                            .8, .95, 0,
+                            1.2, .9, 0,
+                            1.6, .7, 0,
+                            1.5, .3, 0,
+                            1.2, .1, 0,
+
+                            0, 0, 0
+                        ], 100, 2))
+                        objs.leave1.setDrawMode(GL.TRIANGLE_FAN);
+
+                        objs.leave2 = createObject(generateBSpline([
+                            0, 0, 0,
+
+                            .1, -1.2, 0,
+                            .3, -1.5, 0,
+                            .7, -1.6, 0,
+                            .9, -1.2, 0,
+                            .95, -.8, 0,
+                            .7, -.7, 0,
+                            .8, -.95, 0,
+                            1.2, -.9, 0,
+                            1.6, -.7, 0,
+                            1.5, -.3, 0,
+                            1.2, -.1, 0,
+
+                            0, 0, 0
+                        ], 100, 2))
+                        objs.leave2.setDrawMode(GL.TRIANGLE_FAN);
+
+                        objs.leave3 = createObject(generateBSpline([
+                            0, 0, 0,
+
+                            -.1, -1.2, 0,
+                            -.3, -1.5, 0,
+                            -.7, -1.6, 0,
+                            -.9, -1.2, 0,
+                            -.95, -.8, 0,
+                            -.7, -.7, 0,
+                            -.8, -.95, 0,
+                            -1.2, -.9, 0,
+                            -1.6, -.7, 0,
+                            -1.5, -.3, 0,
+                            -1.2, -.1, 0,
+
+                            0, 0, 0
+                        ], 100, 2))
+                        objs.leave3.setDrawMode(GL.TRIANGLE_FAN);
+
+                        objs.leave4 = createObject(generateBSpline([
+                            0, 0, 0,
+
+                            -.1, 1.2, 0,
+                            -.3, 1.5, 0,
+                            -.7, 1.6, 0,
+                            -.9, 1.2, 0,
+                            -.95, .8, 0,
+                            -.7, .7, 0,
+                            -.8, .95, 0,
+                            -1.2, .9, 0,
+                            -1.6, .7, 0,
+                            -1.5, .3, 0,
+                            -1.2, .1, 0,
+
+                            0, 0, 0
+                        ], 100, 2))
+                        objs.leave4.setDrawMode(GL.TRIANGLE_FAN);
+                    }
+                    objs.luckyCloverLeaves.addChilds(objs.middleLeave, objs.leave1, objs.leave2, objs.leave3, objs.leave4);
+                    objs.luckyCloverLeaves.transform.scaleUniform(2.5);
+                }
+                objs.luckyCloverGroup.addChilds(objs.luckyCloverStem, objs.luckyCloverLeaves);
+                objs.luckyCloverGroup.transform.scaleUniform(2).translateX(7).translateY(-30).localRotateX(LIBS.degToRad(-60)).translateZ(23);
             }
-            objs.rightArmGroup.addChilds(objs.rightArm);
+            objs.rightArmGroup.addChilds(objs.rightArm, objs.luckyCloverGroup);
             objs.rightArmGroup.transform.translateX(armDistance);
         }
         objs.arms.addChilds(objs.leftArmGroup, objs.rightArmGroup);
         objs.arms.transform.translateY(armPosY);
 
-        objs.coba = createObject(generateHyperboloid1(100,100,.1,.4,.5));
+        objs.coba = createObject(generateHyperboloid2(100,100,10,10,10, 2));
     }
     objs.root.addChilds(objs.head, objs.body, objs.legs, objs.arms);
-    // objs.root.addChilds(objs.arms);
+    // objs.root.addChilds(objs.luckyCloverGroup);
 
-    return objs;
+    
+    let pose = {};
+    let objsArr = Object.values(objs);
+    pose.initial = new Pose(objsArr);
+
+    objs.head.transform.rotateX(LIBS.degToRad(20));
+    pose.nod = new Pose(objsArr);
+    pose.initial.apply();
+
+    objs.leftArmGroup.transform.rotateX(LIBS.degToRad(-60));
+    objs.rightLegGroup.transform.rotateX(LIBS.degToRad(-20));
+    pose.rightFootWalk = new Pose(objsArr);
+    pose.initial.apply();
+
+    objs.rightArmGroup.transform.rotateX(LIBS.degToRad(-60));
+    objs.leftLegGroup.transform.rotateX(LIBS.degToRad(-20));
+    pose.leftFootWalk = new Pose(objsArr);
+    pose.initial.apply();
+
+    objs.head.transform.rotateZ(LIBS.degToRad(-15))
+    objs.rightArmGroup.transform.rotateAlong(LIBS.degToRad(90), [0, 0, 0], [26, 7, 0]);
+    objs.eyes.transform.scaleUniform(1.2);
+    pose.waveRightHand = new Pose(objsArr);
+    pose.initial.apply();
+
+    return {objs, pose};
 }

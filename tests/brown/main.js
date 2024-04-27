@@ -124,7 +124,7 @@ function main() {
 
     let brown = createBrown(GL);
 
-    objects = [brown.root, floor];
+    objects = [brown.objs.root, floor];
     
     objects.forEach(obj => {
         obj.setup();
@@ -199,25 +199,22 @@ function main() {
 
     const
         brownColor = [139 / 255, 88 / 255, 73 / 255],
-        brownEyeColor = [39 / 255, 11 / 255, 5 / 255],
         brownBaseFaceColor = [195 / 255, 188 / 255, 191 / 255],
-        brownNoseColor = [39 / 255, 11 / 255, 5 / 255],
+        brownFacialPartColor = [39 / 255, 11 / 255, 5 / 255],
         brownInnerEarColor = [79 / 255, 48 / 255, 33 / 255],
-        brownRibbonColor = [139 / 255, 13 / 255, 9 / 255]
+        brownRibbonColor = [139 / 255, 13 / 255, 9 / 255],
+        brownLuckyCloverColor = [62 / 255, 160 / 255, 85 / 255]
     ;
 
 
     let brownDefaultConfig = renderProgramInfo.createUniformConfig();
     brownDefaultConfig.addUniform("color", "3fv", brownColor);
 
-    let brownEyeConfig = renderProgramInfo.createUniformConfig();
-    brownEyeConfig.addUniform("color", "3fv", brownEyeColor);
-
     let brownBaseFaceConfig = renderProgramInfo.createUniformConfig();
     brownBaseFaceConfig.addUniform("color", "3fv", brownBaseFaceColor);
 
-    let brownNoseConfig = renderProgramInfo.createUniformConfig();
-    brownNoseConfig.addUniform("color", "3fv", brownNoseColor);
+    let brownFacialPartConfig = renderProgramInfo.createUniformConfig();
+    brownFacialPartConfig.addUniform("color", "3fv", brownFacialPartColor);
 
     let brownInnerEarConfig = renderProgramInfo.createUniformConfig();
     brownInnerEarConfig.addUniform("color", "3fv", brownInnerEarColor);
@@ -225,35 +222,34 @@ function main() {
     let brownRibbonConfig = renderProgramInfo.createUniformConfig();
     brownRibbonConfig.addUniform("color", "3fv", brownRibbonColor);
 
+    let brownLuckyCloverConfig = renderProgramInfo.createUniformConfig();
+    brownLuckyCloverConfig.addUniform("color", "3fv", brownLuckyCloverColor);
 
-    const brownEyes = [brown.leftEye, brown.rightEye];
-    const brownBaseFace = [brown.baseFace];
-    const brownNose = [brown.nose];
-    const brownInnerEar = [brown.leftInnerEar, brown.rightInnerEar];
-    const brownRibbon = [brown.mainRibbon, brown.middleRibbon];
+
+    const brownBaseFace = [brown.objs.baseFace];
+    const brownFacialPart = [brown.objs.leftEye, brown.objs.rightEye, brown.objs.nose, brown.objs.leftMouth, brown.objs.rightMouth];
+    const brownInnerEar = [brown.objs.leftInnerEar, brown.objs.rightInnerEar];
+    const brownRibbon = [brown.objs.mainRibbon, brown.objs.middleRibbon];
+    const brownLuckyClover = [brown.objs.luckyCloverStem, brown.objs.middleLeave, brown.objs.leave1, brown.objs.leave2, brown.objs.leave3, brown.objs.leave4];
     function setbrownConfig() {
-        Object.values(brown).forEach((obj) => {
+        Object.values(brown.objs).forEach((obj) => {
             obj.objectUniformConfig = brownDefaultConfig;
         });
-
-        brownEyes.forEach((obj) => {
-            obj.objectUniformConfig = brownEyeConfig;
-        });
-
         brownBaseFace.forEach((obj) => {
             obj.objectUniformConfig = brownBaseFaceConfig;
-        })
-
-        brownNose.forEach((obj) => {
-            obj.objectUniformConfig = brownNoseConfig;
-        })
-
+        });
+        brownFacialPart.forEach((obj) => {
+            obj.objectUniformConfig = brownFacialPartConfig;
+        });
         brownInnerEar.forEach((obj) => {
             obj.objectUniformConfig = brownInnerEarConfig;
-        })
+        });
         brownRibbon.forEach((obj) => {
             obj.objectUniformConfig = brownRibbonConfig;
-        })
+        });
+        brownLuckyClover.forEach((obj) => {
+            obj.objectUniformConfig = brownLuckyCloverConfig;
+        });
     }
 
     {
@@ -371,6 +367,25 @@ function main() {
         });
     }
 
+    /*========================= ANIMATIONS ========================= */
+    function poseApplier({value}) {
+        value.apply();
+    }
+   
+    let transition = new TransitionManager()
+        .add(poseApplier, new PoseInterpolator(brown.pose.initial, brown.pose.nod), 1000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(brown.pose.nod, brown.pose.initial), 1000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(brown.pose.initial, brown.pose.nod), 1000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(brown.pose.nod, brown.pose.initial), 1000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(brown.pose.initial, brown.pose.leftFootWalk), 1000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(brown.pose.leftFootWalk, brown.pose.rightFootWalk), 1000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(brown.pose.rightFootWalk, brown.pose.leftFootWalk), 1000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(brown.pose.leftFootWalk, brown.pose.rightFootWalk), 1000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(brown.pose.rightFootWalk, brown.pose.initial), 1000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(brown.pose.initial, brown.pose.waveRightHand), 1000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(brown.pose.waveRightHand, brown.pose.initial), 1000, Easing.sineInOut)
+
+    let prev_time = 0;
     function animate(time) {
         /*========================= TRANSFORMATIONS ========================= */
         if (!drag) {
@@ -378,14 +393,17 @@ function main() {
             THETA += dX, PHI += dY;
         }
 
-        objects.forEach((obj) => {
-            obj.transform.reset();
-            obj.transform.scaleUniform(0.6);
-            obj.transform.rotateY(THETA);
-            obj.transform.rotateX(PHI);
-        })
-
-        brown.arms.transform.rotateX(-0.01)
+        objects.forEach(object => {
+            object.transform.reset();
+        });
+        let dt = time - prev_time;
+        transition.step(dt);
+        prev_time = time;
+        objects.forEach(object => {
+            object.transform.scaleUniform(0.5);
+            object.transform.rotateY(THETA);
+            object.transform.rotateX(PHI);
+        });
 
         renderShadow();
         renderFull();
