@@ -124,7 +124,7 @@ function main() {
 
     let leonard = createLeonard(GL);
 
-    objects = [leonard.root, floor];
+    objects = [leonard.objs.root, floor];
     
     objects.forEach(obj => {
         obj.setup();
@@ -198,7 +198,9 @@ function main() {
     const
         leonardColor = [0.0, 0.6, 0.2],
         leonardEyeBallColor = [.9, .9, .9],
-        leonardIrisColor = [.1, .1, .1];
+        leonardIrisColor = [.1, .1, .1],
+        candyBodyColor = [.6, .1, .1],
+        candyHeadTailColor = [.8, .3, .15];
 
     let leonardDefaultConfig = renderProgramInfo.createUniformConfig();
     leonardDefaultConfig.addUniform("color", "3fv", leonardColor);
@@ -209,10 +211,17 @@ function main() {
     let leonardIrisConfig = renderProgramInfo.createUniformConfig();
     leonardIrisConfig.addUniform("color", "3fv", leonardIrisColor);
 
-    const leonardEyeBalls = [leonard.leftEyeBall, leonard.rightEyeBall];
-    const leonardIris = [leonard.leftIris, leonard.rightIris];
+    let candyBodyConfig = renderProgramInfo.createUniformConfig();
+    candyBodyConfig.addUniform("color", "3fv", candyBodyColor);
+
+    let candyHeadTailConfig = renderProgramInfo.createUniformConfig();
+    candyHeadTailConfig.addUniform("color", "3fv", candyHeadTailColor);
+
+    const leonardEyeBalls = [leonard.objs.leftEyeBall, leonard.objs.rightEyeBall];
+    const leonardIris = [leonard.objs.leftIris, leonard.objs.rightIris];
+    const candyBody = [leonard.objs.candyUpperBody, leonard.objs.candyLowerBody];
     function setLeonardConfig() {
-        Object.values(leonard).forEach((obj) => {
+        Object.values(leonard.objs).forEach((obj) => {
             obj.objectUniformConfig = leonardDefaultConfig;
         });
         leonardEyeBalls.forEach((obj) => {
@@ -221,6 +230,10 @@ function main() {
         leonardIris.forEach((obj) => {
             obj.objectUniformConfig = leonardIrisConfig;
         });
+        candyBody.forEach((obj)=> {
+            obj.objectUniformConfig = candyBodyConfig;
+        })
+        leonard.objs.candyHeadTail.objectUniformConfig = candyHeadTailConfig;
     }
 
     {
@@ -338,12 +351,29 @@ function main() {
         });
     }
 
+    /*========================= ANIMATIONS ========================= */
+    function poseApplier({value}) {
+        value.apply();
+    }
+    let transition = new TransitionManager()
+        .add(poseApplier, new PoseInterpolator(leonard.pose.T, leonard.pose.stand), 2000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(leonard.pose.stand, leonard.pose.walkRight), 1000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(leonard.pose.walkRight, leonard.pose.walkLeft), 1000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(leonard.pose.walkLeft, leonard.pose.walkRight), 1000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(leonard.pose.walkRight, leonard.pose.stand), 1000, Easing.sineInOut);
+    
+    let prevTime = 0;
     function animate(time) {
         /*========================= TRANSFORMATIONS ========================= */
         if (!drag) {
             dX *= AMORTIZATION, dY *= AMORTIZATION;
             THETA += dX, PHI += dY;
         }
+
+        let dt = time - prevTime;
+        prevTime = time;
+
+        transition.step(dt);
 
         objects.forEach((obj) => {
             obj.transform.reset();
