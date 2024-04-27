@@ -289,16 +289,21 @@ function createBrown(GL, programInfo = null) {
     pose.initial = new Pose(objsArr);
 
     objs.head.transform.rotateX(LIBS.degToRad(20));
+    objs.eyes.transform.scaleUniform(0.9);
     pose.nod = new Pose(objsArr);
     pose.initial.apply();
 
     objs.leftArmGroup.transform.rotateX(LIBS.degToRad(-60));
     objs.rightLegGroup.transform.rotateX(LIBS.degToRad(-20));
+    objs.body.transform.translateY(-1);
+    objs.head.transform.translateY(-2);
     pose.rightFootWalk = new Pose(objsArr);
     pose.initial.apply();
 
     objs.rightArmGroup.transform.rotateX(LIBS.degToRad(-60));
     objs.leftLegGroup.transform.rotateX(LIBS.degToRad(-20));
+    objs.body.transform.translateY(1);
+    objs.head.transform.translateY(2);
     pose.leftFootWalk = new Pose(objsArr);
     pose.initial.apply();
 
