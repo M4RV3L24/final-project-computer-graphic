@@ -125,13 +125,16 @@ function main() {
 
 
 
-    let curveData = generateBSpline([50, 20, 0, 0, -10, -3, -50, 20, 0], 50, 2);
+    let curveData = new createCurve(GL, [50, 20, 0, 0, -10, -3, -50, 20, 0], 50, 2);
     let circleData = generatePlainCircle(10, 10, 10, 10);
     console.log(circleData);
 
     let circle = new GLObject(GL, circleData.vertices, circleData.indices, null, null, GL.TRIANGLE_FAN);
 
-    let curve = new GLObject(GL, curveData.vertices, curveData.indices, null, null, GL.LINE_STRIP);
+    curveData.addPoint([0,30,0]);
+    curveData.deletelastPoint();
+    console.log(curveData.getControlPoint());
+    let curve = curveData.getCurveObject();
     // curve.setDrawMode(GL.TRIANGLE_STRIP);
     // GLObject.setDrawMode(curve, GL.LINE_STRIP);
 
@@ -388,10 +391,14 @@ function main() {
 
         objects.forEach((obj) => {
             obj.transform.reset();
+        })
+        curve.transform.scaleY(LIBS.degToRad(90));
+
+        objects.forEach((obj) => {
             obj.transform.rotateY(THETA);
             obj.transform.rotateX(PHI);
-        })
-
+       
+        });
         renderShadow();
         renderFull();
 

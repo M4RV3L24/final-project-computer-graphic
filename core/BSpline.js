@@ -6,6 +6,82 @@ function normalizeScreen(x, y, z, width, height) {
   return [nx, ny, nz]
 }
 
+
+class createCurve {
+  controlPoint =  null;
+  m = null;
+  degree = null;
+  curve = null;
+  objs = {};
+  _GL = null;
+  constructor(GL, controlPoint, m, degree) {
+    this.controlPoint = controlPoint;
+    this.m = m;
+    this.degree = degree;
+    this._GL = GL;
+    this.curve = generateBSpline(controlPoint, m, degree);
+    this.objs= new GLObject(this._GL, this.curve.vertices, this.curve.indices, null, null, GL.LINE_STRIP);
+  }
+
+  getCurveObject() {
+    return this.objs;
+  }
+
+  getVertices() {
+    return this.curve.vertices;
+  }
+
+  getIndices() {
+    return this.curve.indices;
+  }
+
+  // getFaces() {
+  //   return generateFaces(this.curve.indices);
+  // }
+
+  getControlPoint() {
+    return this.controlPoint;
+  }
+
+  setControlPoint(controlPoint) {
+    this.controlPoint = controlPoint;
+    this.curve = generateBSpline(controlPoint, this.m, this.degree);
+  }
+  addPoint(index, point) {
+    this.controlPoint.splice(index, 0, point[0], point[1], point[2]);
+    this.curve = generateBSpline(this.controlPoint, this.m, this.degree);
+    this.objs = new GLObject(this._GL, this.curve.vertices, this.curve.indices, null, null, this._GL.LINE_STRIP);
+  
+  }
+
+  addPoint(point) {
+    this.controlPoint.push(point[0], point[1], point[2]);
+    this.curve = generateBSpline(this.controlPoint, this.m, this.degree);
+    this.objs = new GLObject(this._GL, this.curve.vertices, this.curve.indices, null, null, this._GL.LINE_STRIP);
+  }
+
+  static addPoint(object, point) {
+    object.controlPoint.push(point[0], point[1], point[2]);
+    object.curve = generateBSpline(object.controlPoint, object.m, object.degree);
+    this.objs = new GLObject(this._GL, this.curve.vertices, this.curve.indices, null, null, this._GL.LINE_STRIP);
+  
+
+  }
+
+  static addPoint(object, index, point) {
+    object.controlPoint.splice(index, 0, point[0], point[1], point[2]);
+    object.curve = generateBSpline(object.controlPoint, object.m, object.degree);
+    this.objs = new GLObject(this._GL, this.curve.vertices, this.curve.indices, null, null, this._GL.LINE_STRIP);
+  
+  }
+  deletelastPoint () {
+    this.controlPoint.pop();
+    this.controlPoint.pop();
+    this.controlPoint.pop();
+    this.curve = generateBSpline(this.controlPoint, this.m, this.degree);
+    this.objs = new GLObject(this._GL, this.curve.vertices, this.curve.indices, null, null, this._GL.LINE_STRIP);
+  }
+}
 function generateBSpline(controlPoint, m, degree) {
   var curves = [];
   var knotVector = []
@@ -84,39 +160,39 @@ function generateBSpline(controlPoint, m, degree) {
   return {vertices, indices};
 }
 
-function projectContour (curve, rad, stepCount=360) {
-  var list = [];
-  var distance = [];
-  var v = []; //vector
-  var n = []; //normal
+// function projectContour (curve, rad, stepCount=360) {
+//   var list = [];
+//   var distance = [];
+//   var v = []; //vector
+//   var n = []; //normal
 
-  // hitung vector antar titik pada kurva
-  if (curve.length < 3) return list;
-  for (var i = 3; i < curve.length; i+=3) {
-      var x = curve[i] - curve[i-3];
-      var y = curve[i+1] - curve[i-2];
-      var z = curve[i+2] - curve[i-1];
-      v = v.concat([x, y, z]);
-  }
+//   // hitung vector antar titik pada kurva
+//   if (curve.length < 3) return list;
+//   for (var i = 3; i < curve.length; i+=3) {
+//       var x = curve[i] - curve[i-3];
+//       var y = curve[i+1] - curve[i-2];
+//       var z = curve[i+2] - curve[i-1];
+//       v = v.concat([x, y, z]);
+//   }
 
-  // hitung normal vector
-  for (var i = 3; i < v.length; i+=3) {
-      var x = v[i] + v[i-3];
-      var y = v[i+1] + v[i-2];
-      var z = v[i+2] + v[i-1];
-      n = n.concat([x, y, z]);
-  }
+//   // hitung normal vector
+//   for (var i = 3; i < v.length; i+=3) {
+//       var x = v[i] + v[i-3];
+//       var y = v[i+1] + v[i-2];
+//       var z = v[i+2] + v[i-1];
+//       n = n.concat([x, y, z]);
+//   }
 
-  //hitung plane equation di vertex tujuan
-  for (var i = 0; i < n.length; i++) {
-      var normalLength = Math.sqrt(n[i]*n[i] + n[i+1]*n[i+1] + n[i+2]*n[i+2]);
-      var a = curve[3*i+3];
-      var b = curve[3*i+4];
-      var c = curve[3*i+5];
-      var d = -(a*curve[i] + b*curve[i+1] + c*curve[i+2]);
-      distance = distance.concat(-d/normalLength);
-  }
-  firstContour = generatePlainCircle(0, 0, 0, 5);
+//   //hitung plane equation di vertex tujuan
+//   for (var i = 0; i < n.length; i++) {
+//       var normalLength = Math.sqrt(n[i]*n[i] + n[i+1]*n[i+1] + n[i+2]*n[i+2]);
+//       var a = curve[3*i+3];
+//       var b = curve[3*i+4];
+//       var c = curve[3*i+5];
+//       var d = -(a*curve[i] + b*curve[i+1] + c*curve[i+2]);
+//       distance = distance.concat(-d/normalLength);
+//   }
+//   firstContour = generatePlainCircle(0, 0, 0, 5);
 
 
 
@@ -125,7 +201,7 @@ function projectContour (curve, rad, stepCount=360) {
   // define line with direction and point
   // find the intersection point
   // return the projected vertices of contour at toIndex
-} 
+// } 
 
 function generatePlainCircle(x, y, z, rad, stepCount=360) {
   // var vertices = [x, y, z, 1, 1, 1];
@@ -146,19 +222,19 @@ function generatePlainCircle(x, y, z, rad, stepCount=360) {
   for (var i = 1; i < stepCount; i++) {
     indices.push(i);
   }
-  // indices.push();
+  indices.push();
   return {vertices, indices};
 }
 
-function circleControl() {
-  var circle = generatePlainCircle(0, 0, 0, 1);
-  var controlPoint = circle.vertices;
-  var m = 100;
-  var degree = 2;
-  var bspline = generateBSpline(controlPoint, m, degree);
-  return bspline;
+// function circleControl() {
+//   var circle = generatePlainCircle(0, 0, 0, 1);
+//   var controlPoint = circle.vertices;
+//   var m = 100;
+//   var degree = 2;
+//   var bspline = generateBSpline(controlPoint, m, degree);
+//   return bspline;
 
-}
+// }
 
 function generateFaces(indices) {
   var faces = [];
@@ -168,9 +244,3 @@ function generateFaces(indices) {
   return faces;
 }
 
-function addControl (controlPoint) {
-  var circle = generatePlainCircle(0, 0, 0, rad);
-  var control = circle.vertices;
-  controlPoint = controlPoint.concat(control);
-  return controlPoint;
-}
