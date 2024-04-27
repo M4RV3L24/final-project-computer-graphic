@@ -361,7 +361,8 @@ function main() {
         .add(poseApplier, new PoseInterpolator(leonard.pose.walkRight, leonard.pose.walkLeft), 1000, Easing.sineInOut)
         .add(poseApplier, new PoseInterpolator(leonard.pose.walkLeft, leonard.pose.walkRight), 1000, Easing.sineInOut)
         .add(poseApplier, new PoseInterpolator(leonard.pose.walkRight, leonard.pose.stand), 1000, Easing.sineInOut);
-    
+        
+        
     let prevTime = 0;
     function animate(time) {
         /*========================= TRANSFORMATIONS ========================= */

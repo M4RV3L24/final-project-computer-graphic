@@ -388,18 +388,25 @@ function main() {
     }
     let transition = new TransitionManager()
 
-    for(var i = 0; i < 100; i++){
+    for(var i = 0; i < 1; i++){
         transition
         .add(poseApplier, new PoseInterpolator(conny.pose.T, conny.pose.stand), 2000, Easing.sineInOut)
         .add(poseApplier, new PoseInterpolator(conny.pose.stand, conny.pose.walkRight), 1000, Easing.sineInOut)
         .add(poseApplier, new PoseInterpolator(conny.pose.walkRight, conny.pose.walkLeft), 1000, Easing.sineInOut)
         .add(poseApplier, new PoseInterpolator(conny.pose.walkLeft, conny.pose.walkRight), 1000, Easing.sineInOut)
         .add(poseApplier, new PoseInterpolator(conny.pose.walkRight, conny.pose.stand), 1000, Easing.sineInOut)
+        // .add(poseApplier, new PoseInterpolator(conny.pose.stand, conny.pose.T), 1000, Easing.sineInOut)
         .add(poseApplier, new PoseInterpolator(conny.pose.stand, conny.pose.turnLeft), 1000, Easing.sineInOut)
-    
         .add(poseApplier, new PoseInterpolator(conny.pose.turnLeft, conny.pose.stand), 1000, Easing.sineInOut)
         .add(poseApplier, new PoseInterpolator(conny.pose.stand, conny.pose.turnRight), 1000, Easing.sineInOut)
-        .add(poseApplier, new PoseInterpolator(conny.pose.turnRight, conny.pose.T), 1000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(conny.pose.turnRight, conny.pose.stand), 1000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(conny.pose.stand, conny.pose.turnUp), 1000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(conny.pose.turnUp, conny.pose.turnDown), 2000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(conny.pose.turnDown, conny.pose.stand), 2000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(conny.pose.stand, conny.pose.greeting), 1000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(conny.pose.greeting, conny.pose.stand), 2000, Easing.sineInOut)
+        
+        
         
     }
         
