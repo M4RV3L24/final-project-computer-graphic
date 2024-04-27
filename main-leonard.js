@@ -211,6 +211,10 @@ function main() {
     let leonardIrisConfig = renderProgramInfo.createUniformConfig();
     leonardIrisConfig.addUniform("color", "3fv", leonardIrisColor);
 
+    let leonardMouthConfig = leonardIrisConfig;
+
+    let leonardNoseConfig = leonardMouthConfig;
+
     let candyBodyConfig = renderProgramInfo.createUniformConfig();
     candyBodyConfig.addUniform("color", "3fv", candyBodyColor);
 
@@ -219,6 +223,8 @@ function main() {
 
     const leonardEyeBalls = [leonard.objs.leftEyeBall, leonard.objs.rightEyeBall];
     const leonardIris = [leonard.objs.leftIris, leonard.objs.rightIris];
+    const leonardMouthParts = [leonard.objs.lipsLeft, leonard.objs.lipsRight, leonard.objs.cheekLeft, leonard.objs.cheekRight];
+    const leonardNoseParts = [leonard.objs.leftNose, leonard.objs.rightNose];
     const candyBody = [leonard.objs.candyUpperBody, leonard.objs.candyLowerBody];
     function setLeonardConfig() {
         Object.values(leonard.objs).forEach((obj) => {
@@ -230,6 +236,12 @@ function main() {
         leonardIris.forEach((obj) => {
             obj.objectUniformConfig = leonardIrisConfig;
         });
+        leonardMouthParts.forEach((obj) => {
+            obj.objectUniformConfig = leonardMouthConfig;
+        })
+        leonardNoseParts.forEach((obj) => {
+            obj.objectUniformConfig = leonardNoseConfig;
+        })
         candyBody.forEach((obj)=> {
             obj.objectUniformConfig = candyBodyConfig;
         })

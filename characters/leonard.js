@@ -64,8 +64,50 @@ function createLeonard(GL, programInfo = null) {
                 objs.rightEyeGroup.addChilds(objs.rightEyeOuter);
             }
             objs.eyes.addChilds(objs.leftEyeGroup, objs.rightEyeGroup)
+
+            objs.mouthGroup = createNullObject();
+            objs.mouthGroup.transform.translateZ(14);
+            objs.mouthGroup.transform.translateY(15);
+            {
+                objs.lipsLeft = createObject(generateBSpline([
+                    -5, 1.5, 0.2,
+                    0, 0, 1,
+                    0, -2, 0.9
+                ], 100, 2));
+                objs.lipsLeft.setDrawMode(GL.LINE_STRIP);
+                objs.lipsRight = createObject(generateBSpline([
+                    5, 1.5, 0.2,
+                    0, 0, 1,
+                    0, -2, 0.9
+                ], 100, 2));
+                objs.lipsRight.setDrawMode(GL.LINE_STRIP);
+                
+                objs.cheekLeft = createObject(generateBSpline([
+                    -6, 5, -0.9,
+                    -3.5, 1.5, 0.5,
+                    -7, -3, 0.6
+                ], 100, 2));
+                objs.cheekLeft.setDrawMode(GL.LINE_STRIP);
+                objs.cheekRight = createObject(generateBSpline([
+                    6, 5, -0.9,
+                    3.5, 1.5, 0.5,
+                    7, -3, 0.6
+                ], 100, 2));
+                objs.cheekRight.setDrawMode(GL.LINE_STRIP);
+            }
+            objs.mouthGroup.addChilds(objs.lipsLeft, objs.lipsRight, objs.cheekLeft, objs.cheekRight);
+
+            objs.noseGroup = createNullObject();
+            objs.noseGroup.transform.translate(0, 25, 10);
+            {
+                objs.leftNose = createObject(generateEllipsoid(100, 100, 0.6, 0.6, 0.6));
+                objs.leftNose.transform.translateX(-2);
+                objs.rightNose = createObject(generateEllipsoid(100, 100, 0.6, 0.6, 0.6));
+                objs.rightNose.transform.translateX(2);
+            }
+            objs.noseGroup.addChilds(objs.leftNose, objs.rightNose);
         }
-        objs.head.addChilds(objs.baseHead, objs.eyes);
+        objs.head.addChilds(objs.baseHead, objs.eyes, objs.mouthGroup, objs.noseGroup);
 
         objs.body = createObject(generateUnitCylinder())
         objs.body.transform.scaleX(bodyWidth);
