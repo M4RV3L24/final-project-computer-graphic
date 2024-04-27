@@ -203,11 +203,15 @@ function main() {
         connyBlackColor = [.0, .0, .0],
         connyCheekColor = [0.94, 0.82, 0.9],
         connyRed = [1, 0.26, 0.26],
-        connySoftRed = [1, 0.53, 0.53];
+        connySoftRed = [1, 0.53, 0.53],
+        solidPink = [1, 0.21, 0.41];
 
 
     let connySoftRedConfig = renderProgramInfo.createUniformConfig();
     connySoftRedConfig.addUniform("color", "3fv", connySoftRed);
+
+    let connySolidPinkConfig = renderProgramInfo.createUniformConfig();
+    connySolidPinkConfig.addUniform("color", "3fv", solidPink);
 
     let connyRedConfig = renderProgramInfo.createUniformConfig();
     connyRedConfig.addUniform("color", "3fv", connyRed);
@@ -223,12 +227,13 @@ function main() {
 
     let connyCheekConfig = renderProgramInfo.createUniformConfig();
     connyCheekConfig.addUniform("color", "3fv", connyCheekColor);
-    const connyBlacks = [conny.leftEyeGroup, conny.rightEyeGroup, conny.nose, conny.nose2, conny.line, conny.outerMouth1, conny.outerMouth2, conny.liontin];
+    const connyBlacks = [conny.leftEyeGroup, conny.rightEyeGroup, conny.nose, conny.nose2, conny.line, conny.outerMouth1,conny.outerMouth2];
 
     const connyEars = [conny.leftEarBottom, conny.rightEarBottom];
     const connyCheek = [conny.leftCheek, conny.rightCheek];
-    const connyReds = [conny.mouth];
+    const connyReds = [conny.mouth, conny.tape2];
     const connySoftReds = [conny.mouth2];
+    const connySolidPinks = [conny.tape];
 
     
     function setConnyConfig() {
@@ -251,6 +256,10 @@ function main() {
 
         connySoftReds.forEach((obj) => {
             obj.objectUniformConfig = connySoftRedConfig;
+        });
+        
+        connySolidPinks.forEach((obj) => {
+            obj.objectUniformConfig = connySolidPinkConfig;
         });
     }
 

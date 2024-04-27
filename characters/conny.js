@@ -38,11 +38,17 @@ function createConny(GL, programInfo = null) {
                 {
                     objs.rightEarTop = createObject(generateEllipticParaboloid(100,100,0.9567,0.36,6));
                     objs.rightEarTop.transform.translateZ(-27);
-                    
+
+                    objs.tape = createObject(generateHyperboloid1(6,6,3,1,4));
+                    objs.tape.transform.rotateY(LIBS.degToRad(90)).rotateY(LIBS.degToRad(-15)).scaleZ(1.5).scaleX(0.5).translateY(3);
+
+                    objs.tape2 = createObject(generateEllipsoid(100,100,3,3,3));
+                    objs.tape2.transform.translateY(2);
+
                     objs.rightEarBottom = createObject(generateEllipticParaboloid(100,100,0.5,0.1,5));
                     objs.rightEarBottom.transform.translateZ(-17).translateY(1.8);
                 }
-                objs.rightEarGroup.addChilds(objs.rightEarTop, objs.rightEarBottom);
+                objs.rightEarGroup.addChilds(objs.rightEarTop, objs.rightEarBottom, objs.tape, objs.tape2);
 
             }
             objs.ears.addChilds(objs.leftEarGroup, objs.rightEarGroup);
@@ -98,27 +104,27 @@ function createConny(GL, programInfo = null) {
         {
             objs.chest = createObject(generateUnitCylinder());
             objs.chest.transform.scaleX(bodyWidth).scaleY(bodyHeight).scaleZ(8);
-            objs.necklace = createNullObject();
-            {
-                objs.necklace1 = createObject(generateBSpline([40, 10, 40, 9, 8, 40, 0, 5, 40, -9, 8, 40, -40, 10, 40], 100, 2));
-                objs.necklace1.transform.translateY(10).translateZ(1);
+            // objs.necklace = createNullObject();
+            // {
+            //     objs.necklace1 = createObject(generateBSpline([40, 10, 40, 9, 8, 40, 0, 5, 40, -9, 8, 40, -40, 10, 40], 100, 2));
+            //     objs.necklace1.transform.translateY(10).translateZ(1);
 
-                objs.liontin = createNullObject();
-                objs.liontin.transform.rotateX(LIBS.degToRad(90)).scaleX(0.5).scaleY(0.5).scaleZ(0.5).translateY(20).translateZ(8);
-                {
-                    objs.necklace2 = createObject(generateHyperboloid1(10, 10, 0.5, 0.5, 3));
-                    objs.necklace2.transform.translateY(10).translateZ(40);
-                    objs.necklace3 = createObject(generateHyperboloid1(10, 10, 0.5, 0.5, 2));
-                    objs.necklace3.transform.rotateY(LIBS.degToRad(90)).translateY(10).translateZ(40);    
-                }
-                objs.liontin.addChilds(objs.necklace2, objs.necklace3);
-                }
-            objs.necklace.addChilds(objs.necklace1, objs.liontin);
+            //     objs.liontin = createNullObject();
+            //     objs.liontin.transform.rotateX(LIBS.degToRad(90)).scaleX(2).scaleY(2).scaleZ(2).translateY(2).translateZ(14);
+            //     {
+            //         objs.necklace2 = createObject(generateHyperboloid1(5, 5, 0.5, 0.5, 3));
+            //         // objs.necklace2.transform.translateY(10).translateZ(40);
+            //         objs.necklace3 = createObject(generateHyperboloid1(5, 5, 0.5, 0.5, 2));
+            //         objs.necklace3.transform.rotateY(LIBS.degToRad(90));    
+            //     }
+            //     objs.liontin.addChilds(objs.necklace2, objs.necklace3);
+            //     }
+            // objs.necklace.addChilds(objs.necklace1, objs.liontin);
             objs.stomach = createObject(generateEllipsoid(100,100,bodyWidth+2,bodyHeight+2.5,12.5));
             objs.stomach.transform.translateY(-bodyHeight+9).translateZ(1);
 
         }
-        objs.body.addChilds(objs.stomach, objs.chest, objs.necklace);
+        objs.body.addChilds(objs.stomach, objs.chest);
 
         objs.legs = createNullObject();
         objs.legs.transform.translateY(-bodyHeight);
