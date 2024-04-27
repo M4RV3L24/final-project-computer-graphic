@@ -75,7 +75,7 @@ function createConny(GL, programInfo = null) {
 
                 objs.outerMouth2 = createObject(generateBSpline([10, 10, 10, 9, 8, 10, 0, 5, 10, -9, 8, 10, -10, 10, 10], 100, 2));
                 objs.outerMouth2.setDrawMode(GL.LINE_STRIP);
-                objs.outerMouth2.transform.translateZ(-9.1).scaleX(0.5).scaleY(0.2556).translateY(-10.2);
+                objs.outerMouth2.transform.translateZ(-9).scaleX(0.5).scaleY(0.11).translateY(-9);
 
                 objs.mouth = createObject(generateBSpline([10, 10, 10, 9, 8, 9, 0, 5, 8, -9, 8, 9, -10, 10, 10], 100, 2));
                 objs.mouth.setDrawMode(GL.TRIANGLE_FAN);
@@ -98,12 +98,27 @@ function createConny(GL, programInfo = null) {
         {
             objs.chest = createObject(generateUnitCylinder());
             objs.chest.transform.scaleX(bodyWidth).scaleY(bodyHeight).scaleZ(8);
+            objs.necklace = createNullObject();
+            {
+                objs.necklace1 = createObject(generateBSpline([40, 10, 40, 9, 8, 40, 0, 5, 40, -9, 8, 40, -40, 10, 40], 100, 2));
+                objs.necklace1.transform.translateY(10).translateZ(1);
 
+                objs.liontin = createNullObject();
+                objs.liontin.transform.rotateX(LIBS.degToRad(90)).scaleX(0.5).scaleY(0.5).scaleZ(0.5).translateY(20).translateZ(8);
+                {
+                    objs.necklace2 = createObject(generateHyperboloid1(10, 10, 0.5, 0.5, 3));
+                    objs.necklace2.transform.translateY(10).translateZ(40);
+                    objs.necklace3 = createObject(generateHyperboloid1(10, 10, 0.5, 0.5, 2));
+                    objs.necklace3.transform.rotateY(LIBS.degToRad(90)).translateY(10).translateZ(40);    
+                }
+                objs.liontin.addChilds(objs.necklace2, objs.necklace3);
+                }
+            objs.necklace.addChilds(objs.necklace1, objs.liontin);
             objs.stomach = createObject(generateEllipsoid(100,100,bodyWidth+2,bodyHeight+2.5,12.5));
             objs.stomach.transform.translateY(-bodyHeight+9).translateZ(1);
 
         }
-        objs.body.addChilds(objs.stomach, objs.chest);
+        objs.body.addChilds(objs.stomach, objs.chest, objs.necklace);
 
         objs.legs = createNullObject();
         objs.legs.transform.translateY(-bodyHeight);

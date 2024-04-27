@@ -223,7 +223,7 @@ function main() {
 
     let connyCheekConfig = renderProgramInfo.createUniformConfig();
     connyCheekConfig.addUniform("color", "3fv", connyCheekColor);
-    const connyBlacks = [conny.leftEyeGroup, conny.rightEyeGroup, conny.nose, conny.nose2, conny.line, conny.outerMouth1, conny.outerMouth2];
+    const connyBlacks = [conny.leftEyeGroup, conny.rightEyeGroup, conny.nose, conny.nose2, conny.line, conny.outerMouth1, conny.outerMouth2, conny.liontin];
 
     const connyEars = [conny.leftEarBottom, conny.rightEarBottom];
     const connyCheek = [conny.leftCheek, conny.rightCheek];
