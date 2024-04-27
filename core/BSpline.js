@@ -72,9 +72,16 @@ function generateBSpline(controlPoint, m, degree) {
     curves.push(x);
     curves.push(y);
     curves.push(z);
+    curves.push(1);
+    curves.push(1);
+    curves.push(1);
   }
-  // console.log(curves)
-  return curves;
+  var vertices = curves;
+  var indices = [];
+  for (var i = 0; i < m; i++) {
+    indices.push(i);
+  }
+  return {vertices, indices};
 }
 
 function projectContour (curve, rad, stepCount=360) {
@@ -109,7 +116,8 @@ function projectContour (curve, rad, stepCount=360) {
       var d = -(a*curve[i] + b*curve[i+1] + c*curve[i+2]);
       distance = distance.concat(-d/normalLength);
   }
-  var firstContour = generateCircle(v1[0], v[1], v[2], rad);
+  firstContour = generatePlainCircle(0, 0, 0, 5);
+
 
 
 
@@ -119,15 +127,50 @@ function projectContour (curve, rad, stepCount=360) {
   // return the projected vertices of contour at toIndex
 } 
 
-function generateCircle(x, y, z, rad, stepCount=360) {
-  var list = [];
-  for (var i = 0; i < stepCount; i++) {
-    var alpha = i / stepCount * 2 * Math.PI;
-    var ca = Math.cos(alpha);
-    var sa = Math.sin(alpha);
-    list.push(rad * ca + x);
-    list.push(y);
-    list.push(rad * sa + z);
+function generatePlainCircle(x, y, z, rad, stepCount=360) {
+  // var vertices = [x, y, z, 1, 1, 1];
+  var vertices = [];
+  for (var i = 0; i <= stepCount; i++) {
+
+    var a = rad*Math.cos((i/180)*Math.PI+x) ;
+    var b = rad*Math.sin((i/180)*Math.PI+y) ;
+    // list.push();
+    vertices.push(a);
+    vertices.push(b);
+    vertices.push(z);
+    vertices.push(1);
+    vertices.push(1);
+    vertices.push(1);
   }
-  return list;
+  indices = [0];
+  for (var i = 1; i < stepCount; i++) {
+    indices.push(i);
+  }
+  // indices.push();
+  return {vertices, indices};
+}
+
+function circleControl() {
+  var circle = generatePlainCircle(0, 0, 0, 1);
+  var controlPoint = circle.vertices;
+  var m = 100;
+  var degree = 2;
+  var bspline = generateBSpline(controlPoint, m, degree);
+  return bspline;
+
+}
+
+function generateFaces(indices) {
+  var faces = [];
+  for (var i = 0; i < indices.length - 1; i++) {
+    faces.push([indices[i], indices[i+1], indices[i+1] + 1, indices[i]]);
+  }
+  return faces;
+}
+
+function addControl (controlPoint) {
+  var circle = generatePlainCircle(0, 0, 0, rad);
+  var control = circle.vertices;
+  controlPoint = controlPoint.concat(control);
+  return controlPoint;
 }
