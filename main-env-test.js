@@ -122,11 +122,11 @@ function main() {
     };
     let floor = new GLObject(GL, floorData.vertices, floorData.indices);
 
-    let brown = createBrown(GL);
-    let cloud = createCloud(GL);
+    let cloud1 = createCloud(GL);
+    let cloud2 = createCloud(GL);
     let baloon = createBaloon(GL);
 
-    objects = [brown.objs.root, cloud.root, baloon.root, floor];
+    objects = [cloud1.root, cloud2.root, baloon.root, floor];
     
     objects.forEach(obj => {
         obj.setup();
@@ -197,16 +197,8 @@ function main() {
         set("view_direction", viewDirection);
     }
 
-
-
     const
-        brownColor = [139 / 255, 88 / 255, 73 / 255],
-        brownBaseFaceColor = [195 / 255, 188 / 255, 191 / 255],
-        brownFacialPartColor = [39 / 255, 11 / 255, 5 / 255],
-        brownInnerEarColor = [79 / 255, 48 / 255, 33 / 255],
-        brownRibbonColor = [139 / 255, 13 / 255, 9 / 255],
-        brownLuckyCloverColor = [62 / 255, 160 / 255, 85 / 255],
-        cloudDefaultColor = [255 / 255, 255 / 255, 255 / 255],
+        envDefaultColor = [255 / 255, 255 / 255, 255 / 255],
         outerBaloonColor = [112 / 255, 112 / 255, 112 / 255],
         innerBaloonColor = [234 / 255, 128 / 255, 12 / 255],
         lowerBaloonColor = [90 / 255, 90 / 255, 90 / 255],
@@ -214,27 +206,8 @@ function main() {
         passangerSeatColor = [99 / 255, 82 / 255, 69 / 255]
     ;
 
-
-    let brownDefaultConfig = renderProgramInfo.createUniformConfig();
-    brownDefaultConfig.addUniform("color", "3fv", brownColor);
-
-    let brownBaseFaceConfig = renderProgramInfo.createUniformConfig();
-    brownBaseFaceConfig.addUniform("color", "3fv", brownBaseFaceColor);
-
-    let brownFacialPartConfig = renderProgramInfo.createUniformConfig();
-    brownFacialPartConfig.addUniform("color", "3fv", brownFacialPartColor);
-
-    let brownInnerEarConfig = renderProgramInfo.createUniformConfig();
-    brownInnerEarConfig.addUniform("color", "3fv", brownInnerEarColor);
-
-    let brownRibbonConfig = renderProgramInfo.createUniformConfig();
-    brownRibbonConfig.addUniform("color", "3fv", brownRibbonColor);
-
-    let brownLuckyCloverConfig = renderProgramInfo.createUniformConfig();
-    brownLuckyCloverConfig.addUniform("color", "3fv", brownLuckyCloverColor);
-
-    let cloudDefaultConfig = renderProgramInfo.createUniformConfig();
-    cloudDefaultConfig.addUniform("color", "3fv", cloudDefaultColor);
+    let envDefaultConfig = renderProgramInfo.createUniformConfig();
+    envDefaultConfig.addUniform("color", "3fv", envDefaultColor);
 
     let outerBaloonConfig = renderProgramInfo.createUniformConfig();
     outerBaloonConfig.addUniform("color", "3fv", outerBaloonColor);
@@ -252,41 +225,20 @@ function main() {
     passangerSeatConfig.addUniform("color", "3fv", passangerSeatColor);
 
 
-
-    const brownBaseFace = [brown.objs.baseFace];
-    const brownFacialPart = [brown.objs.leftEye, brown.objs.rightEye, brown.objs.nose, brown.objs.leftMouth, brown.objs.rightMouth];
-    const brownInnerEar = [brown.objs.leftInnerEar, brown.objs.rightInnerEar];
-    const brownRibbon = [brown.objs.mainRibbon, brown.objs.middleRibbon];
-    const brownLuckyClover = [brown.objs.luckyCloverStem, brown.objs.middleLeave, brown.objs.leave1, brown.objs.leave2, brown.objs.leave3, brown.objs.leave4];
     const outerBaloon = [baloon.outerBaloon];
     const innerBaloon = [baloon.innerBaloon];
     const lowerBaloon = [baloon.lowerBaloon];
     const rope = [baloon.rope1, baloon.rope2, baloon.rope3, baloon.rope4];
     const passangerSeat = [baloon.passangerSeatSide, baloon.passangerSeatBottom];
-    function setbrownConfig() {
-        Object.values(brown.objs).forEach((obj) => {
-            obj.objectUniformConfig = brownDefaultConfig;
+    function setEnvConfig() {
+        Object.values(cloud1).forEach((obj) => {
+            obj.objectUniformConfig = envDefaultConfig;
         });
-        Object.values(cloud).forEach((obj) => {
-            obj.objectUniformConfig = cloudDefaultConfig;
+        Object.values(cloud2).forEach((obj) => {
+            obj.objectUniformConfig = envDefaultConfig;
         });
         Object.values(baloon).forEach((obj) => {
-            obj.objectUniformConfig = cloudDefaultConfig;
-        });
-        brownBaseFace.forEach((obj) => {
-            obj.objectUniformConfig = brownBaseFaceConfig;
-        });
-        brownFacialPart.forEach((obj) => {
-            obj.objectUniformConfig = brownFacialPartConfig;
-        });
-        brownInnerEar.forEach((obj) => {
-            obj.objectUniformConfig = brownInnerEarConfig;
-        });
-        brownRibbon.forEach((obj) => {
-            obj.objectUniformConfig = brownRibbonConfig;
-        });
-        brownLuckyClover.forEach((obj) => {
-            obj.objectUniformConfig = brownLuckyCloverConfig;
+            obj.objectUniformConfig = envDefaultConfig;
         });
         outerBaloon.forEach((obj) => {
             obj.objectUniformConfig  = outerBaloonConfig;
@@ -303,7 +255,8 @@ function main() {
         passangerSeat.forEach((obj) => {
             obj.objectUniformConfig  = passangerSeatConfig;
         });
-    }
+    }       
+
 
     {
         let set = (...prop)=>shadowProgramInfo.uniformConfig.setAndApplyUniformValue(...prop);
@@ -413,51 +366,14 @@ function main() {
             obj.programInfo = renderProgramInfo;
         });
 
-        setbrownConfig();
+        setEnvConfig();
 
         objects.forEach(obj => {
             obj.render();
         });
     }
-
-    /*========================= ANIMATIONS ========================= */
-    function poseApplier({value}) {
-        value.apply();
-    }
-    function spinClover({value, prevValue}){
-        brown.objs.luckyCloverLeaves.transform.rotateZ(value - prevValue);
-    }
-    function moveEnvObject({value, prevValue}){
-        cloud.root.transform.translateX(value);
-        baloon.root.transform.translateX(-value).translateZ(value * 5);
-    }
    
-    let transition = new TransitionManager()
-        .add(poseApplier, new PoseInterpolator(brown.pose.initial, brown.pose.nod), 500, Easing.sineInOut)
-        .add(poseApplier, new PoseInterpolator(brown.pose.nod, brown.pose.initial), 500, Easing.sineInOut)
-        .add(poseApplier, new PoseInterpolator(brown.pose.initial, brown.pose.nod), 500, Easing.sineInOut)
-        .add(poseApplier, new PoseInterpolator(brown.pose.nod, brown.pose.initial), 500, Easing.sineInOut)
-        .add(poseApplier, new PoseInterpolator(brown.pose.initial, brown.pose.leftFootWalk), 800, Easing.sineInOut)
-        .add(poseApplier, new PoseInterpolator(brown.pose.leftFootWalk, brown.pose.rightFootWalk), 800, Easing.sineInOut)
-        .add(poseApplier, new PoseInterpolator(brown.pose.rightFootWalk, brown.pose.leftFootWalk), 800, Easing.sineInOut)
-        .add(poseApplier, new PoseInterpolator(brown.pose.leftFootWalk, brown.pose.rightFootWalk), 800, Easing.sineInOut)
-        .add(poseApplier, new PoseInterpolator(brown.pose.rightFootWalk, brown.pose.initial), 800, Easing.sineInOut)
-        .add(poseApplier, new PoseInterpolator(brown.pose.initial, brown.pose.waveRightHand), 800, Easing.sineInOut)
-        .add(poseApplier, new PoseInterpolator(brown.pose.waveRightHand, brown.pose.initial), 800, Easing.sineInOut)
-        .add(poseApplier, new PoseInterpolator(brown.pose.initial, brown.pose.showLuckyClover), 800, Easing.sineInOut)
-        .add(poseApplier, new PoseInterpolator(brown.pose.showLuckyClover, brown.pose.luckyCloverLeft), 800, Easing.sineInOut)
-        .add(poseApplier, new PoseInterpolator(brown.pose.luckyCloverLeft, brown.pose.luckyCloverRight), 1600, Easing.sineInOut)
-        .add(poseApplier, new PoseInterpolator(brown.pose.luckyCloverRight, brown.pose.luckyCloverLeft), 1600, Easing.sineInOut)
-        .add(poseApplier, new PoseInterpolator(brown.pose.luckyCloverLeft, brown.pose.luckyCloverRight), 1600, Easing.sineInOut)
-        .add(poseApplier, new PoseInterpolator(brown.pose.luckyCloverRight, brown.pose.showLuckyClover), 800, Easing.sineInOut)
-        .add(spinClover, new NumberInterpolator(0, 3600), 25000)
-
-    let transition2 = new TransitionManager()
-        .add(moveEnvObject, new NumberInterpolator(0, 200), 100000)
-
-    let prev_time = 0;
     function animate(time) {
-        // brown.objs.rightArmGroup.transform.rotateAlong(LIBS.degToRad(1), [0, 0, 1], [23, 2, 4]);
         /*========================= TRANSFORMATIONS ========================= */
         if (!drag) {
             dX *= AMORTIZATION, dY *= AMORTIZATION;
@@ -466,20 +382,16 @@ function main() {
 
         objects.forEach(object => {
             object.transform.reset();
-        });
-        let dt = time - prev_time;
-        transition.step(dt);
-        transition2.step(dt);
-        prev_time = time;
-        objects.forEach(object => {
-            object.transform.scaleUniform(0.4);
+            object.transform.scaleUniform(0.2);
             object.transform.rotateY(THETA);
             object.transform.rotateX(PHI);
         });
 
-        brown.objs.root.transform.translateY(-30);
-        baloon.root.transform.scaleUniform(.4).translateY(30).translateX(-40).translateZ(-250);
-        cloud.root.transform.scaleUniform(.2).translateY(50).translateX(20).translateZ(20);
+        cloud1.root.transform.translateY(50);
+        cloud2.root.transform.translateY(50);
+        cloud2.root.transform.translateX(100).scaleUniform(.7).translateY(10);
+        baloon.root.transform.translateX(-70).scaleUniform(.8).translateY(12).translateZ(-40);
+
 
         renderShadow();
         renderFull();
