@@ -440,30 +440,43 @@ function main() {
     function poseApplier({value}) {
         value.apply();
     }
+
+    function connyWalk({value}){
+        conny.objs.root.transform.translateZ(value);
+    }
     let transition = new TransitionManager()
 
     for(var i = 0; i < 1; i++){
         transition
         .add(poseApplier, new PoseInterpolator(conny.pose.T, conny.pose.stand), 2000, Easing.sineInOut)
         .add(poseApplier, new PoseInterpolator(conny.pose.stand, conny.pose.walkRight), 1000, Easing.sineInOut)
-        .add(poseApplier, new PoseInterpolator(conny.pose.walkRight, conny.pose.walkLeft), 1000, Easing.sineInOut)
-        .add(poseApplier, new PoseInterpolator(conny.pose.walkLeft, conny.pose.walkRight), 1000, Easing.sineInOut)
-        .add(poseApplier, new PoseInterpolator(conny.pose.walkRight, conny.pose.stand), 1000, Easing.sineInOut)
-        // .add(poseApplier, new PoseInterpolator(conny.pose.stand, conny.pose.T), 1000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(conny.pose.walkRight, conny.pose.walkLeft), 800, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(conny.pose.walkLeft, conny.pose.walkRight), 800, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(conny.pose.walkRight, conny.pose.walkLeft), 800, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(conny.pose.walkLeft, conny.pose.stand), 1000, Easing.sineInOut)
+
+        .add(poseApplier, new PoseInterpolator(conny.pose.stand, conny.pose.greeting), 1000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(conny.pose.greeting, conny.pose.stand), 1000, Easing.sineInOut)
+        
+        .add(poseApplier, new PoseInterpolator(conny.pose.stand, conny.pose.walkRight), 1000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(conny.pose.walkRight, conny.pose.walkLeft), 800, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(conny.pose.walkLeft, conny.pose.walkRight), 800, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(conny.pose.walkRight, conny.pose.walkLeft), 800, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(conny.pose.walkLeft, conny.pose.stand), 1000, Easing.sineInOut)
+
         .add(poseApplier, new PoseInterpolator(conny.pose.stand, conny.pose.turnLeft), 1000, Easing.sineInOut)
         .add(poseApplier, new PoseInterpolator(conny.pose.turnLeft, conny.pose.stand), 1000, Easing.sineInOut)
         .add(poseApplier, new PoseInterpolator(conny.pose.stand, conny.pose.turnRight), 1000, Easing.sineInOut)
         .add(poseApplier, new PoseInterpolator(conny.pose.turnRight, conny.pose.stand), 1000, Easing.sineInOut)
         .add(poseApplier, new PoseInterpolator(conny.pose.stand, conny.pose.turnUp), 1000, Easing.sineInOut)
         .add(poseApplier, new PoseInterpolator(conny.pose.turnUp, conny.pose.turnDown), 2000, Easing.sineInOut)
-        .add(poseApplier, new PoseInterpolator(conny.pose.turnDown, conny.pose.stand), 2000, Easing.sineInOut)
-        .add(poseApplier, new PoseInterpolator(conny.pose.stand, conny.pose.greeting), 1000, Easing.sineInOut)
-        .add(poseApplier, new PoseInterpolator(conny.pose.greeting, conny.pose.stand), 2000, Easing.sineInOut)
-        
-        
-        
+        .add(poseApplier, new PoseInterpolator(conny.pose.turnDown, conny.pose.stand), 2000, Easing.sineInOut) 
     }
-        
+    let walkTransition =new TransitionManager()
+    .add(connyWalk, new NumberInterpolator(0, 0), 2000, Easing.sineInOut)
+    .add(connyWalk, new NumberInterpolator(0, 50), 4400, Easing.sineInOut)
+    .add(connyWalk, new NumberInterpolator(50, 50), 2000, Easing.sineInOut)
+    .add(connyWalk, new NumberInterpolator(50, 0), 4400, Easing.sineInOut)
     let prevTime = 0;
 
     function animate(time) {
@@ -475,15 +488,22 @@ function main() {
         let dt = time - prevTime;
         prevTime = time;
 
-        transition.step(dt);
-
+        
         objects.forEach((obj) => {
             obj.transform.reset();
-            mountain.objs.root.transform.scale(5, 5, 5).translateZ(200);
+        });
+        transition.step(dt);
+        walkTransition.step(dt);
+
+
+        objects.forEach((obj) => {
             conny.objs.root.transform.scale(0.9, 0.9, 0.9);
             obj.transform.rotateY(THETA);
             obj.transform.rotateX(PHI);
-        })
+        });
+        mountain.objs.root.transform.scale(5, 5, 5).translateZ(100);
+            
+        
 
         renderShadow();
         renderFull();

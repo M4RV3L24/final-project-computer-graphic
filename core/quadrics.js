@@ -46,7 +46,7 @@ function generateEllipsoid(uCount, vCount, a, b, c) {
 
     var indices = [];
     for (let i = 0; i < uCount - 1; i++) {
-        for (let j = 0; j < vCount - 2; j++) {
+        for (let j = 0; j < vCount - 1; j++) {
             let k1 = i * vCount + j;
             let k2 = k1 + vCount;
             indices.push(k1, k1 + 1, k2);
