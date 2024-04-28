@@ -131,7 +131,9 @@ function main() {
     let tree1 = createTree1(GL);
     let tree2 = createTree2(GL);
 
-    objects = [conny.objs.root, floor,tree2.objs.root, tree1.objs.root];
+    let mountain = createMountain(GL);
+
+    objects = [conny.objs.root, floor,tree2.objs.root, tree1.objs.root, mountain.objs.root];
     
     objects.forEach(obj => {
         obj.setup();
@@ -210,9 +212,12 @@ function main() {
         connyRed = [1, 0.26, 0.26],
         connySoftRed = [1, 0.53, 0.53],
         connySolidPink = [1, 0.21, 0.41], 
-        trunkColor = [0.6, 0.3, 0.1];
-        leaveColor = [0.1, 0.6, 0.1];
+        trunkColor = [0.6, 0.3, 0.1],
+        leaveColor = [0.1, 0.6, 0.1],
+        mountainColor = [0.25, 0.25, 0.3];
 
+    let mountainColorConfig = renderProgramInfo.createUniformConfig();
+    mountainColorConfig.addUniform("color", "3fv", mountainColor);
     let leaveColorConfig = renderProgramInfo.createUniformConfig();
     leaveColorConfig.addUniform("color", "3fv", leaveColor);
 
@@ -307,6 +312,9 @@ function main() {
         TreeLeaves.forEach((obj) => {
             obj.objectUniformConfig = leaveColorConfig;
         });
+
+        mountain.objs.mountBase.objectUniformConfig = mountainColorConfig;
+        mountain.objs.mountTop.objectUniformConfig = connyDefaultConfig;
     }
 
 
@@ -471,6 +479,7 @@ function main() {
 
         objects.forEach((obj) => {
             obj.transform.reset();
+            mountain.objs.root.transform.scale(5, 5, 5).translateZ(200);
             obj.transform.rotateY(THETA);
             obj.transform.rotateX(PHI);
         })

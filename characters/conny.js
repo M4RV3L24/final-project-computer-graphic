@@ -42,11 +42,11 @@ function createConny(GL, programInfo = null) {
                         objs.rightEarTop = createObject(generateEllipticParaboloid(100, 100, 0.9567, 0.36, 6));
                         objs.rightEarTop.transform.translateZ(-27);
 
-                        objs.tape = createObject(generateHyperboloid1(6, 6, 3, 1, 4));
+                        objs.tape = createObject(generateHyperboloid2(6, 6, 5, 1, 2));
                         objs.tape.transform.rotateY(LIBS.degToRad(90)).rotateY(LIBS.degToRad(-15)).scaleZ(1.5).scaleX(0.5).translateY(3);
 
-                        objs.tape2 = createObject(generateEllipsoid(100, 100, 3, 3, 3));
-                        objs.tape2.transform.translateY(2);
+                        objs.tape2 = createObject(generateEllipsoid(100, 100, 2, 2, 3));
+                        objs.tape2.transform.rotateY(LIBS.degToRad(90)).rotateY(LIBS.degToRad(-15)).translateY(3.1);
 
                         objs.rightEarBottom = createObject(generateEllipticParaboloid(100, 100, 0.5, 0.1, 5));
                         objs.rightEarBottom.transform.translateZ(-17).translateY(1.8);

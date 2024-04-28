@@ -7,11 +7,18 @@ function createMountain(GL, programInfo = null) {
         return new GLObject(GL, objectData.vertices, objectData.indices, programInfo);
     }
 
-    const
-        bodyHeight = 23, bodyWidth = 16,
-        armsWidth = 6;
 
     let objs = {};
+
+    objs.root = createNullObject();
+    {
+        objs.mountBase = createObject(generateEllipticParaboloid(12, 12, 1, 1, 1));
+        objs.mountBase.transform.rotateX(LIBS.degToRad(90)).translateZ(-50).scale(10, 10, 10);
+        objs.mountTop = createObject(generateUnitCone(8, 8, 1, 1, 1));
+        objs.mountTop.transform.translateZ(-50).translateY(2).scale(6, 6, 6);
+    }
+    objs.root.addChilds(objs.mountBase, objs.mountTop);
+
     let pose = {}, objsArr = Object.values(objs);
     return {objs, pose};
 
