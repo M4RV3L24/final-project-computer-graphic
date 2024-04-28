@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <script src="/math/vector.js"></script>
+    <script src="/math/matrix.js"></script>
+    <script src="/math/quaternion.js"></script>
+    <script src="/math/interpolator.js"></script>
+    <script src="/core/libs.js"></script>
+    <script src="/core/BSpline.js"></script>
+    <script src="/core/primitives.js"></script>
+    <script src="/core/quadrics.js"></script>
+    <script src="/core/program.js"></script>
+    <script src="/core/transitions.js"></script>
+    <script src="/core/transform.js"></script>
+    <script src="/core/globject.js"></script>
+    <script src="/core/pose.js"></script>
+    <script src="/characters/baloon.js"></script>
+    <script src="/characters/brown.js"></script>
+    <script src="/characters/cloud.js"></script>
+    <script src="/characters/conny.js"></script>
+    <script src="/characters/island.js"></script>
+    <script src="/characters/leonard.js"></script>
+    <script src="/characters/mountain.js"></script>
+    <script src="/characters/tree.js"></script>
+</head>
+
+<body style="margin: 0">
+    <canvas id="canvas" style="position: absolute; background-color: black">
+    </canvas>
+
+    <script id="vertexShader" type="x-shader/x-vertex">
+        attribute vec3 position;
+        attribute vec3 normal;
+
+        uniform mat4 PMatrix, VMatrix, MMatrix;
+        uniform mat4 lightPMatrix, lightVMatrix;
+        uniform mat4 normalMatrix;
+
+        varying vec3 vNormal;
+        varying vec3 staticNormal;
+        varying vec4 vTexCoord;
+
+        void main() {
+            gl_Position = PMatrix * VMatrix * MMatrix * vec4(position, 1.);
+            staticNormal = normal;
+            vNormal = normalize(vec3(normalMatrix * vec4(normal, 1.)));
+            vTexCoord = lightPMatrix * lightVMatrix * MMatrix * vec4(position, 1.);
+            vTexCoord.xy *= 0.5;
+            vTexCoord.xy += 0.5;
+            vTexCoord.z /= 1000.;
+        }
+    </script>
+    <script id="fragmentShader" type="x-shader/x-fragment">
+        precision mediump float;
+
+        uniform vec3 color;
+
+        uniform vec3 light_source_direction;
+        uniform vec3 light_source_ambient_color;
+        uniform vec3 light_source_diffuse_color;
+        uniform vec3 light_source_specular_color;
+
+        uniform float cellSize;
+        uniform int spread;
+        uniform float bias;
+        uniform float normal_bias;
+
+        uniform vec3 mat_ambient_color;
+        uniform vec3 mat_diffuse_color;
+        uniform vec3 mat_specular_color;
+        uniform float mat_shininess;
+
+        uniform vec3 view_direction;
+
+        uniform sampler2D u_projectedTexture;
+
+        varying vec3 vNormal;
+        varying vec3 staticNormal;
+        varying vec4 vTexCoord;
+
+        const int MAX_ITER_AVERAGE = 10;
+
+        float getAverageDepth() {
+            float depthFromLight = 0.;
+            int count = 0;
+            for (int i = 0; i <= MAX_ITER_AVERAGE; i++) {
+                if (i > spread)
+                    break;
+                for (int j = 0; j <= MAX_ITER_AVERAGE; j++) {
+                    if (j > spread)
+                        break;
+                    vec2 displace1 = cellSize * vec2(i, j);
+                    vec2 displace2 = cellSize * vec2(i, -j);
+                    depthFromLight += texture2D(u_projectedTexture, vTexCoord.xy + displace1).r;
+                    depthFromLight += texture2D(u_projectedTexture, vTexCoord.xy - displace1).r;
+                    depthFromLight += texture2D(u_projectedTexture, vTexCoord.xy + displace2).r;
+                    depthFromLight += texture2D(u_projectedTexture, vTexCoord.xy - displace2).r;
+                    count += 4;
+                }
+            }
+            depthFromLight /= float(count);
+            return depthFromLight;
+        }
+
+        void main() {
+            bool inRange =
+                vTexCoord.x >= 0.0 &&
+                vTexCoord.x <= 1.0 &&
+                vTexCoord.y >= 0.0 &&
+                vTexCoord.y <= 1.0;
+            
+            //float depthFromLight = getAverageDepth() * 4.;
+            float depthFromLight = texture2D(u_projectedTexture, vTexCoord.xy).r * 4.;
+            depthFromLight += (1. - abs(dot(vNormal, light_source_direction))) * normal_bias + bias;
+            
+            vec3 I_ambient = light_source_ambient_color * mat_ambient_color;  
+            vec3 I_diffuse = light_source_diffuse_color * mat_diffuse_color * max(0., dot(light_source_direction, vNormal));
+
+            vec3 reflection_direction = reflect(light_source_direction, vNormal);
+            vec3 I_specular = light_source_specular_color * mat_specular_color * pow(max(0., dot(reflection_direction, view_direction)), mat_shininess);
+
+            float lightAmount =
+                (inRange && depthFromLight < 1. && depthFromLight < vTexCoord.z)
+                ? 0.
+                : 1.;
+            vec3 I = I_ambient + lightAmount * (I_diffuse + I_specular);
+            gl_FragColor = vec4(color*I, 1.);
+        }
+    </script>
+
+    <script id="shadowVertexShader" type="x-shader/x-vertex">
+        attribute vec3 position;
+        attribute vec3 normal;
+
+        uniform mat4 PMatrix, VMatrix, MMatrix;
+        uniform mat4 normalMatrix;
+
+        varying vec4 calculatedPosition;
+        varying vec3 vNormal;
+
+        void main() {
+            gl_Position = PMatrix * VMatrix * MMatrix * vec4(position, 1.);
+            calculatedPosition = gl_Position;
+            vNormal = normal;
+        }
+    </script>
+    <script id="shadowFragmentShader" type="x-shader/x-fragment">
+        precision highp float;
+        
+        varying vec4 calculatedPosition;
+        varying vec3 vNormal;
+
+        void main() {
+            gl_FragColor = vec4(calculatedPosition.zzz / 1000., 1.);
+        }
+    </script>
+
+    <script src="/main.js"></script>
+</body>
+
+</html>
