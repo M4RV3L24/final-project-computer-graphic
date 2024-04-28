@@ -1,4 +1,4 @@
-function createConny(GL, programInfo = null) {
+function createMountain(GL, programInfo = null) {
     function createNullObject() {
         return new GLObject(GL, [], [], programInfo);
     }
@@ -12,4 +12,7 @@ function createConny(GL, programInfo = null) {
         armsWidth = 6;
 
     let objs = {};
+    let pose = {}, objsArr = Object.values(objs);
+    return {objs, pose};
+
 }

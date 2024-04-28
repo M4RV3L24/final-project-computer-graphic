@@ -131,7 +131,7 @@ function main() {
     let tree1 = createTree1(GL);
     let tree2 = createTree2(GL);
 
-    objects = [conny.objs.root, floor,tree2.objs.root];
+    objects = [conny.objs.root, floor,tree2.objs.root, tree1.objs.root];
     
     objects.forEach(obj => {
         obj.setup();
@@ -209,14 +209,21 @@ function main() {
         connyCheekColor = [0.94, 0.82, 0.9],
         connyRed = [1, 0.26, 0.26],
         connySoftRed = [1, 0.53, 0.53],
-        solidPink = [1, 0.21, 0.41];
+        connySolidPink = [1, 0.21, 0.41], 
+        trunkColor = [0.6, 0.3, 0.1];
+        leaveColor = [0.1, 0.6, 0.1];
 
+    let leaveColorConfig = renderProgramInfo.createUniformConfig();
+    leaveColorConfig.addUniform("color", "3fv", leaveColor);
+
+    let trunkColorConfig = renderProgramInfo.createUniformConfig();
+    trunkColorConfig.addUniform("color", "3fv", trunkColor);
 
     let connySoftRedConfig = renderProgramInfo.createUniformConfig();
     connySoftRedConfig.addUniform("color", "3fv", connySoftRed);
 
     let connySolidPinkConfig = renderProgramInfo.createUniformConfig();
-    connySolidPinkConfig.addUniform("color", "3fv", solidPink);
+    connySolidPinkConfig.addUniform("color", "3fv", connySolidPink);
 
     let connyRedConfig = renderProgramInfo.createUniformConfig();
     connyRedConfig.addUniform("color", "3fv", connyRed);
@@ -232,13 +239,39 @@ function main() {
 
     let connyCheekConfig = renderProgramInfo.createUniformConfig();
     connyCheekConfig.addUniform("color", "3fv", connyCheekColor);
-    const connyBlacks = [conny.objs.leftEyeGroup, conny.objs.rightEyeGroup, conny.objs.nose, conny.objs.nose2, conny.objs.line, conny.objs.outerMouth1,conny.objs.outerMouth2];
+    const connyBlacks = [
+        conny.objs.leftEyeGroup, 
+        conny.objs.rightEyeGroup, 
+        conny.objs.nose, 
+        conny.objs.nose2, 
+        conny.objs.line, 
+        conny.objs.outerMouth1,
+        conny.objs.outerMouth2
+    ];
 
     const connyEars = [conny.objs.leftEarBottom, conny.objs.rightEarBottom];
     const connyCheek = [conny.objs.leftCheek, conny.objs.rightCheek];
     const connyReds = [conny.objs.mouth, conny.objs.tape2];
     const connySoftReds = [conny.objs.mouth2];
     const connySolidPinks = [conny.objs.tape];
+    const TreeTrunks = [
+        tree1.objs.trunk1, 
+        tree1.objs.trunk2,
+        tree1.objs.trunk3,
+        tree1.objs.trunk4,
+        tree1.objs.trunk5,
+        tree2.objs.trunk
+    ];
+
+    const TreeLeaves = [
+        tree1.objs.leaves1,
+        tree1.objs.leaves2,
+        tree1.objs.leaves3,
+        tree1.objs.leaves4,
+        tree2.objs.leaves1,
+        tree2.objs.leaves2,
+        tree2.objs.leaves
+    ];
 
     
     function setConnyConfig() {
@@ -265,6 +298,14 @@ function main() {
         
         connySolidPinks.forEach((obj) => {
             obj.objectUniformConfig = connySolidPinkConfig;
+        });
+
+        TreeTrunks.forEach((obj) => {
+            obj.objectUniformConfig = trunkColorConfig;
+        });
+
+        TreeLeaves.forEach((obj) => {
+            obj.objectUniformConfig = leaveColorConfig;
         });
     }
 
