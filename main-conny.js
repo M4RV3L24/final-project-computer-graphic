@@ -480,6 +480,7 @@ function main() {
         objects.forEach((obj) => {
             obj.transform.reset();
             mountain.objs.root.transform.scale(5, 5, 5).translateZ(200);
+            conny.objs.root.transform.scale(0.9, 0.9, 0.9);
             obj.transform.rotateY(THETA);
             obj.transform.rotateX(PHI);
         })
