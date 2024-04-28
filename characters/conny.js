@@ -217,7 +217,9 @@ function createConny(GL, programInfo = null) {
 
     //Pose setting
 
-    let pose = {}, objsArr = Object.values(objs);
+    let pose = {}, 
+    objsArr = Object.values(objs); 
+
     pose.T = new Pose(objsArr);
 
     objs.leftArm.transform
@@ -238,21 +240,22 @@ function createConny(GL, programInfo = null) {
     objs.rightArm.transform
         .localRotateY(Math.PI / 8)
         .localRotateZ(-Math.PI / 4)
-        .translateZ(-2);
+        // .translateZ(-2);
     objs.leftLegGroup.transform
         .rotateX(Math.PI / 4);
     objs.rightLegGroup.transform
-        .rotateX(-Math.PI / 4);
-    objs.root.transform
-        .translateZ(10);
+        .rotateX(-Math.PI / 4);  
+    
     pose.walkRight = new Pose(objsArr);
 
     pose.T.apply();
 
+    // objs.root.transform
+    // .translateZ(10)
     objs.leftArm.transform
         .localRotateY(-Math.PI / 8)
         .localRotateZ(Math.PI / 4)
-        .translateZ(-4);
+        // .translateZ(-4);
     objs.rightArm.transform
         .localRotateY(-Math.PI / 4)
         .localRotateZ(-Math.PI / 4);
@@ -260,8 +263,8 @@ function createConny(GL, programInfo = null) {
         .rotateX(-Math.PI / 4);
     objs.rightLegGroup.transform
         .rotateX(Math.PI / 4);
-    objs.root.transform
-        .translateZ(10);
+    
+     
     pose.walkLeft = new Pose(objsArr);
 
     pose.T.apply();
@@ -328,7 +331,6 @@ function createConny(GL, programInfo = null) {
 
     pose.T.apply();
 
-    
 
     return { objs, pose };
 }
