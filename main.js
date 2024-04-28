@@ -145,11 +145,11 @@ function main() {
     const defaultColor = [0.7, 0.7, 0.7];
     const projMatrix = LIBS.get_ortho_proj(40, CANVAS.width / CANVAS.height, 1, 2000);
 
-    const cameraPosition = [0., -30., 420.];
-    const cameraTarget = [0., 0., 0.]
-    const cameraMatrix = LIBS.look_at(cameraPosition, cameraTarget, [0, 1, 0]);
-    const viewDirection = Vector.sub(cameraTarget, cameraPosition).normalize().arr();
-    const viewMatrix = Matrix.fromGLMatrix(cameraMatrix, 4, 4).inverse().toGLMatrix();
+    const defaultCameraPosition = [0., -30., 420.];
+    const defaultCameraTarget = [0., 0., 0.]
+    const defaultCameraMatrix = LIBS.look_at(defaultCameraPosition, defaultCameraTarget, [0, 1, 0]);
+    const defaultViewDirection = Vector.sub(defaultCameraTarget, defaultCameraPosition).normalize().arr();
+    const defaultViewMatrix = Matrix.fromGLMatrix(defaultCameraMatrix, 4, 4).inverse().toGLMatrix();
     
     const lightSourceAmbientColor = [0.3,0.3,0.3];
     const lightSourceDiffuseColor = [1.,1.,1.];
@@ -189,7 +189,7 @@ function main() {
         let set = (...prop)=>renderProgramInfo.uniformConfig.setAndApplyUniformValue(...prop);
         set("color", defaultColor);
         set("PMatrix", false, projMatrix);
-        set("VMatrix", false, viewMatrix);
+        set("VMatrix", false, defaultViewMatrix);
         set("lightPMatrix", false, lightProjMatrix);
         set("lightVMatrix", false, lightViewMatrix);
         set("light_source_direction", lightSourceDirection);
@@ -206,7 +206,7 @@ function main() {
         set("bias", bias);
         set("normal_bias", normalBias);
 
-        set("view_direction", viewDirection);
+        set("view_direction", defaultViewDirection);
     }
 
     const
@@ -654,7 +654,7 @@ function main() {
     .add(poseApplier, new PoseInterpolator(leonard.pose.frontFlip4, leonard.pose.stand), 300)
     .add(poseApplier, new PoseInterpolator(leonard.pose.stand, leonard.pose.crouch), 200, Easing.quadraticOut)
     .add(poseApplier, new PoseInterpolator(leonard.pose.crouch, leonard.pose.stand), 500, Easing.quadraticInOut)
-    .repeat(5);
+    .repeat(2);
 
     function leonardMove({value, prevValue}) {
         leonard.objs.root.transform.translateZ(value);
@@ -666,7 +666,7 @@ function main() {
     .add(leonardMove, new NumberInterpolator(80, 80), 400)
     .add(leonardMove, new NumberInterpolator(80, 0), 700)
     .delay(3690)
-    .repeat(5);
+    .repeat(2);
     
 
     function connyMove({value}){
@@ -737,6 +737,24 @@ function main() {
     let brownTransition2 = new TransitionManager()
         .add(moveEnvObject, new NumberInterpolator(0, 200), 100000)
 
+    function updateCameraPosition({value}) {
+        let cameraPosition = value.arr();
+        let cameraTarget = [0., 0., 0.]
+        let cameraMatrix = LIBS.look_at(cameraPosition, cameraTarget, [0, 1, 0]);
+        let viewDirection = Vector.sub(cameraTarget, cameraPosition).normalize().arr();
+        let viewMatrix = Matrix.fromGLMatrix(cameraMatrix, 4, 4).inverse().toGLMatrix();
+
+        renderProgramInfo.uniformConfig.setAndApplyUniformValue("VMatrix", false, viewMatrix);
+        renderProgramInfo.uniformConfig.setAndApplyUniformValue("view_direction", viewDirection);
+    }
+    let cameraTransition = new TransitionManager()
+    .add(updateCameraPosition, new VectorInterpolator([-100, -30, 420], [100, -30, 420]), 10000)
+    .add(updateCameraPosition, new VectorInterpolator([-100, 30, 230], [-100, 30, 200]), 2000)
+    .add(updateCameraPosition, new VectorInterpolator([0, 50, 230], [0, 50, 200]), 2000)
+    .add(updateCameraPosition, new VectorInterpolator([200, -30, 420], [0, -30, 420]), 3000)
+    .add(updateCameraPosition, new VectorInterpolator([300, 50, 420], [100, 50, 310]), 3000)
+    .add(updateCameraPosition, new VectorInterpolator([-200, 30, 420], [0, -30, 420]), 2000, Easing.quadraticInOut);
+
     let prevTime = 0, delay = 3000;
     function animate(time) {
         /*========================= TRANSFORMATIONS ========================= */
@@ -776,6 +794,8 @@ function main() {
         brown.objs.root.transform.translateY(13).translateZ(100);
         baloon.root.transform.scaleUniform(1.2).rotateY(Math.PI/6).translate(-40, 200, -1500);
         cloud.root.transform.scaleUniform(.2).translate(20, -70, 300);
+
+        cameraTransition.step(dt);
 
         objects.forEach((obj) => {
             obj.transform.rotateY(THETA);
