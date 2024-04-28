@@ -143,9 +143,11 @@ class Transition {
 		let naiveTime = this._passedTime + duration;
 		this._passedTime = Math.min(naiveTime, this._duration);
 
-		this._prevValue = this._currValue;
-		this._currValue = this.calcValue();
-		this._callback(this.progress());
+		if(this._callback != null){
+			this._prevValue = this._currValue;
+			this._currValue = this.calcValue();
+			if(this._callback != null) this._callback(this.progress());
+		}
 
 		return naiveTime - this._passedTime;
 	}
@@ -175,12 +177,19 @@ class Transition {
 	isFinished() {
 		return this._passedTime == this._duration;
 	}
+
+	reset() {
+		this._passedTime = 0;
+		this._prevValue = this._interpolator.getStart();
+		this._currValue = this._prevValue;
+	}
 }
 
 
 class TransitionManager {
 	_transitions = []
 	_currIndex = 0
+	_repeat = 1
 
 	constructor() { }
 
@@ -193,6 +202,16 @@ class TransitionManager {
 			this.next();
 			this.step(remainder)
 		}
+	}
+
+	repeat(repeat){
+		this._repeat = repeat;
+		return this;
+	}
+
+	delay(delayTime){
+		this.add(null, new NumberInterpolator(0,1), delayTime);
+		return this;
 	}
 
 	currTransition() {
@@ -209,7 +228,26 @@ class TransitionManager {
 		this._currIndex++;
 	}
 
+	loopFromBeginnning() {
+		this._currIndex = 0;
+		for(let i = 0; i < this._transitions.length ; i++) this._transitions[i].reset();
+	}
+
 	isFinished() {
-		return (this._currIndex >= this._transitions.length);
+		// console.log(this._currIndex);
+		// console.log(this._transitions.length);
+
+		if(this._currIndex >= this._transitions.length){
+			this._repeat--;
+			console.log("REP = " + this._repeat);
+			
+			if(this._repeat <= 0) return true;
+			else {
+				this.loopFromBeginnning();
+				return false;
+			}
+			
+		}
+		return false;
 	}
 }

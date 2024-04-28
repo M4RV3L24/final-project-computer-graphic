@@ -373,6 +373,21 @@ function main() {
         });
     }
    
+    function moveBaloon({value, prevValue}){
+        console.log("DIF = ");
+        console.log(value);
+        console.log(prevValue);
+        baloon.baloon.transform.translateY(value - prevValue);
+    }
+
+    let transition = new TransitionManager()
+        .add(moveBaloon, new NumberInterpolator(0, 20), 1000)
+        .delay(300)
+        .add(moveBaloon, new NumberInterpolator(0, -20), 1000)
+        .delay(100)
+        .repeat(5)
+
+    let prev_time = 0;
     function animate(time) {
         /*========================= TRANSFORMATIONS ========================= */
         if (!drag) {
@@ -382,6 +397,14 @@ function main() {
 
         objects.forEach(object => {
             object.transform.reset();
+        });
+
+        let dt = time - prev_time;
+        transition.step(dt);
+        prev_time = time;
+        
+
+        objects.forEach(object => {
             object.transform.scaleUniform(0.2);
             object.transform.rotateY(THETA);
             object.transform.rotateX(PHI);
