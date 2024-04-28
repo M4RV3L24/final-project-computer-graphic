@@ -154,7 +154,34 @@ function generateCylinderCurvedSurface(radius1=1, radius2=radius1, sectorCount=1
             indices.push(firstVertexIndex - 1, lastVertexIndex, firstVertexIndex);
         }
     }
-   
-    console.log(vertices, indices)
     return {vertices, indices};
+}
+
+function generateCylinderFlatSurface(radius=1, stepCount=360){
+    let vertices = [], indices = [], numVertices = 0;
+
+    // Circular plane
+    let y = 1
+    vertices.push(0, y, 0);  // position
+    vertices.push(0, y, 0);  // normal
+    numVertices++;
+
+    let anchorIndex = numVertices - 1;
+    for (let i = 0; i < stepCount; i++) {
+        let alpha = LIBS.map(i, 0, stepCount, 0, 2*Math.PI);
+        let ca = Math.cos(alpha), sa = Math.sin(alpha);
+
+        x = ca * radius;
+        z = sa * radius;
+        vertices.push(x, y, z);  // position
+        vertices.push(0, y, 0);  // normal
+        numVertices++;
+
+        if (i == 0)
+            continue;
+        indices.push(anchorIndex, numVertices-2, numVertices-1);
+    }
+    indices.push(anchorIndex, numVertices-1, anchorIndex+1);
+
+    return {vertices, indices}
 }
