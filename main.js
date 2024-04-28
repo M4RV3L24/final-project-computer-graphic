@@ -655,6 +655,18 @@ function main() {
     .add(poseApplier, new PoseInterpolator(leonard.pose.stand, leonard.pose.crouch), 200, Easing.quadraticOut)
     .add(poseApplier, new PoseInterpolator(leonard.pose.crouch, leonard.pose.stand), 500, Easing.quadraticInOut)
     .repeat(5);
+
+    function leonardMove({value, prevValue}) {
+        leonard.objs.root.transform.translateZ(value);
+    }
+
+    let transitionMoveLeonard = new TransitionManager()
+    .delay(2000)
+    .add(leonardMove, new NumberInterpolator(0, 80), 2800, Easing.quadraticInOut)
+    .add(leonardMove, new NumberInterpolator(80, 80), 400)
+    .add(leonardMove, new NumberInterpolator(80, 0), 700)
+    .delay(3690)
+    .repeat(5);
     
 
     function connyMove({value}){
@@ -746,6 +758,7 @@ function main() {
         island.objs.root.transform.scaleUniform(500).translateY(-50);
 
         transitionLeonard.step(dt);
+        transitionMoveLeonard.step(dt);
         leonard.objs.root.transform.translateY(-20).translateX(90).translateZ(100);
 
         connyWalkTransition.step(dt);
