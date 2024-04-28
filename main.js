@@ -67,6 +67,7 @@ function main() {
 
         let addUniform = (...prop)=>renderProgramInfo.uniformConfig.addUniform(...prop);
         addUniform("color", "3fv");
+        addUniform("sky_color", "3fv");
         addUniform("PMatrix", "Matrix4fv");
         addUniform("VMatrix", "Matrix4fv");
         addUniform("lightPMatrix", "Matrix4fv");
@@ -83,13 +84,14 @@ function main() {
         addUniform("spread", "1i");
         addUniform("bias", "1f");
         addUniform("normal_bias", "1f");
-
+        
         addUniform("mat_ambient_color", "3fv");
         addUniform("mat_diffuse_color", "3fv");
         addUniform("mat_specular_color", "3fv");
         addUniform("mat_shininess", "1f");
-
+        
         addUniform("view_direction", "3fv");
+        addUniform("fog_density", "1f");
     }
 
     let shadowProgramInfo;
@@ -169,6 +171,8 @@ function main() {
     const bias = -0.01;
     const normalBias = 0.;
 
+    const fogDensity = 0.0002;
+
     const lightProjMatrix = LIBS.get_ortho_proj(40, CANVAS.width / CANVAS.height, 1, 2000);
     const lightViewMatrix = Transform3.translate(
         Matrix.fromGLMatrix(
@@ -188,6 +192,7 @@ function main() {
     {
         let set = (...prop)=>renderProgramInfo.uniformConfig.setAndApplyUniformValue(...prop);
         set("color", defaultColor);
+        set("sky_color", backgroundColor);
         set("PMatrix", false, projMatrix);
         set("VMatrix", false, defaultViewMatrix);
         set("lightPMatrix", false, lightProjMatrix);
@@ -205,10 +210,11 @@ function main() {
         set("spread", spread);
         set("bias", bias);
         set("normal_bias", normalBias);
-
+        
         set("view_direction", defaultViewDirection);
+        set("fog_density", fogDensity);
     }
-
+    
     const
         islandGrassColor = [65/255, 152/255, 10/255],
         islandDirtColor = [64/255, 41/255, 5/255],

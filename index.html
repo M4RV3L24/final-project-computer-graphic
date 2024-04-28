@@ -38,12 +38,14 @@
         uniform mat4 lightPMatrix, lightVMatrix;
         uniform mat4 normalMatrix;
 
+        varying vec3 calculatedPosition;
         varying vec3 vNormal;
         varying vec3 staticNormal;
         varying vec4 vTexCoord;
 
         void main() {
             gl_Position = PMatrix * VMatrix * MMatrix * vec4(position, 1.);
+            calculatedPosition = vec3(gl_Position);
             staticNormal = normal;
             vNormal = normalize(vec3(normalMatrix * vec4(normal, 1.)));
             vTexCoord = lightPMatrix * lightVMatrix * MMatrix * vec4(position, 1.);
@@ -56,6 +58,7 @@
         precision mediump float;
 
         uniform vec3 color;
+        uniform vec3 sky_color;
 
         uniform vec3 light_source_direction;
         uniform vec3 light_source_ambient_color;
@@ -74,8 +77,11 @@
 
         uniform vec3 view_direction;
 
+        uniform float fog_density;
+
         uniform sampler2D u_projectedTexture;
 
+        varying vec3 calculatedPosition;
         varying vec3 vNormal;
         varying vec3 staticNormal;
         varying vec4 vTexCoord;
@@ -126,7 +132,11 @@
                 ? 0.
                 : 1.;
             vec3 I = I_ambient + lightAmount * (I_diffuse + I_specular);
-            gl_FragColor = vec4(color*I, 1.);
+            
+            float distanceFromCamera = length(calculatedPosition);
+            float fogIntensity = 1. - exp2(-fog_density * fog_density * distanceFromCamera * distanceFromCamera * 1.442695);
+            fogIntensity = clamp(fogIntensity, 0., 1.);
+            gl_FragColor = vec4(mix(color * I, sky_color, fogIntensity), 1.);
         }
     </script>
 
