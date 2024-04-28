@@ -211,6 +211,10 @@ function main() {
     let leonardIrisConfig = renderProgramInfo.createUniformConfig();
     leonardIrisConfig.addUniform("color", "3fv", leonardIrisColor);
 
+    let leonardMouthConfig = leonardIrisConfig;
+
+    let leonardNoseConfig = leonardMouthConfig;
+
     let candyBodyConfig = renderProgramInfo.createUniformConfig();
     candyBodyConfig.addUniform("color", "3fv", candyBodyColor);
 
@@ -219,6 +223,8 @@ function main() {
 
     const leonardEyeBalls = [leonard.objs.leftEyeBall, leonard.objs.rightEyeBall];
     const leonardIris = [leonard.objs.leftIris, leonard.objs.rightIris];
+    const leonardMouthParts = [leonard.objs.lipsLeft, leonard.objs.lipsRight, leonard.objs.cheekLeft, leonard.objs.cheekRight];
+    const leonardNoseParts = [leonard.objs.leftNose, leonard.objs.rightNose];
     const candyBody = [leonard.objs.candyUpperBody, leonard.objs.candyLowerBody];
     function setLeonardConfig() {
         Object.values(leonard.objs).forEach((obj) => {
@@ -230,6 +236,12 @@ function main() {
         leonardIris.forEach((obj) => {
             obj.objectUniformConfig = leonardIrisConfig;
         });
+        leonardMouthParts.forEach((obj) => {
+            obj.objectUniformConfig = leonardMouthConfig;
+        })
+        leonardNoseParts.forEach((obj) => {
+            obj.objectUniformConfig = leonardNoseConfig;
+        })
         candyBody.forEach((obj)=> {
             obj.objectUniformConfig = candyBodyConfig;
         })
@@ -356,13 +368,28 @@ function main() {
         value.apply();
     }
     let transition = new TransitionManager()
-        .add(poseApplier, new PoseInterpolator(leonard.pose.T, leonard.pose.stand), 2000, Easing.sineInOut)
-        .add(poseApplier, new PoseInterpolator(leonard.pose.stand, leonard.pose.walkRight), 1000, Easing.sineInOut)
-        .add(poseApplier, new PoseInterpolator(leonard.pose.walkRight, leonard.pose.walkLeft), 1000, Easing.sineInOut)
-        .add(poseApplier, new PoseInterpolator(leonard.pose.walkLeft, leonard.pose.walkRight), 1000, Easing.sineInOut)
-        .add(poseApplier, new PoseInterpolator(leonard.pose.walkRight, leonard.pose.stand), 1000, Easing.sineInOut);
-        
-        
+    .add(poseApplier, new PoseInterpolator(leonard.pose.T, leonard.pose.stand), 2000, Easing.quadraticInOut)
+    .add(poseApplier, new PoseInterpolator(leonard.pose.stand, leonard.pose.walkRight), 700, Easing.quadraticInOut)
+    .add(poseApplier, new PoseInterpolator(leonard.pose.walkRight, leonard.pose.walkLeft), 700, Easing.quadraticInOut)
+    .add(poseApplier, new PoseInterpolator(leonard.pose.walkLeft, leonard.pose.walkRight), 700, Easing.quadraticInOut)
+    .add(poseApplier, new PoseInterpolator(leonard.pose.walkRight, leonard.pose.stand), 700, Easing.quadraticInOut)
+    .add(poseApplier, new PoseInterpolator(leonard.pose.stand, leonard.pose.crouch), 200, Easing.sineInOut)
+    .add(poseApplier, new PoseInterpolator(leonard.pose.crouch, leonard.pose.stand), 200, Easing.quadraticIn)
+    .add(poseApplier, new PoseInterpolator(leonard.pose.stand, leonard.pose.airborne), 350, Easing.quadraticOut)
+    .add(poseApplier, new PoseInterpolator(leonard.pose.airborne, leonard.pose.stand), 350, Easing.quadraticIn)
+    .add(poseApplier, new PoseInterpolator(leonard.pose.stand, leonard.pose.crouch), 200, Easing.quadraticOut)
+    .add(poseApplier, new PoseInterpolator(leonard.pose.crouch, leonard.pose.stand), 200, Easing.quadraticInOut)
+    .add(poseApplier, new PoseInterpolator(leonard.pose.stand, leonard.pose.stand), 1000)
+    .add(poseApplier, new PoseInterpolator(leonard.pose.stand, leonard.pose.crouch), 500, Easing.quadraticInOut)
+    .add(poseApplier, new PoseInterpolator(leonard.pose.crouch, leonard.pose.stand), 100, Easing.quadraticIn)
+    .add(poseApplier, new PoseInterpolator(leonard.pose.stand, leonard.pose.frontFlip1), 170, Easing.quadraticIn)
+    .add(poseApplier, new PoseInterpolator(leonard.pose.frontFlip1, leonard.pose.frontFlip2), 150)
+    .add(poseApplier, new PoseInterpolator(leonard.pose.frontFlip2, leonard.pose.frontFlip3), 170)
+    .add(poseApplier, new PoseInterpolator(leonard.pose.frontFlip3, leonard.pose.frontFlip4), 200)
+    .add(poseApplier, new PoseInterpolator(leonard.pose.frontFlip4, leonard.pose.stand), 300)
+    .add(poseApplier, new PoseInterpolator(leonard.pose.stand, leonard.pose.crouch), 200, Easing.quadraticOut)
+    .add(poseApplier, new PoseInterpolator(leonard.pose.crouch, leonard.pose.stand), 500, Easing.quadraticInOut);
+    
     let prevTime = 0;
     function animate(time) {
         /*========================= TRANSFORMATIONS ========================= */
@@ -373,15 +400,19 @@ function main() {
 
         let dt = time - prevTime;
         prevTime = time;
-
-        transition.step(dt);
-
+        
         objects.forEach((obj) => {
             obj.transform.reset();
+        });
+
+        floor.transform.translateY(170);
+        transition.step(dt);
+        
+        objects.forEach((obj) => {
             obj.transform.rotateY(THETA);
             obj.transform.rotateX(PHI);
-        })
-
+        });
+        
         renderShadow();
         renderFull();
 
