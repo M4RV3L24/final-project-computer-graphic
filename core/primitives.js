@@ -121,6 +121,59 @@ function generateUnitCylinder(stepCount=360) {
     return {vertices, indices};
 }
 
+function generateUnitCone(stepCount=360) {
+    let vertices = [], indices = [], numVertices = 0;
+
+    // Base of the cone
+    vertices.push(0, -1, 0);  // position
+    vertices.push(0, -1, 0);  // normal
+    numVertices++;
+
+    let baseAnchorIndex = numVertices - 1;
+    for (let i = 0; i < stepCount; i++) {
+        let alpha = LIBS.map(i, 0, stepCount, 0, 2*Math.PI);
+        let ca = Math.cos(alpha), sa = Math.sin(alpha);
+
+        x = ca;
+        z = sa;
+        vertices.push(x, -1, z);  // position
+        vertices.push(0, -1, 0);  // normal
+        numVertices++;
+
+        if (i == 0)
+            continue;
+        indices.push(baseAnchorIndex, numVertices-2, numVertices-1);
+    }
+    indices.push(baseAnchorIndex, numVertices-1, baseAnchorIndex+1);
+
+    // Side of the cone
+    let firstVertexIndex = numVertices;
+    vertices.push(0, 1, 0);  // position
+    vertices.push(0, 1, 0);  // normal
+    numVertices++;
+
+    let tipIndex = numVertices - 1;
+    for (let i = 0; i < stepCount; i++) {
+        let alpha = LIBS.map(i, 0, stepCount, 0, 2*Math.PI);
+        let ca = Math.cos(alpha), sa = Math.sin(alpha);
+
+        x = ca;
+        z = sa;
+        vertices.push(x, -1, z);  // position
+        vertices.push(x, 0, z);  // normal
+        numVertices++;
+
+        if (i == 0)
+            continue;
+
+        indices.push(tipIndex, numVertices-2, numVertices-1);
+    }
+    indices.push(tipIndex, numVertices-1, firstVertexIndex+1);
+
+    console.log(indices);
+    return {vertices, indices};
+}
+
 function generateCylinderCurvedSurface(radius1=1, radius2=radius1, sectorCount=100, stepCount=360) {
     let vertices = [], indices = [], numVertices = 0;
 

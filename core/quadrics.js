@@ -429,3 +429,4 @@ function generateEllipsDivider(uCount, vCount, a, b, c, div) {
     return {vertices, indices};
 }
 
+
