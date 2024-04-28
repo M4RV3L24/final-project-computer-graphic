@@ -123,8 +123,9 @@ function main() {
     let floor = new GLObject(GL, floorData.vertices, floorData.indices);
 
     let island = createIsland(GL);
+    let rock = createRock(GL);
 
-    objects = [island.objs.root, floor];
+    objects = [island.objs.root, rock.objs.root, floor];
     
     objects.forEach(obj => {
         obj.setup();
@@ -198,7 +199,8 @@ function main() {
     const
         islandGrassColor = [65/255, 152/255, 10/255],
         islandDirtColor = [64/255, 41/255, 5/255],
-        islandShininess = 4;
+        islandShininess = 4,
+        rockColor = [136/255, 140/255, 141/255];
 
     let islandGrassConfig = renderProgramInfo.createUniformConfig();
     islandGrassConfig.addUniform("color", "3fv", islandGrassColor);
@@ -208,8 +210,12 @@ function main() {
     islandDirtConfig.addUniform("color", "3fv", islandDirtColor);
     islandDirtConfig.addUniform("mat_shininess", "1f", islandShininess);
 
+    let rockConfig = renderProgramInfo.createUniformConfig();
+    rockConfig.addUniform("color", "3fv", rockColor);
+
     let islandGrass = [island.objs.grass];
     let islandDirt = [island.objs.dirt1, island.objs.dirt2];
+    let rockParts = [rock.objs.rock1, rock.objs.rock2];
 
     function setIslandConfig() {
         islandGrass.forEach((obj) => {
@@ -217,6 +223,9 @@ function main() {
         })
         islandDirt.forEach((obj) => {
             obj.objectUniformConfig = islandDirtConfig;
+        })
+        rockParts.forEach((obj)=>{
+            obj.objectUniformConfig = rockConfig;
         })
     }
 
@@ -352,11 +361,11 @@ function main() {
             obj.transform.reset();
         });
 
-        island.objs.root.transform.scaleUniform(100);
+        island.objs.root.transform.scaleUniform(100).translateX(-100);
         
         objects.forEach((obj) => {
-            obj.transform.rotateY(THETA);
-            obj.transform.rotateX(PHI);
+            obj.transform.localRotateY(THETA);
+            obj.transform.localRotateX(PHI);
         });
         
         renderShadow();
