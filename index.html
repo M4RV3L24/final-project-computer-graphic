@@ -49,9 +49,10 @@
             staticNormal = normal;
             vNormal = normalize(vec3(normalMatrix * vec4(normal, 1.)));
             vTexCoord = lightPMatrix * lightVMatrix * MMatrix * vec4(position, 1.);
+            vTexCoord.xy /= vTexCoord.w;
             vTexCoord.xy *= 0.5;
             vTexCoord.xy += 0.5;
-            vTexCoord.z /= 1000.;
+            vTexCoord.z /= 1300.;
         }
     </script>
     <script id="fragmentShader" type="x-shader/x-fragment">
@@ -117,8 +118,9 @@
                 vTexCoord.y >= 0.0 &&
                 vTexCoord.y <= 1.0;
             
-            //float depthFromLight = getAverageDepth() * 4.;
-            float depthFromLight = texture2D(u_projectedTexture, vTexCoord.xy).r * 4.;
+            float depthFromLight = getAverageDepth();
+            //float depthFromLight = texture2D(u_projectedTexture, vTexCoord.xy).r;
+            float unbiasedDepthFromLight = depthFromLight;
             depthFromLight += (1. - abs(dot(vNormal, light_source_direction))) * normal_bias + bias;
             
             vec3 I_ambient = light_source_ambient_color * mat_ambient_color;  
@@ -163,7 +165,7 @@
         varying vec3 vNormal;
 
         void main() {
-            gl_FragColor = vec4(calculatedPosition.zzz / 1000., 1.);
+            gl_FragColor = vec4(calculatedPosition.zzz / 1300., 1.);
         }
     </script>
 

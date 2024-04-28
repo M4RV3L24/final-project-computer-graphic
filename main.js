@@ -162,18 +162,18 @@ function main() {
     const matSpecularColor = [1.,1.,1.];
     const matShininess = 20.;
 
-    const lightSourcePosition = [20., 20., 20.];
+    const lightSourcePosition = [400., 400., 400.];
     const lightSourceTarget = [0., 0., 0.];
     const lightSourceDirection = Vector.sub(lightSourcePosition, lightSourceTarget).normalize().arr();
 
-    const cellSize = 1/1000;
-    const spread = 3;
-    const bias = -0.01;
-    const normalBias = 0.;
+    const cellSize = 1/3000;
+    const spread = 1;
+    const bias = 0.004;
+    const normalBias = 0.03;
 
     const fogDensity = 0.0002;
 
-    const lightProjMatrix = LIBS.get_ortho_proj(40, CANVAS.width / CANVAS.height, 1, 2000);
+    const lightProjMatrix = LIBS.get_ortho_proj(45, CANVAS.width / CANVAS.height, 1, 1000);
     const lightViewMatrix = Transform3.translate(
         Matrix.fromGLMatrix(
             LIBS.look_at(
@@ -181,10 +181,7 @@ function main() {
                 lightSourceTarget,
                 [0, 1, 0]
             ), 4, 4
-        ).inverse(),
-        -50,
-        50,
-        -200
+        ).inverse()
     ).toGLMatrix();
 
     var THETA = 0, PHI = 0;
@@ -522,7 +519,7 @@ function main() {
 
     /*========================= DEPTH FRAME BUFFER & TEXTURE ========================= */
     var unusedTexture = GL.createTexture();
-    var depthTextureSize = 1024;
+    var depthTextureSize = 2048;
     GL.bindTexture(GL.TEXTURE_2D, unusedTexture);
     GL.texImage2D(
         GL.TEXTURE_2D,      // target
