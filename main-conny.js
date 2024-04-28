@@ -113,20 +113,27 @@ function main() {
     let floorData = {
         vertices: [
             -500., -200.,  500.,     0., 1., 0.,
-             500., -200.,  500.,     0., 1., 0.,
-             500., -200., -500.,     0., 1., 0.,
-            -500., -200., -500.,     0., 1., 0.,
+            500., -200.,  500.,     0., 1., 0.,
+            500., -200., -500.,     0., 1., 0.,
+           -500., -200., -500.,     0., 1., 0.
         ],
         indices: [
             0, 1, 2,
             2, 0, 3,
         ]
     };
+
+  
     let floor = new GLObject(GL, floorData.vertices, floorData.indices);
 
     let conny = createConny(GL);
 
-    objects = [conny.root, floor];
+    let tree1 = createTree1(GL);
+    let tree2 = createTree2(GL);
+
+    let mountain = createMountain(GL);
+
+    objects = [conny.objs.root, floor,tree2.objs.root, tree1.objs.root, mountain.objs.root];
     
     objects.forEach(obj => {
         obj.setup();
@@ -203,11 +210,25 @@ function main() {
         connyBlackColor = [.0, .0, .0],
         connyCheekColor = [0.94, 0.82, 0.9],
         connyRed = [1, 0.26, 0.26],
-        connySoftRed = [1, 0.53, 0.53];
+        connySoftRed = [1, 0.53, 0.53],
+        connySolidPink = [1, 0.21, 0.41], 
+        trunkColor = [0.6, 0.3, 0.1],
+        leaveColor = [0.1, 0.6, 0.1],
+        mountainColor = [0.25, 0.25, 0.3];
 
+    let mountainColorConfig = renderProgramInfo.createUniformConfig();
+    mountainColorConfig.addUniform("color", "3fv", mountainColor);
+    let leaveColorConfig = renderProgramInfo.createUniformConfig();
+    leaveColorConfig.addUniform("color", "3fv", leaveColor);
+
+    let trunkColorConfig = renderProgramInfo.createUniformConfig();
+    trunkColorConfig.addUniform("color", "3fv", trunkColor);
 
     let connySoftRedConfig = renderProgramInfo.createUniformConfig();
     connySoftRedConfig.addUniform("color", "3fv", connySoftRed);
+
+    let connySolidPinkConfig = renderProgramInfo.createUniformConfig();
+    connySolidPinkConfig.addUniform("color", "3fv", connySolidPink);
 
     let connyRedConfig = renderProgramInfo.createUniformConfig();
     connyRedConfig.addUniform("color", "3fv", connyRed);
@@ -223,16 +244,43 @@ function main() {
 
     let connyCheekConfig = renderProgramInfo.createUniformConfig();
     connyCheekConfig.addUniform("color", "3fv", connyCheekColor);
-    const connyBlacks = [conny.leftEyeGroup, conny.rightEyeGroup, conny.nose, conny.nose2, conny.line, conny.outerMouth1, conny.outerMouth2];
+    const connyBlacks = [
+        conny.objs.leftEyeGroup, 
+        conny.objs.rightEyeGroup, 
+        conny.objs.nose, 
+        conny.objs.nose2, 
+        conny.objs.line, 
+        conny.objs.outerMouth1,
+        conny.objs.outerMouth2
+    ];
 
-    const connyEars = [conny.leftEarBottom, conny.rightEarBottom];
-    const connyCheek = [conny.leftCheek, conny.rightCheek];
-    const connyReds = [conny.mouth];
-    const connySoftReds = [conny.mouth2];
+    const connyEars = [conny.objs.leftEarBottom, conny.objs.rightEarBottom];
+    const connyCheek = [conny.objs.leftCheek, conny.objs.rightCheek];
+    const connyReds = [conny.objs.mouth, conny.objs.tape2];
+    const connySoftReds = [conny.objs.mouth2];
+    const connySolidPinks = [conny.objs.tape];
+    const TreeTrunks = [
+        tree1.objs.trunk1, 
+        tree1.objs.trunk2,
+        tree1.objs.trunk3,
+        tree1.objs.trunk4,
+        tree1.objs.trunk5,
+        tree2.objs.trunk
+    ];
+
+    const TreeLeaves = [
+        tree1.objs.leaves1,
+        tree1.objs.leaves2,
+        tree1.objs.leaves3,
+        tree1.objs.leaves4,
+        tree2.objs.leaves1,
+        tree2.objs.leaves2,
+        tree2.objs.leaves
+    ];
 
     
     function setConnyConfig() {
-        Object.values(conny).forEach((obj) => {
+        Object.values(conny.objs).forEach((obj) => {
             obj.objectUniformConfig = connyDefaultConfig;
         });
         connyEars.forEach((obj) => {
@@ -252,7 +300,26 @@ function main() {
         connySoftReds.forEach((obj) => {
             obj.objectUniformConfig = connySoftRedConfig;
         });
+        
+        connySolidPinks.forEach((obj) => {
+            obj.objectUniformConfig = connySolidPinkConfig;
+        });
+
+        TreeTrunks.forEach((obj) => {
+            obj.objectUniformConfig = trunkColorConfig;
+        });
+
+        TreeLeaves.forEach((obj) => {
+            obj.objectUniformConfig = leaveColorConfig;
+        });
+
+        mountain.objs.mountBase.objectUniformConfig = mountainColorConfig;
+        mountain.objs.mountTop.objectUniformConfig = connyDefaultConfig;
     }
+
+
+
+
 
     {
         let set = (...prop)=>shadowProgramInfo.uniformConfig.setAndApplyUniformValue(...prop);
@@ -369,15 +436,50 @@ function main() {
         });
     }
 
+    /*========================= ANIMATIONS ========================= */
+    function poseApplier({value}) {
+        value.apply();
+    }
+    let transition = new TransitionManager()
+
+    for(var i = 0; i < 1; i++){
+        transition
+        .add(poseApplier, new PoseInterpolator(conny.pose.T, conny.pose.stand), 2000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(conny.pose.stand, conny.pose.walkRight), 1000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(conny.pose.walkRight, conny.pose.walkLeft), 1000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(conny.pose.walkLeft, conny.pose.walkRight), 1000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(conny.pose.walkRight, conny.pose.stand), 1000, Easing.sineInOut)
+        // .add(poseApplier, new PoseInterpolator(conny.pose.stand, conny.pose.T), 1000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(conny.pose.stand, conny.pose.turnLeft), 1000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(conny.pose.turnLeft, conny.pose.stand), 1000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(conny.pose.stand, conny.pose.turnRight), 1000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(conny.pose.turnRight, conny.pose.stand), 1000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(conny.pose.stand, conny.pose.turnUp), 1000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(conny.pose.turnUp, conny.pose.turnDown), 2000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(conny.pose.turnDown, conny.pose.stand), 2000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(conny.pose.stand, conny.pose.greeting), 1000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(conny.pose.greeting, conny.pose.stand), 2000, Easing.sineInOut)
+        
+        
+        
+    }
+        
+    let prevTime = 0;
+
     function animate(time) {
         /*========================= TRANSFORMATIONS ========================= */
         if (!drag) {
             dX *= AMORTIZATION, dY *= AMORTIZATION;
             THETA += dX, PHI += dY;
         }
+        let dt = time - prevTime;
+        prevTime = time;
+
+        transition.step(dt);
 
         objects.forEach((obj) => {
             obj.transform.reset();
+            mountain.objs.root.transform.scale(5, 5, 5).translateZ(200);
             obj.transform.rotateY(THETA);
             obj.transform.rotateX(PHI);
         })
