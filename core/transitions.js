@@ -234,12 +234,8 @@ class TransitionManager {
 	}
 
 	isFinished() {
-		// console.log(this._currIndex);
-		// console.log(this._transitions.length);
-
 		if(this._currIndex >= this._transitions.length){
 			this._repeat--;
-			console.log("REP = " + this._repeat);
 			
 			if(this._repeat <= 0) return true;
 			else {
