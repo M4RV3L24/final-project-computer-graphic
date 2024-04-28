@@ -120,3 +120,41 @@ function generateUnitCylinder(stepCount=360) {
 
     return {vertices, indices};
 }
+
+function generateCylinderCurvedSurface(radius1=1, radius2=radius1, sectorCount=100, stepCount=360) {
+    let vertices = [], indices = [], numVertices = 0;
+
+    // Curved surface
+    for(let i = 0; i < sectorCount; i++){
+        let radius = radius1 + (radius2 - radius1) * (i / (sectorCount - 1));
+
+        for(let j = 0; j < stepCount; j++){
+            let alpha = LIBS.map(j, 0, stepCount, 0, 2*Math.PI);
+            let ca = Math.cos(alpha), sa = Math.sin(alpha);
+
+            let x = ca * radius;
+            let z = sa * radius;
+            let y = i / (sectorCount - 1);
+
+            vertices.push(x, y, z);
+            vertices.push(x, 0, z);
+            numVertices++;
+        }
+
+        if(i != 0){
+            let firstVertexIndex = i * stepCount;
+            let lastVertexIndex = (i + 1) * stepCount - 1;
+
+            for(let j = firstVertexIndex; j < lastVertexIndex; j++){
+                indices.push(j, j - stepCount, j - stepCount + 1);
+                indices.push(j - stepCount + 1, j, j + 1);
+            }
+
+            indices.push(firstVertexIndex, firstVertexIndex - stepCount, firstVertexIndex - 1);
+            indices.push(firstVertexIndex - 1, lastVertexIndex, firstVertexIndex);
+        }
+    }
+   
+    console.log(vertices, indices)
+    return {vertices, indices};
+}
