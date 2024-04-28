@@ -331,6 +331,34 @@ function createConny(GL, programInfo = null) {
 
     pose.T.apply();
 
+    objs.upperBody.transform
+        .rotateAlong(LIBS.degToRad(-30), [1, 0, 0], [-1, -30, 0]);
+    objs.legs.transform
+        .rotateAlong(LIBS.degToRad(30), [1, 0, 0], [-1, -30, 0]);
+    objs.root.transform
+        .translateY(-4);
+    
+    pose.jumpStart = new Pose(objsArr);
+
+    objs.upperBody.transform
+        .rotateAlong(LIBS.degToRad(30), [1, 0, 0], [-1, -30, 0]);
+    objs.legs.transform
+        .rotateAlong(LIBS.degToRad(-30), [1, 0, 0], [-1, -30, 0]);
+    objs.root.transform
+        .translateY(30);
+    objs.leftArm.transform
+        .localRotateZ(-Math.PI / 5);
+        
+    objs.rightArm.transform
+    .translateY(-8)
+    .localRotateZ(-Math.PI / 5);
+    objs.head.transform
+        .translateX(2)
+        .translateY(-6)
+        .localRotateZ(LIBS.degToRad(-15));
+    
+    pose.jumpEnd = new Pose(objsArr);
+
 
     return { objs, pose };
 }

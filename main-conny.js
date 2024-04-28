@@ -444,6 +444,12 @@ function main() {
     function connyWalk({value}){
         conny.objs.root.transform.translateZ(value);
     }
+
+    function connyBackWalk({value}){
+        conny.objs.legs.transform.translateZ(value);
+
+    }
+    
     let transition = new TransitionManager()
 
     for(var i = 0; i < 1; i++){
@@ -471,12 +477,16 @@ function main() {
         .add(poseApplier, new PoseInterpolator(conny.pose.stand, conny.pose.turnUp), 1000, Easing.sineInOut)
         .add(poseApplier, new PoseInterpolator(conny.pose.turnUp, conny.pose.turnDown), 2000, Easing.sineInOut)
         .add(poseApplier, new PoseInterpolator(conny.pose.turnDown, conny.pose.stand), 2000, Easing.sineInOut) 
+        .add(poseApplier, new PoseInterpolator(conny.pose.stand, conny.pose.jumpStart), 1000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(conny.pose.jumpStart, conny.pose.jumpEnd), 1000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(conny.pose.jumpEnd, conny.pose.stand), 1000, Easing.sineInOut)
     }
     let walkTransition =new TransitionManager()
     .add(connyWalk, new NumberInterpolator(0, 0), 2000, Easing.sineInOut)
     .add(connyWalk, new NumberInterpolator(0, 50), 4400, Easing.sineInOut)
     .add(connyWalk, new NumberInterpolator(50, 50), 2000, Easing.sineInOut)
     .add(connyWalk, new NumberInterpolator(50, 0), 4400, Easing.sineInOut)
+
     let prevTime = 0;
 
     function animate(time) {
