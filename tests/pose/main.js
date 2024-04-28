@@ -285,27 +285,20 @@ function main() {
     let pose0 = new Pose(objects);
 
     ellipsoid.transform.translateX(-10).translateZ(-50).rotateY(Math.PI/4).scale(10);
-    hyperbolicParaboloid.transform.translateX(-20).translateY(10);
-    hyperboloid1.transform.translateY(10);
-    hyperboloid2.transform.translateY(-5);
-    ellipticCone.transform.translateZ(-50);
-    ellipticParaboloid.transform.translateX(-60);
+    
     let pose1 = new Pose(objects);
 
-    pose0.apply();
+    // pose0.apply();
     ellipsoid.transform.translateX(-20).translateZ(-50);
-    hyperbolicParaboloid.transform.translateX(20);
-    hyperboloid1.transform.translateY(20);
-    hyperboloid2.transform.translateY(-15);
-    ellipticCone.transform.translateZ(-20);
-    ellipticParaboloid.transform.translateX(-40);
+    
     let pose2 = new Pose(objects);
 
     function poseApplier({value}) {
         value.apply();
     }
 
-    let transition = new TransitionManager().add(poseApplier, new PoseInterpolator(pose1, pose2), 5, Easing.sineInOut);
+    let transition = new TransitionManager().add(poseApplier, new PoseInterpolator(pose2, pose0), 10, Easing.sineInOut)
+    .add(poseApplier, new PoseInterpolator(pose0, pose2), 10, Easing.sineInOut);
 
     let prev_time = 0;
     function animate(time) {

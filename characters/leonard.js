@@ -16,7 +16,7 @@ function createLeonard(GL, programInfo = null) {
     {
         objs.head = createNullObject();
         objs.head.transform.translateY(bodyHeight);
-        {
+        {   
             objs.baseHead = createObject(generateEllipsoid(100, 100, 30, 20, 15));
             objs.baseHead.transform.translateY(10);
 
