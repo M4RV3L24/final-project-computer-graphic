@@ -7,8 +7,9 @@ Link laporan: https://docs.google.com/document/d/1FBYv61zWzr9_iRFKbVQdodDMVboQfm
 Link Github: 
 
 How to Run:
-Open index.html file using your browser.
-if you want to rerun the animation, refresh the page.
+- Run server on the root folder.
+- Open index.html file.
+- if you want to rerun the animation, refresh the page.
 
 
 theme --> Line Character
