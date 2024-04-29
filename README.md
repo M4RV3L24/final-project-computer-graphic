@@ -4,7 +4,7 @@
 - Marvel Wilbert Odelio (C14220223)
 
 ## Documents
-Watch the demo here: https://www.youtube.com/watch?v=UOAu8dZDMas
+Watch the demo here: https://youtu.be/yKXV_snfQnI
 
 Report: https://docs.google.com/document/d/1FBYv61zWzr9_iRFKbVQdodDMVboQfmspotKkKoyTneA/edit?usp=sharing
 
