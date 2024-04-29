@@ -320,7 +320,7 @@ function main() {
         depthTexture,         // texture
         0                      // mip level
     );
-zzzz
+
     /*========================= DRAWING ========================= */
     GL.enable(GL.DEPTH_TEST);
     GL.depthFunc(GL.LEQUAL);
