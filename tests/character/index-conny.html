@@ -7,16 +7,18 @@
     <script src="/math/vector.js"></script>
     <script src="/math/matrix.js"></script>
     <script src="/math/quaternion.js"></script>
-    <script src="/math/interpolator.js"></script>
-    <script src="/core/BSpline.js"></script>
     <script src="/core/primitives.js"></script>
     <script src="/core/quadrics.js"></script>
     <script src="/core/program.js"></script>
     <script src="/core/transitions.js"></script>
+    <script src="/math/interpolator.js"></script>
     <script src="/core/transform.js"></script>
     <script src="/core/globject.js"></script>
     <script src="/core/pose.js"></script>
-    <script src="/characters/island.js"></script>
+    <script src="/core/BSpline.js"></script>
+    <script src="/characters/conny.js"></script>
+    <script src="/characters/tree.js"></script>
+    <script src="/characters/mountain.js"></script>
 </head>
 
 <body style="margin: 0">
@@ -42,7 +44,6 @@
             vTexCoord = lightPMatrix * lightVMatrix * MMatrix * vec4(position, 1.) / 130.;
             vTexCoord.xy *= 0.5;
             vTexCoord.xy += 0.5;
-            gl_PointSize = 10.;
         }
     </script>
     <script id="fragmentShader" type="x-shader/x-fragment">
@@ -149,7 +150,7 @@
         }
     </script>
 
-    <script src="/main-env-nathan.js"></script>
+    <script src="./main-conny.js"></script>
 </body>
 
 </html>
