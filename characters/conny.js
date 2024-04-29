@@ -345,7 +345,7 @@ function createConny(GL, programInfo = null) {
     objs.legs.transform
         .rotateAlong(LIBS.degToRad(-30), [1, 0, 0], [-1, -30, 0]);
     objs.root.transform
-        .translateY(30);
+        .translateY(40);
     objs.leftArm.transform
         .localRotateZ(-Math.PI / 5);
         
