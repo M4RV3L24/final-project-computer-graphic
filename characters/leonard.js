@@ -288,6 +288,12 @@ function createLeonard(GL, programInfo = null) {
     objs.rightLegGroup.transform
     .rotateZ(Math.PI/36);
 
+    objs.leftIris.transform
+    .scaleUniform(1.15);
+
+    objs.rightIris.transform
+    .scaleUniform(1.15);
+
     pose.airborne = new Pose(objsArr);
 
     pose.T.apply();
@@ -362,6 +368,12 @@ function createLeonard(GL, programInfo = null) {
     objs.head.transform
     .rotateX(Math.PI/6);
 
+    objs.leftIris.transform
+    .scaleUniform(1.03);
+
+    objs.rightIris.transform
+    .scaleUniform(1.03);
+
     pose.frontFlip2 = new Pose(objsArr);
 
     pose.T.apply();
@@ -388,6 +400,12 @@ function createLeonard(GL, programInfo = null) {
     objs.head.transform
     .rotateX(Math.PI/6);
 
+    objs.leftIris.transform
+    .scaleUniform(1.07);
+
+    objs.rightIris.transform
+    .scaleUniform(1.07);
+
     pose.frontFlip3 = new Pose(objsArr);
 
     pose.T.apply();
@@ -413,6 +431,12 @@ function createLeonard(GL, programInfo = null) {
 
     objs.head.transform
     .rotateX(Math.PI/6);
+
+    objs.leftIris.transform
+    .scaleUniform(1.15);
+
+    objs.rightIris.transform
+    .scaleUniform(1.15);
 
     pose.frontFlip4 = new Pose(objsArr);
 

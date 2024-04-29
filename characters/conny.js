@@ -357,6 +357,12 @@ function createConny(GL, programInfo = null) {
         .translateY(-6)
         .localRotateZ(LIBS.degToRad(-15));
     
+    objs.leftEyeGroup.transform
+    .scaleUniform(1.5);
+
+    objs.rightEyeGroup.transform
+    .scaleUniform(1.5);
+    
     pose.jumpEnd = new Pose(objsArr);
 
 

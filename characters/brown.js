@@ -315,6 +315,13 @@ function createBrown(GL, programInfo = null) {
 
     objs.rightArmGroup.transform.rotateAlong(LIBS.degToRad(90), [4, -2, 0], [26, 7, 0]);
     objs.luckyCloverLeaves.transform.rotateZ(LIBS.degToRad(180));
+
+    objs.leftEye.transform
+    .scaleUniform(1.2);
+
+    objs.rightEye.transform
+    .scaleUniform(1.2);
+
     pose.showLuckyClover = new Pose(objsArr);
     pose.initial.apply();
 
@@ -323,6 +330,13 @@ function createBrown(GL, programInfo = null) {
     objs.rightArmGroup.transform.rotateAlong(LIBS.degToRad(-45), [0, 0, 1], [23, 2, 4]);
     objs.luckyCloverLeaves.transform.rotateZ(LIBS.degToRad(0));
     objs.eyes.transform.scaleUniform(0.9);
+
+    objs.leftEye.transform
+    .scaleUniform(1.2);
+
+    objs.rightEye.transform
+    .scaleUniform(1.2);
+
     pose.luckyCloverLeft = new Pose(objsArr);
     pose.initial.apply();
 
@@ -331,6 +345,13 @@ function createBrown(GL, programInfo = null) {
     objs.rightArmGroup.transform.rotateAlong(LIBS.degToRad(45), [0, 0, 1], [23, 2, 4]);
     objs.luckyCloverLeaves.transform.rotateZ(LIBS.degToRad(180));
     pose.luckyCloverRight = new Pose(objsArr);
+
+    objs.leftEye.transform
+    .scaleUniform(1.2);
+
+    objs.rightEye.transform
+    .scaleUniform(1.2);
+
     pose.initial.apply();
 
     return {objs, pose};
