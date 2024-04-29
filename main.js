@@ -679,7 +679,7 @@ function main() {
 
     for(var i = 0; i < 1; i++){
         connyWalkTransition
-        .add(poseApplier, new PoseInterpolator(conny.pose.T, conny.pose.stand), 2000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(conny.pose.T, conny.pose.stand), 800, Easing.sineInOut)
         .add(poseApplier, new PoseInterpolator(conny.pose.stand, conny.pose.walkRight), 1000, Easing.sineInOut)
         .add(poseApplier, new PoseInterpolator(conny.pose.walkRight, conny.pose.walkLeft), 800, Easing.sineInOut)
         .add(poseApplier, new PoseInterpolator(conny.pose.walkLeft, conny.pose.walkRight), 800, Easing.sineInOut)
@@ -702,9 +702,13 @@ function main() {
         .add(poseApplier, new PoseInterpolator(conny.pose.stand, conny.pose.turnUp), 1000, Easing.sineInOut)
         .add(poseApplier, new PoseInterpolator(conny.pose.turnUp, conny.pose.turnDown), 2000, Easing.sineInOut)
         .add(poseApplier, new PoseInterpolator(conny.pose.turnDown, conny.pose.stand), 2000, Easing.sineInOut) 
+         
+        .add(poseApplier, new PoseInterpolator(conny.pose.stand, conny.pose.jumpStart), 800, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(conny.pose.jumpStart, conny.pose.jumpEnd), 800, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(conny.pose.jumpEnd, conny.pose.stand), 800, Easing.sineInOut)
     }
     let connyMoveTransition =new TransitionManager()
-    .add(connyMove, new NumberInterpolator(0, 0), 2000, Easing.sineInOut)
+    .add(connyMove, new NumberInterpolator(0, 0), 800, Easing.sineInOut)
     .add(connyMove, new NumberInterpolator(0, 50), 4400, Easing.sineInOut)
     .add(connyMove, new NumberInterpolator(50, 50), 2000, Easing.sineInOut)
     .add(connyMove, new NumberInterpolator(50, 0), 4400, Easing.sineInOut)
