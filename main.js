@@ -716,6 +716,9 @@ function main() {
         cloud.root.transform.translateX(value);
         baloon.root.transform.translateX(-value).translateZ(value * 20);
     }
+    function brownWalk({value}) {
+        brown.objs.root.transform.translateZ(value);
+    }
    
     let brownTransition = new TransitionManager()
         .add(poseApplier, new PoseInterpolator(brown.pose.initial, brown.pose.nod), 500, Easing.sineInOut)
@@ -727,8 +730,13 @@ function main() {
         .add(poseApplier, new PoseInterpolator(brown.pose.rightFootWalk, brown.pose.leftFootWalk), 800, Easing.sineInOut)
         .add(poseApplier, new PoseInterpolator(brown.pose.leftFootWalk, brown.pose.rightFootWalk), 800, Easing.sineInOut)
         .add(poseApplier, new PoseInterpolator(brown.pose.rightFootWalk, brown.pose.initial), 800, Easing.sineInOut)
-        .add(poseApplier, new PoseInterpolator(brown.pose.initial, brown.pose.waveRightHand), 800, Easing.sineInOut)
-        .add(poseApplier, new PoseInterpolator(brown.pose.waveRightHand, brown.pose.initial), 800, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(brown.pose.initial, brown.pose.waveRightHand), 1000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(brown.pose.waveRightHand, brown.pose.initial), 1000, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(brown.pose.initial, brown.pose.leftFootWalk), 800, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(brown.pose.leftFootWalk, brown.pose.rightFootWalk), 800, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(brown.pose.rightFootWalk, brown.pose.leftFootWalk), 800, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(brown.pose.leftFootWalk, brown.pose.rightFootWalk), 800, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(brown.pose.rightFootWalk, brown.pose.initial), 800, Easing.sineInOut)
         .add(poseApplier, new PoseInterpolator(brown.pose.initial, brown.pose.showLuckyClover), 800, Easing.sineInOut)
         .add(poseApplier, new PoseInterpolator(brown.pose.showLuckyClover, brown.pose.luckyCloverLeft), 800, Easing.sineInOut)
         .add(poseApplier, new PoseInterpolator(brown.pose.luckyCloverLeft, brown.pose.luckyCloverRight), 1600, Easing.sineInOut)
@@ -739,6 +747,12 @@ function main() {
 
     let brownTransition2 = new TransitionManager()
         .add(moveEnvObject, new NumberInterpolator(0, 200), 100000)
+
+    let brownWalkTransition = new TransitionManager()
+        .delay(2000)
+        .add(brownWalk, new NumberInterpolator(0, 70), 4000)
+        .add(brownWalk, new NumberInterpolator(70, 70), 2000)
+        .add(brownWalk, new NumberInterpolator(70, 0), 4000)
 
     function updateCameraPosition({value}) {
         let cameraPosition = value.arr();
@@ -793,6 +807,7 @@ function main() {
         
         brownTransition.step(dt);
         brownTransition2.step(dt);
+        brownWalkTransition.step(dt);
 
         brown.objs.root.transform.translateY(13).translateZ(100);
         baloon.root.transform.scaleUniform(1.2).rotateY(Math.PI/6).translate(-40, 200, -1500);
