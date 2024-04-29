@@ -79,6 +79,7 @@ class Transform3 {
 
     reset() {
         this._mat = Matrix.identity(4);
+        return this;
     }
 
     rotateX(a = 0) {
@@ -392,6 +393,7 @@ class Transform3 {
 
     static localRotateAlong(mat, alpha, axis, origin = [0, 0, 0]) {
         Transform3._preTranslationTransform(Transform3.rotateAlong, mat, alpha, axis, origin);
+        return mat;
     }
 
     static translateX(mat, t = 0) {
@@ -453,6 +455,7 @@ class Transform3 {
         mat.set(0, 3, 0);
         mat.set(1, 3, 0);
         mat.set(2, 3, 0);
+        return mat;
     }
 
     // Do all scale before any other transformation
