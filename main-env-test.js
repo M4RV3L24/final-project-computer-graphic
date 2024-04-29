@@ -320,7 +320,7 @@ function main() {
         depthTexture,         // texture
         0                      // mip level
     );
-
+zzzz
     /*========================= DRAWING ========================= */
     GL.enable(GL.DEPTH_TEST);
     GL.depthFunc(GL.LEQUAL);
@@ -405,7 +405,7 @@ function main() {
         
 
         objects.forEach(object => {
-            object.transform.scaleUniform(0.2);
+            object.transform.scaleUniform(0.15);
             object.transform.rotateY(THETA);
             object.transform.rotateX(PHI);
         });
