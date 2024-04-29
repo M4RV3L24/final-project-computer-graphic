@@ -704,9 +704,9 @@ function main() {
         .add(poseApplier, new PoseInterpolator(conny.pose.turnUp, conny.pose.turnDown), 2000, Easing.sineInOut)
         .add(poseApplier, new PoseInterpolator(conny.pose.turnDown, conny.pose.stand), 2000, Easing.sineInOut) 
          
-        .add(poseApplier, new PoseInterpolator(conny.pose.stand, conny.pose.jumpStart), 800, Easing.sineInOut)
-        .add(poseApplier, new PoseInterpolator(conny.pose.jumpStart, conny.pose.jumpEnd), 800, Easing.sineInOut)
-        .add(poseApplier, new PoseInterpolator(conny.pose.jumpEnd, conny.pose.stand), 800, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(conny.pose.stand, conny.pose.jumpStart), 500, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(conny.pose.jumpStart, conny.pose.jumpEnd), 400, Easing.sineInOut)
+        .add(poseApplier, new PoseInterpolator(conny.pose.jumpEnd, conny.pose.stand), 600, Easing.sineInOut)
     }
     let connyMoveTransition =new TransitionManager()
     .add(connyMove, new NumberInterpolator(0, 0), 800, Easing.sineInOut)
