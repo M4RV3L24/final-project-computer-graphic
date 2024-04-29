@@ -660,8 +660,8 @@ function main() {
     .add(poseApplier, new PoseInterpolator(leonard.pose.crouch, leonard.pose.stand), 500, Easing.quadraticInOut)
     .repeat(2);
 
-    function leonardMove({value, prevValue}) {
-        leonard.objs.root.transform.translateZ(value);
+    function leonardMove({value}) {
+        leonard.objs.root.transform.setTranslationZ(value);
     }
 
     let transitionMoveLeonard = new TransitionManager()
@@ -674,7 +674,7 @@ function main() {
     
 
     function connyMove({value}){
-        conny.objs.root.transform.translateZ(value);
+        conny.objs.root.transform.setTranslationZ(value);
     }
     let connyWalkTransition = new TransitionManager()
 
@@ -718,11 +718,11 @@ function main() {
         brown.objs.luckyCloverLeaves.transform.rotateZ(value - prevValue);
     }
     function moveEnvObject({value}){
-        cloud.root.transform.translateX(value);
-        baloon.root.transform.translateX(-value).translateZ(value * 20);
+        cloud.root.transform.setTranslationX(value);
+        baloon.root.transform.setTranslationX(-value).setTranslationZ(value * 20);
     }
     function brownWalk({value}) {
-        brown.objs.root.transform.translateZ(value);
+        brown.objs.root.transform.setTranslationZ(value);
     }
    
     let brownTransition = new TransitionManager()

@@ -146,6 +146,26 @@ class Transform3 {
         return this;
     }
 
+    setTranslationX(t = 0) {
+        this._mat = Transform3.setTranslationX(this._mat, t);
+        return this;
+    }
+    
+    setTranslationY(t = 0) {
+        this._mat = Transform3.setTranslationY(this._mat, t);
+        return this;
+    }
+    
+    setTranslationZ(t = 0) {
+        this._mat = Transform3.setTranslationZ(this._mat, t);
+        return this;
+    }
+
+    setTranslationUniform(t = 0) {
+        this._mat = Transform3.setTranslationUniform(this._mat, t);
+        return this;
+    }
+
     resetTranslation() {
         this._mat = Transform3.resetTranslation(mat);
         return this;
@@ -400,6 +420,28 @@ class Transform3 {
         Transform3.translateX(mat, t);
         Transform3.translateY(mat, t);
         Transform3.translateZ(mat, t);
+        return mat;
+    }
+
+    static setTranslationX(mat, t = 0) {
+        mat.set(0, 3, t);
+        return mat;
+    }
+    
+    static setTranslationY(mat, t = 0) {
+        mat.set(1, 3, t);
+        return mat;
+    }
+    
+    static setTranslationZ(mat, t = 0) {
+        mat.set(2, 3, t);
+        return mat;
+    }
+
+    static setTranslationUniform(mat, t = 0) {
+        Transform3.setTranslationX(mat, t);
+        Transform3.setTranslationY(mat, t);
+        Transform3.setTranslationZ(mat, t);
         return mat;
     }
 
