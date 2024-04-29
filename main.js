@@ -10,6 +10,7 @@ function main() {
     var x_prev, y_prev;
     var dX = 0, dY = 0;
     var renderMode = 0;
+    var pause = true;
 
     var mouseDown = function (e) {
         drag = true;
@@ -35,6 +36,8 @@ function main() {
     var keyPress = function (e) {
         if (e.key == "c") {
             renderMode ^= 1;
+        } else if (e.key == "p") {
+            pause = !pause;
         }
     };
     
@@ -777,8 +780,13 @@ function main() {
     .add(updateCameraPosition, new VectorInterpolator([300, 50, 420], [100, 50, 310]), 3000)
     .add(updateCameraPosition, new VectorInterpolator([-200, 30, 420], [0, -30, 420]), 2000, Easing.quadraticInOut);
 
-    let prevTime = 0, delay = 3000;
+    let prevTime = 0;
     function animate(time) {
+        if (pause) {
+            prevTime = time;
+            window.requestAnimationFrame(animate);
+            return ;
+        }
         /*========================= TRANSFORMATIONS ========================= */
         if (!drag) {
             dX *= AMORTIZATION, dY *= AMORTIZATION;
@@ -786,9 +794,7 @@ function main() {
         }
 
         let dt = time - prevTime;
-        if (time < delay) {
-            dt = 0;
-        }
+        dt *= 0.5;
         prevTime = time;
         
         objects.forEach((obj) => {
