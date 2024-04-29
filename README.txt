@@ -8,12 +8,12 @@ Link Github:
 
 How to Run:
 - Run server on the root folder.
-- Open index.html file.
+- Open index.html file at  client side using any web browser.
 - if you want to rerun the animation, refresh the page.
 
 
 theme --> Line Character
-environment --> Island
+environment --> Floating Island
 
 
 
