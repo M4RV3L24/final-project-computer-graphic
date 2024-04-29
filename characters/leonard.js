@@ -321,13 +321,15 @@ function createLeonard(GL, programInfo = null) {
 
     pose.T.apply();
 
+    const backFlipAxis = [0.9, 0.43588989435406733, 0], backFlipOrigin = [0, 0, 0];
+
     objs.legs.transform
     .rotateX(-Math.PI/6)
     .translateZ(-5)
 
     objs.root.transform
-    .rotateX(Math.PI/4)
-    .translateY(10);
+    .rotateAlong(Math.PI/4, backFlipAxis, backFlipOrigin)
+    .translateY(10)
 
     objs.leftArm.transform
     .localRotateX(Math.PI/6)
@@ -341,7 +343,7 @@ function createLeonard(GL, programInfo = null) {
     .localRotateZ(-Math.PI/6)
     .localRotateX(-Math.PI/6);
 
-    pose.frontFlip1 = new Pose(objsArr);
+    pose.backFlip1 = new Pose(objsArr);
 
     pose.T.apply();
 
@@ -350,7 +352,7 @@ function createLeonard(GL, programInfo = null) {
     .translateZ(-5);
 
     objs.root.transform
-    .rotateX(Math.PI/2)
+    .rotateAlong(Math.PI/2, backFlipAxis, backFlipOrigin)
     .translateY(30);
 
     objs.leftArm.transform
@@ -374,7 +376,7 @@ function createLeonard(GL, programInfo = null) {
     objs.rightIris.transform
     .scaleUniform(1.03);
 
-    pose.frontFlip2 = new Pose(objsArr);
+    pose.backFlip2 = new Pose(objsArr);
 
     pose.T.apply();
 
@@ -382,7 +384,7 @@ function createLeonard(GL, programInfo = null) {
     .localRotateX(-Math.PI/4);
 
     objs.root.transform
-    .rotateX(Math.PI)
+    .rotateAlong(Math.PI, backFlipAxis, backFlipOrigin)
     .translateY(50);
 
     objs.leftArm.transform
@@ -406,7 +408,7 @@ function createLeonard(GL, programInfo = null) {
     objs.rightIris.transform
     .scaleUniform(1.07);
 
-    pose.frontFlip3 = new Pose(objsArr);
+    pose.backFlip3 = new Pose(objsArr);
 
     pose.T.apply();
 
@@ -414,7 +416,7 @@ function createLeonard(GL, programInfo = null) {
     .localRotateX(-Math.PI/6);
 
     objs.root.transform
-    .rotateX(1.4 * Math.PI)
+    .rotateAlong(1.4 * Math.PI, backFlipAxis, backFlipOrigin)
     .translateY(30);
 
     objs.leftArm.transform
@@ -438,10 +440,10 @@ function createLeonard(GL, programInfo = null) {
     objs.rightIris.transform
     .scaleUniform(1.15);
 
-    pose.frontFlip4 = new Pose(objsArr);
+    pose.backFlip4 = new Pose(objsArr);
 
     objs.root.transform.localRotateX(Math.PI/4);
-    pose.frontFlip5 = new Pose(objsArr);
+    pose.backFlip5 = new Pose(objsArr);
 
     return {objs, pose};
 }

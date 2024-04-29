@@ -382,11 +382,11 @@ function main() {
     .add(poseApplier, new PoseInterpolator(leonard.pose.stand, leonard.pose.stand), 1000)
     .add(poseApplier, new PoseInterpolator(leonard.pose.stand, leonard.pose.crouch), 500, Easing.quadraticInOut)
     .add(poseApplier, new PoseInterpolator(leonard.pose.crouch, leonard.pose.stand), 100, Easing.quadraticIn)
-    .add(poseApplier, new PoseInterpolator(leonard.pose.stand, leonard.pose.frontFlip1), 170, Easing.quadraticIn)
-    .add(poseApplier, new PoseInterpolator(leonard.pose.frontFlip1, leonard.pose.frontFlip2), 150)
-    .add(poseApplier, new PoseInterpolator(leonard.pose.frontFlip2, leonard.pose.frontFlip3), 170)
-    .add(poseApplier, new PoseInterpolator(leonard.pose.frontFlip3, leonard.pose.frontFlip4), 200)
-    .add(poseApplier, new PoseInterpolator(leonard.pose.frontFlip4, leonard.pose.stand), 300)
+    .add(poseApplier, new PoseInterpolator(leonard.pose.stand, leonard.pose.backFlip1), 170, Easing.quadraticIn)
+    .add(poseApplier, new PoseInterpolator(leonard.pose.backFlip1, leonard.pose.backFlip2), 150)
+    .add(poseApplier, new PoseInterpolator(leonard.pose.backFlip2, leonard.pose.backFlip3), 170)
+    .add(poseApplier, new PoseInterpolator(leonard.pose.backFlip3, leonard.pose.backFlip4), 200)
+    .add(poseApplier, new PoseInterpolator(leonard.pose.backFlip4, leonard.pose.stand), 300)
     .add(poseApplier, new PoseInterpolator(leonard.pose.stand, leonard.pose.crouch), 200, Easing.quadraticOut)
     .add(poseApplier, new PoseInterpolator(leonard.pose.crouch, leonard.pose.stand), 500, Easing.quadraticInOut);
     
