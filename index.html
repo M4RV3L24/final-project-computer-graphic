@@ -52,7 +52,7 @@
             vTexCoord.xy /= vTexCoord.w;
             vTexCoord.xy *= 0.5;
             vTexCoord.xy += 0.5;
-            vTexCoord.z /= 1300.;
+            vTexCoord.z /= 1000.;
         }
     </script>
     <script id="fragmentShader" type="x-shader/x-fragment">
@@ -89,8 +89,22 @@
 
         const int MAX_ITER_AVERAGE = 10;
 
-        float getAverageDepth() {
-            float depthFromLight = 0.;
+        float getLightAmount(vec2 texCoord, float depthFromLight, float bias) {
+            bool inRange =
+                texCoord.x >= 0.0 &&
+                texCoord.x <= 1.0 &&
+                texCoord.y >= 0.0 &&
+                texCoord.y <= 1.0;
+            
+            depthFromLight += bias;
+            
+            return (inRange && depthFromLight < 1. && depthFromLight < vTexCoord.z)
+                ? 0.
+                : 1.;
+        }
+
+        float getAverageLightAmount(float bias) {
+            float lightAmount = 0., depthFromLight;
             int count = 0;
             for (int i = 0; i <= MAX_ITER_AVERAGE; i++) {
                 if (i > spread)
@@ -98,30 +112,24 @@
                 for (int j = 0; j <= MAX_ITER_AVERAGE; j++) {
                     if (j > spread)
                         break;
-                    vec2 displace1 = cellSize * vec2(i, j);
-                    vec2 displace2 = cellSize * vec2(i, -j);
-                    depthFromLight += texture2D(u_projectedTexture, vTexCoord.xy + displace1).r;
-                    depthFromLight += texture2D(u_projectedTexture, vTexCoord.xy - displace1).r;
-                    depthFromLight += texture2D(u_projectedTexture, vTexCoord.xy + displace2).r;
-                    depthFromLight += texture2D(u_projectedTexture, vTexCoord.xy - displace2).r;
+                    vec2 displace1 = cellSize * vec2(i, j), displace2 = cellSize * vec2(i, -j);
+                    depthFromLight = texture2D(u_projectedTexture, vTexCoord.xy + displace1).r;
+                    lightAmount += getLightAmount(vTexCoord.xy + displace1, depthFromLight, bias);
+                    depthFromLight = texture2D(u_projectedTexture, vTexCoord.xy - displace1).r;
+                    lightAmount += getLightAmount(vTexCoord.xy - displace1, depthFromLight, bias);
+                    depthFromLight = texture2D(u_projectedTexture, vTexCoord.xy + displace2).r;
+                    lightAmount += getLightAmount(vTexCoord.xy + displace2, depthFromLight, bias);
+                    depthFromLight = texture2D(u_projectedTexture, vTexCoord.xy - displace2).r;
+                    lightAmount += getLightAmount(vTexCoord.xy - displace2, depthFromLight, bias);
                     count += 4;
                 }
             }
-            depthFromLight /= float(count);
-            return depthFromLight;
+            lightAmount /= float(count);
+            return lightAmount;
         }
 
         void main() {
-            bool inRange =
-                vTexCoord.x >= 0.0 &&
-                vTexCoord.x <= 1.0 &&
-                vTexCoord.y >= 0.0 &&
-                vTexCoord.y <= 1.0;
-            
-            float depthFromLight = getAverageDepth();
-            //float depthFromLight = texture2D(u_projectedTexture, vTexCoord.xy).r;
-            float unbiasedDepthFromLight = depthFromLight;
-            depthFromLight += (1. - abs(dot(vNormal, light_source_direction))) * normal_bias + bias;
+            float unbiasedDepthFromLight = texture2D(u_projectedTexture, vTexCoord.xy).r;
             
             vec3 I_ambient = light_source_ambient_color * mat_ambient_color;  
             vec3 I_diffuse = light_source_diffuse_color * mat_diffuse_color * max(0., dot(light_source_direction, vNormal));
@@ -129,10 +137,8 @@
             vec3 reflection_direction = reflect(light_source_direction, vNormal);
             vec3 I_specular = light_source_specular_color * mat_specular_color * pow(max(0., dot(reflection_direction, view_direction)), mat_shininess);
 
-            float lightAmount =
-                (inRange && depthFromLight < 1. && depthFromLight < vTexCoord.z)
-                ? 0.
-                : 1.;
+            float totalBias = (1. - abs(dot(vNormal, light_source_direction))) * normal_bias + bias;
+            float lightAmount = getAverageLightAmount(totalBias);
             vec3 I = I_ambient + lightAmount * (I_diffuse + I_specular);
             
             float distanceFromCamera = length(calculatedPosition);
@@ -165,7 +171,7 @@
         varying vec3 vNormal;
 
         void main() {
-            gl_FragColor = vec4(calculatedPosition.zzz / 1300., 1.);
+            gl_FragColor = vec4(calculatedPosition.zzz / 1000., 1.);
         }
     </script>
 

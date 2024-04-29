@@ -141,6 +141,8 @@ function main() {
         obj.setup();
     });
 
+    const depthTextureSize = 2048;
+
     /*========================= UNIFORMS ========================= */
 
     const backgroundColor = [165/255, 214/255, 255/255];
@@ -162,18 +164,18 @@ function main() {
     const matSpecularColor = [1.,1.,1.];
     const matShininess = 20.;
 
-    const lightSourcePosition = [400., 400., 400.];
+    const lightSourcePosition = [300., 300., 300.];
     const lightSourceTarget = [0., 0., 0.];
     const lightSourceDirection = Vector.sub(lightSourcePosition, lightSourceTarget).normalize().arr();
 
     const cellSize = 1/3000;
-    const spread = 1;
-    const bias = 0.004;
-    const normalBias = 0.03;
+    const spread = 4;
+    const bias = 0.01;
+    const normalBias = 0.05;
 
     const fogDensity = 0.0002;
 
-    const lightProjMatrix = LIBS.get_ortho_proj(45, CANVAS.width / CANVAS.height, 1, 1000);
+    const lightProjMatrix = LIBS.get_ortho_proj(45, 1, 1, 1000);
     const lightViewMatrix = Transform3.translate(
         Matrix.fromGLMatrix(
             LIBS.look_at(
@@ -519,7 +521,6 @@ function main() {
 
     /*========================= DEPTH FRAME BUFFER & TEXTURE ========================= */
     var unusedTexture = GL.createTexture();
-    var depthTextureSize = 2048;
     GL.bindTexture(GL.TEXTURE_2D, unusedTexture);
     GL.texImage2D(
         GL.TEXTURE_2D,      // target
