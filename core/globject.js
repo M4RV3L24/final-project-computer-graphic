@@ -21,6 +21,7 @@ class GLObject {
     _visibility = true;
     _boxColor = [1, 0, 0];
     _boxObject = null;
+    _boundary = null;
     
 
 
@@ -283,8 +284,8 @@ class GLObject {
         let min, max;
 
         if (box == null) {
-            let boundingBox = this.calculateBoundingBox();
-            min = boundingBox.min, max = boundingBox.max;
+            this._boundary = this.calculateBoundingBox();
+            min = this._boundary.min, max = this._boundary.max;
         }
         else {
             min = box.min, max = box.max;
@@ -315,34 +316,8 @@ class GLObject {
         this._boxObject = new GLObject(this._GL, vertices, indices);
         this._boxObject.setDrawMode(this._GL.LINES);
         this.addChild(this._boxObject);
-        // this._boxObject.setVisibility(false);
+        this._boxObject.setVisibility(false);
         
-    }
-
-
-    updateBoundingBox() {
-        if (this._boxObject == null) {
-            this.createBoundingBoxObject();
-        }
-        let boundingBox = this.calculateBoundingBox();
-        let min = boundingBox.min, max = boundingBox.max;
-        let vertices = [
-            min[0], min[1], min[2],  max[0], min[1], min[2],
-            max[0], min[1], min[2],  max[0], max[1], min[2],
-            max[0], max[1], min[2],  min[0], max[1], min[2],
-            min[0], max[1], min[2],  min[0], min[1], min[2],
-
-            min[0], min[1], max[2],  max[0], min[1], max[2],
-            max[0], min[1], max[2],  max[0], max[1], max[2],
-            max[0], max[1], max[2],  min[0], max[1], max[2],
-            min[0], max[1], max[2],  min[0], min[1], max[2],
-
-            min[0], min[1], min[2],  min[0], min[1], max[2],
-            max[0], min[1], min[2],  max[0], min[1], max[2],
-            max[0], max[1], min[2],  max[0], max[1], max[2],
-            min[0], max[1], min[2],  min[0], max[1], max[2]
-        ];
-        this._boxObject._vertices = vertices;
     }
 }
 

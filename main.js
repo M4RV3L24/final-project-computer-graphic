@@ -3,6 +3,21 @@ function main() {
     CANVAS.width = window.innerWidth;
     CANVAS.height = window.innerHeight;
 
+    var visibilityToggle = document.getElementById('toggleBoundingBox').addEventListener("click", changeBoxVisibility);
+
+    function changeBoxVisibility() {
+        objects.forEach(obj => {
+            if (obj._boxObject._visibility) {
+                obj._boxObject.setVisibility(false);
+            }
+            else {
+                obj._boxObject.setVisibility(true);
+            }
+        });
+
+
+    }
+
     /*========================= CAPTURE EVENTS ========================= */
 
     var AMORTIZATION = 0.95;
@@ -761,15 +776,45 @@ function main() {
         .add(brownWalk, new NumberInterpolator(70, 0), 4000)
 
     function updateCameraPosition({value}) {
+        //save previous position
+        let prevMatrix = renderProgramInfo.uniformConfig.getUniformValue("VMatrix");
+
+        //new position
         let cameraPosition = value.arr();
         let cameraTarget = [0., 0., 0.]
         let cameraMatrix = LIBS.look_at(cameraPosition, cameraTarget, [0, 1, 0]);
         let viewDirection = Vector.sub(cameraTarget, cameraPosition).normalize().arr();
         let viewMatrix = Matrix.fromGLMatrix(cameraMatrix, 4, 4).inverse().toGLMatrix();
-
-        renderProgramInfo.uniformConfig.setAndApplyUniformValue("VMatrix", false, viewMatrix);
-        renderProgramInfo.uniformConfig.setAndApplyUniformValue("view_direction", viewDirection);
+        
+        //check collision for new position
+        objects.forEach(obj => {
+            if (obj._boxObject && obj._boundary) {
+                if (isCameraCollidingWithObject(cameraPosition, obj)) {
+                    console.log("Collision detected");
+                    //reset camera position
+                    renderProgramInfo.uniformConfig.setAndApplyUniformValue("VMatrix", false, prevMatrix);  
+                }
+                else {
+                    // update position
+                    renderProgramInfo.uniformConfig.setAndApplyUniformValue("VMatrix", false, viewMatrix);
+                    renderProgramInfo.uniformConfig.setAndApplyUniformValue("view_direction", viewDirection);
+                }
+            }
+        });
     }
+
+    //AABX collision detection
+    function isCameraCollidingWithObject(cameraPosition, object) {
+        let box = object._boundary;
+        console.log(box.min[0]);
+        return (cameraPosition[0] >= box.min[0] && cameraPosition[0] <= box.max[0]) &&
+                (cameraPosition[1] >= box.min[1] && cameraPosition[1] <= box.max[1]) &&
+                (cameraPosition[2] >= box.min[2] && cameraPosition[2] <= box.max[2]);
+    }
+
+
+
+
     let cameraTransition = new TransitionManager()
     .add(updateCameraPosition, new VectorInterpolator([-100, -30, 420], [100, -30, 420]), 10000)
     .add(updateCameraPosition, new VectorInterpolator([-100, 30, 230], [-100, 30, 200]), 2000)
