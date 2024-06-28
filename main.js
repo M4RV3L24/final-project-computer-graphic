@@ -244,10 +244,12 @@ function main() {
         leonardEyeBallColor = [.9, .9, .9],
         leonardIrisColor = [.1, .1, .1],
         candyBodyColor = [.6, .1, .1],
-        candyHeadTailColor = [.8, .3, .15];
+        candyHeadTailColor = [.8, .3, .15],
+        leonardDefaultShininess = 10.;
 
     let leonardDefaultConfig = renderProgramInfo.createUniformConfig();
     leonardDefaultConfig.addUniform("color", "3fv", leonardColor);
+    leonardDefaultConfig.addUniform("mat_shininess", "1f", leonardDefaultShininess);
 
     let leonardEyeBallConfig = renderProgramInfo.createUniformConfig();
     leonardEyeBallConfig.addUniform("color", "3fv", leonardEyeBallColor);
@@ -302,12 +304,15 @@ function main() {
         connySolidPink = [1, 0.21, 0.41], 
         trunkColor = [0.6, 0.3, 0.1],
         leaveColor = [0.1, 0.6, 0.1],
-        mountainColor = [0.25, 0.25, 0.3];
+        mountainColor = [0.25, 0.25, 0.3],
+        connyDefaultShininess = 5.,
+        leaveShininess = 1.;
 
     let mountainColorConfig = renderProgramInfo.createUniformConfig();
     mountainColorConfig.addUniform("color", "3fv", mountainColor);
     let leaveColorConfig = renderProgramInfo.createUniformConfig();
     leaveColorConfig.addUniform("color", "3fv", leaveColor);
+    leaveColorConfig.addUniform("mat_shininess", "1f", leaveShininess);
 
     let trunkColorConfig = renderProgramInfo.createUniformConfig();
     trunkColorConfig.addUniform("color", "3fv", trunkColor);
@@ -323,6 +328,7 @@ function main() {
 
     let connyDefaultConfig = renderProgramInfo.createUniformConfig();
     connyDefaultConfig.addUniform("color", "3fv", connyColor);
+    connyDefaultConfig.addUniform("mat_shininess", "1f", connyDefaultShininess);
 
     let connyPinkConfig = renderProgramInfo.createUniformConfig();
     connyPinkConfig.addUniform("color", "3fv", connyPinkColor);
@@ -404,6 +410,11 @@ function main() {
         });
     }
 
+    const mountTopColor = [1, 1, 1], mountTopShininess = 3.;
+    let mountTopConfig = renderProgramInfo.createUniformConfig();
+    mountTopConfig.addUniform("color", "3fv", mountTopColor);
+    mountTopConfig.addUniform("mat_shininess", "1f", mountTopShininess);
+
     function setMountainConfig() {
         mountain.objs.mountBase.objectUniformConfig = mountainColorConfig;
         mountain.objs.mountTop.objectUniformConfig = connyDefaultConfig;
@@ -421,12 +432,14 @@ function main() {
         innerBaloonColor = [234 / 255, 128 / 255, 12 / 255],
         lowerBaloonColor = [90 / 255, 90 / 255, 90 / 255],
         ropeColor = [175 / 255, 139 / 255, 115 / 255],
-        passangerSeatColor = [99 / 255, 82 / 255, 69 / 255]
+        passangerSeatColor = [99 / 255, 82 / 255, 69 / 255],
+        brownDefaultShininess = 3.
     ;
 
 
     let brownDefaultConfig = renderProgramInfo.createUniformConfig();
     brownDefaultConfig.addUniform("color", "3fv", brownColor);
+    brownDefaultConfig.addUniform("mat_shininess", "1f", brownDefaultShininess);
 
     let brownBaseFaceConfig = renderProgramInfo.createUniformConfig();
     brownBaseFaceConfig.addUniform("color", "3fv", brownBaseFaceColor);
