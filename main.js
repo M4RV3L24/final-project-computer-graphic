@@ -10,6 +10,7 @@ function main() {
     var x_prev, y_prev;
     var dX = 0, dY = 0;
     var renderMode = 0;
+    var viewMode = 0;
 
     var mouseDown = function (e) {
         drag = true;
@@ -36,13 +37,69 @@ function main() {
         if (e.key == "c") {
             renderMode ^= 1;
         }
+        if (e.key == "x") {
+            viewMode ^= 1;
+            if(viewMode == 1) setCameraToCurrentPosition();
+        }
     };
+
+    var keyDown = function (e) {
+        if(viewMode == 1){
+            if(e.key == "w"){
+                moveCamera("w");
+            }
+            if(e.key == "a"){
+                moveCamera("a");
+            }
+            if(e.key == "s"){
+                moveCamera("s");
+            }
+            if(e.key == "d"){
+                moveCamera("d");
+            }
+        }
+    }
     
+    // Pointer lock change event listener
+    function pointerLockChange() {
+        if (document.pointerLockElement === document.body) {
+            document.addEventListener('mousemove', onMouseMove, false);
+        } else {
+            document.removeEventListener('mousemove', onMouseMove, false);
+        }
+    }
+
+    // Mouse movement event handler
+    function onMouseMove(event) {
+        if(viewMode == 1){
+            const dx = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
+            const dy = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
+    
+            updateLookAtPos(dx, -dy);
+        }
+    }
+
+    // Request pointer lock on click
+    document.body.addEventListener('click', () => {
+        if(viewMode == 1){
+            document.body.requestPointerLock = document.body.requestPointerLock ||
+                                               document.body.mozRequestPointerLock ||
+                                               document.body.webkitRequestPointerLock;
+            document.body.requestPointerLock();
+        }
+    });
+
+    // Listen for pointer lock change events
+    document.addEventListener('pointerlockchange', pointerLockChange, false);
+    document.addEventListener('mozpointerlockchange', pointerLockChange, false);
+    document.addEventListener('webkitpointerlockchange', pointerLockChange, false);
+
     CANVAS.addEventListener("mousedown", mouseDown, false);
     CANVAS.addEventListener("mouseup", mouseUp, false);
     CANVAS.addEventListener("mouseout", mouseUp, false);
     CANVAS.addEventListener("mousemove", mouseMove, false);
     document.addEventListener("keypress", keyPress);
+    document.addEventListener("keydown", keyDown);
 
     /*========================= WEBGL CONTEXT ========================= */
     var GL;
@@ -759,17 +816,93 @@ function main() {
         .add(brownWalk, new NumberInterpolator(70, 70), 2000)
         .add(brownWalk, new NumberInterpolator(70, 0), 4000)
 
+
+    let currentCameraPosition = [0, -30, 420];
+    let currentCameraTarget = [0, 0, 0];
+    const sensitivity = 0.2;
+
     function updateCameraPosition({value}) {
-        let cameraPosition = value.arr();
-        let cameraTarget = [0., 0., 0.]
-        let cameraMatrix = LIBS.look_at(cameraPosition, cameraTarget, [0, 1, 0]);
-        let viewDirection = Vector.sub(cameraTarget, cameraPosition).normalize().arr();
+        if(viewMode == 0){
+            let cameraPosition = value.arr();
+            let cameraTarget = [0., 0., 0.]
+            let cameraMatrix = LIBS.look_at(cameraPosition, cameraTarget, [0, 1, 0]);
+            let viewDirection = Vector.sub(cameraTarget, cameraPosition).normalize().arr();
+            let viewMatrix = Matrix.fromGLMatrix(cameraMatrix, 4, 4).inverse().toGLMatrix();
+    
+            renderProgramInfo.uniformConfig.setAndApplyUniformValue("VMatrix", false, viewMatrix);
+            renderProgramInfo.uniformConfig.setAndApplyUniformValue("view_direction", viewDirection);
+        }
+    } 
+
+    function setCameraToCurrentPosition(){
+        let cameraMatrix = LIBS.look_at(currentCameraPosition, currentCameraTarget, [0, 1, 0]);
+        let viewDirection = Vector.sub(currentCameraTarget, currentCameraPosition).normalize().arr();
         let viewMatrix = Matrix.fromGLMatrix(cameraMatrix, 4, 4).inverse().toGLMatrix();
 
         renderProgramInfo.uniformConfig.setAndApplyUniformValue("VMatrix", false, viewMatrix);
         renderProgramInfo.uniformConfig.setAndApplyUniformValue("view_direction", viewDirection);
     }
-    let cameraTransition = new TransitionManager()
+
+    function moveCamera(direction){
+        let directionVector = Vector.sub(currentCameraTarget, currentCameraPosition);
+        const upVector = [0, 1, 0];
+        const stepSize = 5;
+
+        if(direction == "w"){
+            directionVector = Vector.div(directionVector, 100);
+        }
+        else if(direction == "a"){
+            directionVector = Vector.cross(upVector, directionVector);
+        }
+        else if(direction == "s"){
+            directionVector = Vector.mul(Vector.div(directionVector, 100), -1);
+        }
+        else{
+            directionVector = Vector.mul(Vector.cross(upVector, directionVector), -1);
+        }
+        directionVector = directionVector.normalize(directionVector);
+        directionVector = Vector.mul(directionVector, stepSize);
+
+        currentCameraPosition[0] += directionVector.get(0);
+        currentCameraPosition[1] += directionVector.get(1);
+        currentCameraPosition[2] += directionVector.get(2);
+        currentCameraTarget[0] += directionVector.get(0);
+        currentCameraTarget[1] += directionVector.get(1);
+        currentCameraTarget[2] += directionVector.get(2);
+
+        let cameraMatrix = LIBS.look_at(currentCameraPosition, currentCameraTarget, [0, 1, 0]);
+        let viewDirection = Vector.sub(currentCameraTarget, currentCameraPosition).normalize().arr();
+        let viewMatrix = Matrix.fromGLMatrix(cameraMatrix, 4, 4).inverse().toGLMatrix();
+
+        renderProgramInfo.uniformConfig.setAndApplyUniformValue("VMatrix", false, viewMatrix);
+        renderProgramInfo.uniformConfig.setAndApplyUniformValue("view_direction", viewDirection);
+    }
+
+    function updateLookAtPos(dx, dy) {
+        let directionVector = currentCameraTarget.map((val, i) => val - currentCameraPosition[i]);
+        let initialLength = Vector.mul(directionVector, 1).length();
+        directionVector = Vector.mul(directionVector, 1).normalize();
+
+        const upVector = [0, 1, 0];
+        let rightVector = Vector.cross(upVector, directionVector);
+        rightVector = rightVector.normalize();
+
+        let yaw = [];
+        yaw.push(rightVector.get(0) * -dx * sensitivity);
+        yaw.push(rightVector.get(1) * -dx * sensitivity);
+        yaw.push(rightVector.get(2) * -dx * sensitivity);
+
+        let pitch = [0, dy * sensitivity, 0];
+
+        currentCameraTarget = currentCameraTarget.map((val, i) => val + yaw[i] + pitch[i]);
+        directionVector = Vector.sub(currentCameraTarget, currentCameraPosition).normalize();
+        currentCameraTarget[0] = currentCameraPosition[0] + directionVector.get(0) * initialLength;
+        currentCameraTarget[1] = currentCameraPosition[1] + directionVector.get(1) * initialLength;
+        currentCameraTarget[2] = currentCameraPosition[2] + directionVector.get(2) * initialLength;
+        setCameraToCurrentPosition();
+    }
+
+    cameraTransition = new TransitionManager()
     .add(updateCameraPosition, new VectorInterpolator([-100, -30, 420], [100, -30, 420]), 10000)
     .add(updateCameraPosition, new VectorInterpolator([-100, 30, 230], [-100, 30, 200]), 2000)
     .add(updateCameraPosition, new VectorInterpolator([0, 50, 230], [0, 50, 200]), 2000)
