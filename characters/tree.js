@@ -8,7 +8,7 @@ function createTree1 (GL, programInfo = null){
     }
     let objs = {};
     objs.root = createNullObject();
-    objs.root.transform.translateX(40).translateZ(30).scale(0.5, 0.5, 0.5);
+    // objs.root.transform.translateX(40).translateZ(30).scale(0.5, 0.5, 0.5);
     {
         objs.trunks = createNullObject();
         {
@@ -73,6 +73,7 @@ function createTree2 (GL, programInfo = null){
         objs.trunk.transform.rotateX(LIBS.degToRad(90)).translateZ(30).translateX(30).translateY(-21);
     }
     objs.root.addChilds(objs.leaves, objs.trunk);
+    objs.root.createBoundingBoxObject();
     
     let pose = {}, objsArr = Object.values(objs);
     
@@ -80,8 +81,3 @@ function createTree2 (GL, programInfo = null){
 
 }
 
-
-
-function createTree3 (GL, programInfo = null){
-        
-}

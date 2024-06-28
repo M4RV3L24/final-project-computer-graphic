@@ -54,6 +54,8 @@ function createBaloon(GL, programInfo = null) {
         objs.passangerSeat.addChilds(objs.passangerSeatBottom, objs.passangerSeatSide);
     }
     objs.root.addChilds(objs.baloon, objs.connector, objs.passangerSeat);
+    
+    objs.root.createBoundingBoxObject();
 
     return objs;
 }

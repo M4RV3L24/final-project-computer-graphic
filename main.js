@@ -137,7 +137,8 @@ function main() {
         baloon.root
     ];
     
-    objects.forEach(obj => {
+    objects.forEach(obj => {    
+        // obj.createBoundingBoxObject();
         obj.setup();
     });
 
