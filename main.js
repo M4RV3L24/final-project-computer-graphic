@@ -89,6 +89,7 @@ function main() {
         addUniform("mat_diffuse_color", "3fv");
         addUniform("mat_specular_color", "3fv");
         addUniform("mat_shininess", "1f");
+        addUniform("mat_alpha", "1f");
         
         addUniform("view_direction", "3fv");
         addUniform("fog_density", "1f");
@@ -133,13 +134,13 @@ function main() {
         tree1.objs.root,
         mountain.objs.root,
         brown.objs.root,
-        cloud.root,
         baloon.root
     ];
     
     objects.forEach(obj => {
         obj.setup();
     });
+    cloud.root.setup();
 
     const depthTextureSize = 2048;
 
@@ -205,6 +206,8 @@ function main() {
         set("mat_diffuse_color", matDiffuseColor);
         set("mat_specular_color", matSpecularColor);
         set("mat_shininess", matShininess);
+        set("mat_alpha", 1.);
+
         set("cellSize", cellSize);
         set("spread", spread);
         set("bias", bias);
@@ -428,6 +431,7 @@ function main() {
         brownRibbonColor = [139 / 255, 13 / 255, 9 / 255],
         brownLuckyCloverColor = [62 / 255, 160 / 255, 85 / 255],
         cloudDefaultColor = [255 / 255, 255 / 255, 255 / 255],
+        cloudAlpha = 0.8,
         outerBaloonColor = [112 / 255, 112 / 255, 112 / 255],
         innerBaloonColor = [234 / 255, 128 / 255, 12 / 255],
         lowerBaloonColor = [90 / 255, 90 / 255, 90 / 255],
@@ -458,6 +462,7 @@ function main() {
 
     let cloudDefaultConfig = renderProgramInfo.createUniformConfig();
     cloudDefaultConfig.addUniform("color", "3fv", cloudDefaultColor);
+    cloudDefaultConfig.addUniform("mat_alpha", "1f", cloudAlpha);
 
     let outerBaloonConfig = renderProgramInfo.createUniformConfig();
     outerBaloonConfig.addUniform("color", "3fv", outerBaloonColor);
@@ -632,6 +637,7 @@ function main() {
         objects.forEach(obj => {
             obj.programInfo = renderProgramInfo;
         });
+        cloud.root.programInfo = renderProgramInfo;
 
         setIslandConfig();
         setLeonardConfig();
@@ -643,6 +649,14 @@ function main() {
         objects.forEach(obj => {
             obj.render();
         });
+
+        // Render cloud with transparency
+        GL.blendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA);
+        GL.enable(GL.BLEND);
+        renderProgramInfo.uniformConfig.setAndApplyUniformValue("mat_alpha", "1f", cloudAlpha);
+        cloud.root.render();
+        GL.disable(GL.BLEND);
+        renderProgramInfo.uniformConfig.setAndApplyUniformValue("mat_alpha", "1f", 1.);
     }
 
     /*========================= ANIMATIONS ========================= */
@@ -807,6 +821,7 @@ function main() {
         objects.forEach((obj) => {
             obj.transform.reset();
         });
+        cloud.root.transform.reset();
 
         island.objs.root.transform.scaleUniform(500).translateY(-50);
 
@@ -837,6 +852,8 @@ function main() {
             obj.transform.rotateY(THETA);
             obj.transform.rotateX(PHI);
         });
+        cloud.root.transform.rotateY(THETA);
+        cloud.root.transform.rotateX(PHI);
         
         renderShadow();
         renderFull();
