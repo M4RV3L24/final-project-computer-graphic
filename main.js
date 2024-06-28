@@ -773,7 +773,7 @@ function main() {
     .add(updateCameraPosition, new VectorInterpolator([-100, -30, 420], [100, -30, 420]), 10000)
     .add(updateCameraPosition, new VectorInterpolator([-100, 30, 230], [-100, 30, 200]), 2000)
     .add(updateCameraPosition, new VectorInterpolator([0, 50, 230], [0, 50, 200]), 2000)
-    .add(updateCameraPosition, new VectorInterpolator([200, -30, 420], [0, -30, 420]), 3000)
+    .add(updateCameraPosition, new VectorInterpolator([200, -30, 420], [0, -30, 700]), 3000)
     .add(updateCameraPosition, new VectorInterpolator([300, 50, 420], [100, 50, 310]), 3000)
     .add(updateCameraPosition, new VectorInterpolator([-200, 30, 420], [0, -30, 420]), 2000, Easing.quadraticInOut);
 
