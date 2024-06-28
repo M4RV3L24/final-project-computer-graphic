@@ -839,31 +839,29 @@ function main() {
 
     function updateCameraPosition({value}) {
         if(viewMode == 0){
-            //save previous position
+        //save previous position
         let prevMatrix = renderProgramInfo.uniformConfig.getUniformValue("VMatrix");
 
         //new position
         let cameraPosition = value.arr();
-            let cameraTarget = [0., 0., 0.]
-            let cameraMatrix = LIBS.look_at(cameraPosition, cameraTarget, [0, 1, 0]);
-            let viewDirection = Vector.sub(cameraTarget, cameraPosition).normalize().arr();
-            let viewMatrix = Matrix.fromGLMatrix(cameraMatrix, 4, 4).inverse().toGLMatrix();
+        let cameraTarget = [0., 0., 0.]
+        let cameraMatrix = LIBS.look_at(cameraPosition, cameraTarget, [0, 1, 0]);
+        let viewDirection = Vector.sub(cameraTarget, cameraPosition).normalize().arr();
+        let viewMatrix = Matrix.fromGLMatrix(cameraMatrix, 4, 4).inverse().toGLMatrix();
             
-            //check collision for new position
+        //check collision for new position
         objects.forEach(obj => {
             if (obj._boxObject && obj._boundary) {
                 if (isCameraCollidingWithObject(cameraPosition, obj)) {
                     console.log("Collision detected");
                     //reset camera position
-                    renderProgramInfo.uniformConfig.setAndApplyUniformValue("VMatrix", false, prevMatrix);  
+                    renderProgramInfo.uniformConfig.setAndApplyUniformValue("VMatrix", false, prevMatrix);
+                    return;  
                 }
-                else {
-                    // update position
-                    renderProgramInfo.uniformConfig.setAndApplyUniformValue("VMatrix", false, viewMatrix);
-                        renderProgramInfo.uniformConfig.setAndApplyUniformValue("view_direction", viewDirection);
-                    }
             }
         });
+        renderProgramInfo.uniformConfig.setAndApplyUniformValue("VMatrix", false, viewMatrix);
+        renderProgramInfo.uniformConfig.setAndApplyUniformValue("view_direction", viewDirection);
     }
 
     //AABX collision detection
@@ -916,9 +914,24 @@ function main() {
         currentCameraTarget[1] += directionVector.get(1);
         currentCameraTarget[2] += directionVector.get(2);
 
+        
+        //save previous position
+        let prevMatrix = renderProgramInfo.uniformConfig.getUniformValue("VMatrix");
+
         let cameraMatrix = LIBS.look_at(currentCameraPosition, currentCameraTarget, [0, 1, 0]);
         let viewDirection = Vector.sub(currentCameraTarget, currentCameraPosition).normalize().arr();
         let viewMatrix = Matrix.fromGLMatrix(cameraMatrix, 4, 4).inverse().toGLMatrix();
+
+        objects.forEach(obj => {
+            if (obj._boxObject && obj._boundary) {
+                if (isCameraCollidingWithObject(cameraPosition, obj)) {
+                    console.log("Collision detected");
+                    //reset camera position
+                    renderProgramInfo.uniformConfig.setAndApplyUniformValue("VMatrix", false, prevMatrix);  
+                    return;
+                }
+            }
+        });
 
         renderProgramInfo.uniformConfig.setAndApplyUniformValue("VMatrix", false, viewMatrix);
         renderProgramInfo.uniformConfig.setAndApplyUniformValue("view_direction", viewDirection);
