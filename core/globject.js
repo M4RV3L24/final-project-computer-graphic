@@ -18,6 +18,13 @@ class GLObject {
 
     _mode = null;
 
+    _visibility = true;
+    _boxColor = [1, 0, 0];
+    _boxObject = null;
+    _boundary = null;
+    
+
+
     constructor(GL, vertices, faces, programInfo=null, objectUniformConfig=null, mode = null) {
         this._GL = GL;
         this._vertices = vertices;
@@ -33,6 +40,8 @@ class GLObject {
 
         if (programInfo != null)
             this.programInfo = programInfo;
+        
+    
     }
 
     setup() {
@@ -116,7 +125,9 @@ class GLObject {
             this._GL.drawElements(this._mode, this._faces.length, this._GL.UNSIGNED_INT, 0);
         }
 
+        // this.createBoundingBoxObject();
         this._childs.forEach((child) => {
+            if (child._visibility)
             child.render(modelTransform);
         })
     }
@@ -198,6 +209,115 @@ class GLObject {
 
     static setDrawMode(obj, mode=null) {
         obj.setDrawMode(mode!==null ? mode : obj._GL.TRIANGLES);
+    }
+
+    setVisibility(isVisible) {
+        this._visibility = isVisible;
+        // Optionally, propagate visibility to children
+        this._childs.forEach((child) => {
+            child.setVisibility(isVisible);
+        });
+    }
+
+    // Calculate the bounding box for the object
+    calculateBoundingBox(visited = new Set(), worldTransform=null) {
+        let modelTransform;
+        if (worldTransform != null) {
+            modelTransform = worldTransform.copy();
+            modelTransform.matrixRef().matMul(this.transform.matrixRef());
+        } else {
+            modelTransform = this.transform.copy();
+        }
+
+        let minX = Number.MAX_SAFE_INTEGER, minY = Number.MAX_SAFE_INTEGER, minZ= Number.MAX_SAFE_INTEGER;
+        let maxX = Number.MIN_SAFE_INTEGER, maxY = Number.MIN_SAFE_INTEGER, maxZ = Number.MIN_SAFE_INTEGER;
+        // if(obj != null) {
+        //     minX = obj.min[0], minY = obj.min[1], minZ = obj.min[2];
+        //     maxX = obj.max[0], maxY = obj.max[1], maxZ = obj.max[2];
+        // }
+        // Initialize maxX, maxY, maxZ to very small numbers to ensure they get updated
+        
+        const vertices = this._vertices;
+        for (let i = 0; i < vertices.length; i += 3) {
+            let x = vertices[i];
+            let y = vertices[i + 1];
+            let z = vertices[i + 2];
+
+            //apply current object transformation
+            [x, y, z] = modelTransform.applyToPoint(x, y, z);
+            
+            if (x < minX) minX = x;
+            if (y < minY) minY = y;
+            if (z < minZ) minZ = z;
+    
+            if (x > maxX) maxX = x;
+            if (y > maxY) maxY = y;
+            if (z > maxZ) maxZ = z;
+        }
+        // Recursively calculate the bounding box for child objects
+        
+        this._childs.forEach((child) => {
+            
+            const childBoundingBox = child.calculateBoundingBox(visited, modelTransform);
+            // Update the bounding box based on child's bounding box
+            
+            if (childBoundingBox) {
+            minX = Math.min(minX, childBoundingBox.min[0]);
+            minY = Math.min(minY, childBoundingBox.min[1]);
+            minZ = Math.min(minZ, childBoundingBox.min[2]);
+            maxX = Math.max(maxX, childBoundingBox.max[0]);
+            maxY = Math.max(maxY, childBoundingBox.max[1]);
+            maxZ = Math.max(maxZ, childBoundingBox.max[2]);
+            }
+
+        });
+
+        // Return the updated bounding box
+        return { 
+            min: [minX, minY, minZ],
+            max: [maxX, maxY, maxZ]
+        };
+
+    }
+    // Create the bounding box object based on calculated bounding box
+    createBoundingBoxObject(box=null) {
+        let min, max;
+
+        if (box == null) {
+            this._boundary = this.calculateBoundingBox();
+            min = this._boundary.min, max = this._boundary.max;
+        }
+        else {
+            min = box.min, max = box.max;
+        }
+        const vertices = [
+            min[0], min[1], min[2],  max[0], min[1], min[2],
+            max[0], min[1], min[2],  max[0], max[1], min[2],
+            max[0], max[1], min[2],  min[0], max[1], min[2],
+            min[0], max[1], min[2],  min[0], min[1], min[2],
+
+            min[0], min[1], max[2],  max[0], min[1], max[2],
+            max[0], min[1], max[2],  max[0], max[1], max[2],
+            max[0], max[1], max[2],  min[0], max[1], max[2],
+            min[0], max[1], max[2],  min[0], min[1], max[2],
+
+            min[0], min[1], min[2],  min[0], min[1], max[2],
+            max[0], min[1], min[2],  max[0], min[1], max[2],
+            max[0], max[1], min[2],  max[0], max[1], max[2],
+            min[0], max[1], min[2],  min[0], max[1], max[2]
+        ];
+
+        const indices = [
+            0, 1,  1, 2,  2, 3,  3, 0,  // bottom rectangle
+            4, 5,  5, 6,  6, 7,  7, 4,  // top rectangle
+            0, 4,  1, 5,  2, 6,  3, 7   // vertical connections
+        ];
+
+        this._boxObject = new GLObject(this._GL, vertices, indices);
+        this._boxObject.setDrawMode(this._GL.LINES);
+        this.addChild(this._boxObject);
+        this._boxObject.setVisibility(false);
+        
     }
 }
 

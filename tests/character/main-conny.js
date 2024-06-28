@@ -133,7 +133,9 @@ function main() {
 
     let mountain = createMountain(GL);
 
-    objects = [conny.objs.root, floor,tree2.objs.root, tree1.objs.root, mountain.objs.root];
+    objects = [conny.objs.root
+        , floor,tree2.objs.root, tree1.objs.root, mountain.objs.root
+    ];
     
     objects.forEach(obj => {
         obj.setup();

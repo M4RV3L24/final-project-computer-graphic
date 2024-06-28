@@ -106,5 +106,16 @@ function createIsland(GL, programInfo = null) {
     }
     objs.root.addChilds(objs.grass, objs.dirt);
 
+    box = {min: [
+        Math.min(...polygon.filter((_, i) => i % 3 == 0)),
+        Math.min(...polygon.filter((_, i) => i % 3 == 1)),
+        Math.min(...polygon.filter((_, i) => i % 3 == 2)),
+    ], max: [
+        Math.max(...polygon.filter((_, i) => i % 3 == 0)),
+        Math.max(...polygon.filter((_, i) => i % 3 == 1)) + -0.2,
+        Math.max(...polygon.filter((_, i) => i % 3 == 2)),
+    ]};
+    objs.root.createBoundingBoxObject(box);
+
     return { objs };
 }

@@ -281,6 +281,7 @@ function createBrown(GL, programInfo = null) {
         objs.coba = createObject(generateHyperboloid2(100,100,10,10,10, 2));
     }
     objs.root.addChilds(objs.head, objs.body, objs.legs, objs.arms);
+    objs.root.createBoundingBoxObject();
     // objs.root.addChilds(objs.luckyCloverGroup);
 
     

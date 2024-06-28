@@ -213,6 +213,8 @@ function createLeonard(GL, programInfo = null) {
         objs.arms.addChilds(objs.leftArm, objs.rightArm);
     }
     objs.root.addChilds(objs.head, objs.body, objs.arms, objs.legs);
+    
+    objs.root.createBoundingBoxObject();
 
     let pose = {}, objsArr = Object.values(objs);
     pose.T = new Pose(objsArr);

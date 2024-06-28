@@ -18,6 +18,7 @@ function createMountain(GL, programInfo = null) {
         objs.mountTop.transform.translateZ(-50).translateY(2).scale(6, 6, 6);
     }
     objs.root.addChilds(objs.mountBase, objs.mountTop);
+    objs.root.createBoundingBoxObject();
 
     let pose = {}, objsArr = Object.values(objs);
     return {objs, pose};
