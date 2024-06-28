@@ -346,7 +346,7 @@ function createConny(GL, programInfo = null) {
     objs.legs.transform
         .rotateAlong(LIBS.degToRad(-30), [1, 0, 0], [-1, -30, 0]);
     objs.root.transform
-        .translateY(30);
+        .translateY(40);
     objs.leftArm.transform
         .localRotateZ(-Math.PI / 5);
         
@@ -357,6 +357,12 @@ function createConny(GL, programInfo = null) {
         .translateX(2)
         .translateY(-6)
         .localRotateZ(LIBS.degToRad(-15));
+    
+    objs.leftEyeGroup.transform
+    .scaleUniform(1.5);
+
+    objs.rightEyeGroup.transform
+    .scaleUniform(1.5);
     
     pose.jumpEnd = new Pose(objsArr);
 
