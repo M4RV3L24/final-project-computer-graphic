@@ -279,10 +279,16 @@ class GLObject {
 
     }
     // Create the bounding box object based on calculated bounding box
-    createBoundingBoxObject() {
-        let boundingBox = this.calculateBoundingBox();
-        let min = boundingBox.min, max = boundingBox.max;
-    
+    createBoundingBoxObject(box=null) {
+        let min, max;
+
+        if (box == null) {
+            let boundingBox = this.calculateBoundingBox();
+            min = boundingBox.min, max = boundingBox.max;
+        }
+        else {
+            min = box.min, max = box.max;
+        }
         const vertices = [
             min[0], min[1], min[2],  max[0], min[1], min[2],
             max[0], min[1], min[2],  max[0], max[1], min[2],
@@ -306,17 +312,13 @@ class GLObject {
             0, 4,  1, 5,  2, 6,  3, 7   // vertical connections
         ];
 
-        // this._childs.forEach((child) => {
-        //     child.createBoundingBoxObject();
-        //     // Update the bounding box based on child's bounding box
-
-        // });
         this._boxObject = new GLObject(this._GL, vertices, indices);
         this._boxObject.setDrawMode(this._GL.LINES);
         this.addChild(this._boxObject);
         // this._boxObject.setVisibility(false);
         
     }
+
 
     updateBoundingBox() {
         if (this._boxObject == null) {
