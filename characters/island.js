@@ -105,6 +105,7 @@ function createIsland(GL, programInfo = null) {
         objs.dirt.addChilds(objs.dirt1, objs.dirt2);
     }
     objs.root.addChilds(objs.grass, objs.dirt);
+    objs.root.createBoundingBoxObject();
 
     return { objs };
 }

@@ -170,7 +170,6 @@ function generateUnitCone(stepCount=360) {
     }
     indices.push(tipIndex, numVertices-1, firstVertexIndex+1);
 
-    console.log(indices);
     return {vertices, indices};
 }
 

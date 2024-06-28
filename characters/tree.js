@@ -40,6 +40,7 @@ function createTree1 (GL, programInfo = null){
         objs.leaves.addChilds(objs.leaves1, objs.leaves2, objs.leaves3, objs.leaves4);
     }
     objs.root.addChilds(objs.trunks, objs.leaves);
+    objs.root.createBoundingBoxObject();
 
     let pose = {}, objsArr = Object.values(objs);
     return {objs, pose};

@@ -198,6 +198,18 @@ class Transform3 {
         return this;
     }
 
+    applyToPoint(x, y, z) {
+        // Apply transformation to a point (x, y, z)
+        // and return the transformed point
+
+        let point = new Matrix([[x], [y], [z], [1]]);
+
+        // let transformed = this._mat.matMul(point);
+        let transformed = this._mat.copy().matMul(point);
+
+        return [transformed.get(0, 0), transformed.get(1, 0), transformed.get(2, 0)];
+    }
+
     decompose() {
         // Return decomposition of this transform in TRS order
         // (Translation * Rotation * Scale)

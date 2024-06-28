@@ -114,55 +114,55 @@ function createConny(GL, programInfo = null) {
             objs.body.addChilds(objs.stomach, objs.chest);
 
             objs.arms = createNullObject();
-        objs.arms.transform.translateY(2.5).translateZ(1);
-        {
-            objs.leftArm = createNullObject();
-            objs.leftArm.transform.rotateZ(-LIBS.degToRad(-90));
-            objs.leftArm.transform.translateX(-bodyWidth);
-            // objs.leftArm.transform.rotateAlong(LIBS.degToRad(45), [0,0,1], [-8,bodyHeight-26,0]);
+            objs.arms.transform.translateY(2.5).translateZ(1);
             {
-                objs.leftUpperArm = createObject(generateUnitCylinder());
-                objs.leftUpperArm.transform.scaleX(armsWidth);
-                objs.leftUpperArm.transform.scaleY(armsWidth + 2);
-                objs.leftUpperArm.transform.scaleZ(armsWidth);
-                objs.leftUpperArm.transform.translateY(armsWidth - 5);
+                objs.leftArm = createNullObject();
+                objs.leftArm.transform.rotateZ(-LIBS.degToRad(-90));
+                objs.leftArm.transform.translateX(-bodyWidth);
+                // objs.leftArm.transform.rotateAlong(LIBS.degToRad(45), [0,0,1], [-8,bodyHeight-26,0]);
+                {
+                    objs.leftUpperArm = createObject(generateUnitCylinder());
+                    objs.leftUpperArm.transform.scaleX(armsWidth);
+                    objs.leftUpperArm.transform.scaleY(armsWidth + 2);
+                    objs.leftUpperArm.transform.scaleZ(armsWidth);
+                    objs.leftUpperArm.transform.translateY(armsWidth - 5);
 
 
-                objs.leftForeArm = createObject(generateUnitCylinder());
-                objs.leftForeArm.transform.scaleX(armsWidth);
-                objs.leftForeArm.transform.scaleY(armsWidth + 2);
-                objs.leftForeArm.transform.scaleZ(armsWidth);
-                objs.leftForeArm.transform.translateY(armsWidth * 2);
+                    objs.leftForeArm = createObject(generateUnitCylinder());
+                    objs.leftForeArm.transform.scaleX(armsWidth);
+                    objs.leftForeArm.transform.scaleY(armsWidth + 2);
+                    objs.leftForeArm.transform.scaleZ(armsWidth);
+                    objs.leftForeArm.transform.translateY(armsWidth * 2);
 
-                objs.leftHand = createObject(generateEllipsoid(100, 100, 8, 7.1, 8));
-                objs.leftHand.transform.translateY(18);
+                    objs.leftHand = createObject(generateEllipsoid(100, 100, 8, 7.1, 8));
+                    objs.leftHand.transform.translateY(18);
+                }
+                objs.leftArm.addChilds(objs.leftUpperArm, objs.leftForeArm, objs.leftHand);
+
+                objs.rightArm = createNullObject();
+                objs.rightArm.transform.rotateZ(-LIBS.degToRad(90));
+                objs.rightArm.transform.translateX(bodyWidth)
+                {
+                    objs.rightUpperArm = createObject(generateUnitCylinder());
+                    objs.rightUpperArm.transform.scaleX(armsWidth);
+                    objs.rightUpperArm.transform.scaleY(armsWidth + 2);
+                    objs.rightUpperArm.transform.scaleZ(armsWidth);
+                    objs.rightUpperArm.transform.translateY(armsWidth - 5);
+
+                    objs.rightForeArm = createObject(generateUnitCylinder());
+                    objs.rightForeArm.transform.scaleX(armsWidth);
+                    objs.rightForeArm.transform.scaleY(armsWidth + 2);
+                    objs.rightForeArm.transform.scaleZ(armsWidth);
+                    objs.rightForeArm.transform.translateY(armsWidth * 2);
+
+                    objs.rightHand = createObject(generateEllipsoid(100, 100, 8, 7.1, 8));
+                    objs.rightHand.transform.translateY(18);
+                }
+                objs.rightArm.addChilds(objs.rightUpperArm, objs.rightForeArm, objs.rightHand);
             }
-            objs.leftArm.addChilds(objs.leftUpperArm, objs.leftForeArm, objs.leftHand);
-
-            objs.rightArm = createNullObject();
-            objs.rightArm.transform.rotateZ(-LIBS.degToRad(90));
-            objs.rightArm.transform.translateX(bodyWidth)
-            {
-                objs.rightUpperArm = createObject(generateUnitCylinder());
-                objs.rightUpperArm.transform.scaleX(armsWidth);
-                objs.rightUpperArm.transform.scaleY(armsWidth + 2);
-                objs.rightUpperArm.transform.scaleZ(armsWidth);
-                objs.rightUpperArm.transform.translateY(armsWidth - 5);
-
-                objs.rightForeArm = createObject(generateUnitCylinder());
-                objs.rightForeArm.transform.scaleX(armsWidth);
-                objs.rightForeArm.transform.scaleY(armsWidth + 2);
-                objs.rightForeArm.transform.scaleZ(armsWidth);
-                objs.rightForeArm.transform.translateY(armsWidth * 2);
-
-                objs.rightHand = createObject(generateEllipsoid(100, 100, 8, 7.1, 8));
-                objs.rightHand.transform.translateY(18);
-            }
-            objs.rightArm.addChilds(objs.rightUpperArm, objs.rightForeArm, objs.rightHand);
-        }
-        objs.arms.addChilds(objs.leftArm, objs.rightArm);
-    
-            
+            objs.arms.addChilds(objs.leftArm, objs.rightArm);
+        
+                
 
         }
         objs.upperBody.addChilds(objs.head, objs.body, objs.arms);
@@ -211,9 +211,10 @@ function createConny(GL, programInfo = null) {
             objs.rightLegGroup.addChilds(objs.rightLeg, objs.rightFoot);
         }
         objs.legs.addChilds(objs.leftLegGroup, objs.rightLegGroup);
-
     }
+
     objs.root.addChilds(objs.upperBody, objs.legs);
+    objs.root.createBoundingBoxObject();
 
     //Pose setting
 
