@@ -76,6 +76,7 @@
         uniform vec3 mat_diffuse_color;
         uniform vec3 mat_specular_color;
         uniform float mat_shininess;
+        uniform float mat_alpha;
 
         uniform vec3 view_direction;
 
@@ -145,7 +146,7 @@
             float distanceFromCamera = length(calculatedPosition);
             float fogIntensity = 1. - exp2(-fog_density * fog_density * distanceFromCamera * distanceFromCamera * 1.442695);
             fogIntensity = clamp(fogIntensity, 0., 1.);
-            gl_FragColor = vec4(mix(color * I, sky_color, fogIntensity), 1.);
+            gl_FragColor = vec4(mix(color * I, sky_color, fogIntensity), mat_alpha);
         }
     </script>
 

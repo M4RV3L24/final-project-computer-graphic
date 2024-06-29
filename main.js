@@ -161,6 +161,7 @@ function main() {
         addUniform("mat_diffuse_color", "3fv");
         addUniform("mat_specular_color", "3fv");
         addUniform("mat_shininess", "1f");
+        addUniform("mat_alpha", "1f");
         
         addUniform("view_direction", "3fv");
         addUniform("fog_density", "1f");
@@ -205,7 +206,6 @@ function main() {
         tree1.objs.root,
         mountain.objs.root,
         brown.objs.root,
-        cloud.root,
         baloon.root
     ];
     
@@ -213,6 +213,7 @@ function main() {
         // obj.createBoundingBoxObject();
         obj.setup();
     });
+    cloud.root.setup();
 
     const depthTextureSize = 2048;
 
@@ -278,6 +279,8 @@ function main() {
         set("mat_diffuse_color", matDiffuseColor);
         set("mat_specular_color", matSpecularColor);
         set("mat_shininess", matShininess);
+        set("mat_alpha", 1.);
+
         set("cellSize", cellSize);
         set("spread", spread);
         set("bias", bias);
@@ -317,10 +320,12 @@ function main() {
         leonardEyeBallColor = [.9, .9, .9],
         leonardIrisColor = [.1, .1, .1],
         candyBodyColor = [.6, .1, .1],
-        candyHeadTailColor = [.8, .3, .15];
+        candyHeadTailColor = [.8, .3, .15],
+        leonardDefaultShininess = 10.;
 
     let leonardDefaultConfig = renderProgramInfo.createUniformConfig();
     leonardDefaultConfig.addUniform("color", "3fv", leonardColor);
+    leonardDefaultConfig.addUniform("mat_shininess", "1f", leonardDefaultShininess);
 
     let leonardEyeBallConfig = renderProgramInfo.createUniformConfig();
     leonardEyeBallConfig.addUniform("color", "3fv", leonardEyeBallColor);
@@ -375,12 +380,15 @@ function main() {
         connySolidPink = [1, 0.21, 0.41], 
         trunkColor = [0.6, 0.3, 0.1],
         leaveColor = [0.1, 0.6, 0.1],
-        mountainColor = [0.25, 0.25, 0.3];
+        mountainColor = [0.25, 0.25, 0.3],
+        connyDefaultShininess = 5.,
+        leaveShininess = 1.;
 
     let mountainColorConfig = renderProgramInfo.createUniformConfig();
     mountainColorConfig.addUniform("color", "3fv", mountainColor);
     let leaveColorConfig = renderProgramInfo.createUniformConfig();
     leaveColorConfig.addUniform("color", "3fv", leaveColor);
+    leaveColorConfig.addUniform("mat_shininess", "1f", leaveShininess);
 
     let trunkColorConfig = renderProgramInfo.createUniformConfig();
     trunkColorConfig.addUniform("color", "3fv", trunkColor);
@@ -396,6 +404,7 @@ function main() {
 
     let connyDefaultConfig = renderProgramInfo.createUniformConfig();
     connyDefaultConfig.addUniform("color", "3fv", connyColor);
+    connyDefaultConfig.addUniform("mat_shininess", "1f", connyDefaultShininess);
 
     let connyPinkConfig = renderProgramInfo.createUniformConfig();
     connyPinkConfig.addUniform("color", "3fv", connyPinkColor);
@@ -477,6 +486,11 @@ function main() {
         });
     }
 
+    const mountTopColor = [1, 1, 1], mountTopShininess = 3.;
+    let mountTopConfig = renderProgramInfo.createUniformConfig();
+    mountTopConfig.addUniform("color", "3fv", mountTopColor);
+    mountTopConfig.addUniform("mat_shininess", "1f", mountTopShininess);
+
     function setMountainConfig() {
         mountain.objs.mountBase.objectUniformConfig = mountainColorConfig;
         mountain.objs.mountTop.objectUniformConfig = connyDefaultConfig;
@@ -490,16 +504,19 @@ function main() {
         brownRibbonColor = [139 / 255, 13 / 255, 9 / 255],
         brownLuckyCloverColor = [62 / 255, 160 / 255, 85 / 255],
         cloudDefaultColor = [255 / 255, 255 / 255, 255 / 255],
+        cloudAlpha = 0.8,
         outerBaloonColor = [112 / 255, 112 / 255, 112 / 255],
         innerBaloonColor = [234 / 255, 128 / 255, 12 / 255],
         lowerBaloonColor = [90 / 255, 90 / 255, 90 / 255],
         ropeColor = [175 / 255, 139 / 255, 115 / 255],
-        passangerSeatColor = [99 / 255, 82 / 255, 69 / 255]
+        passangerSeatColor = [99 / 255, 82 / 255, 69 / 255],
+        brownDefaultShininess = 3.
     ;
 
 
     let brownDefaultConfig = renderProgramInfo.createUniformConfig();
     brownDefaultConfig.addUniform("color", "3fv", brownColor);
+    brownDefaultConfig.addUniform("mat_shininess", "1f", brownDefaultShininess);
 
     let brownBaseFaceConfig = renderProgramInfo.createUniformConfig();
     brownBaseFaceConfig.addUniform("color", "3fv", brownBaseFaceColor);
@@ -518,6 +535,7 @@ function main() {
 
     let cloudDefaultConfig = renderProgramInfo.createUniformConfig();
     cloudDefaultConfig.addUniform("color", "3fv", cloudDefaultColor);
+    cloudDefaultConfig.addUniform("mat_alpha", "1f", cloudAlpha);
 
     let outerBaloonConfig = renderProgramInfo.createUniformConfig();
     outerBaloonConfig.addUniform("color", "3fv", outerBaloonColor);
@@ -692,6 +710,7 @@ function main() {
         objects.forEach(obj => {
             obj.programInfo = renderProgramInfo;
         });
+        cloud.root.programInfo = renderProgramInfo;
 
         setIslandConfig();
         setLeonardConfig();
@@ -703,6 +722,14 @@ function main() {
         objects.forEach(obj => {
             obj.render();
         });
+
+        // Render cloud with transparency
+        GL.blendFunc(GL.SRC_ALPHA, GL.ONE_MINUS_SRC_ALPHA);
+        GL.enable(GL.BLEND);
+        renderProgramInfo.uniformConfig.setAndApplyUniformValue("mat_alpha", "1f", cloudAlpha);
+        cloud.root.render();
+        GL.disable(GL.BLEND);
+        renderProgramInfo.uniformConfig.setAndApplyUniformValue("mat_alpha", "1f", 1.);
     }
 
     /*========================= ANIMATIONS ========================= */
@@ -965,7 +992,7 @@ function main() {
     .add(updateCameraPosition, new VectorInterpolator([-100, -30, 420], [100, -30, 420]), 10000)
     .add(updateCameraPosition, new VectorInterpolator([-100, 30, 230], [-100, 30, 200]), 2000)
     .add(updateCameraPosition, new VectorInterpolator([0, 50, 230], [0, 50, 200]), 2000)
-    .add(updateCameraPosition, new VectorInterpolator([200, -30, 420], [0, -30, 420]), 3000)
+    .add(updateCameraPosition, new VectorInterpolator([200, -30, 420], [0, -30, 700]), 3000)
     .add(updateCameraPosition, new VectorInterpolator([300, 50, 420], [100, 50, 310]), 3000)
     .add(updateCameraPosition, new VectorInterpolator([-200, 30, 420], [0, -30, 420]), 2000, Easing.quadraticInOut);
 
@@ -986,6 +1013,7 @@ function main() {
         objects.forEach((obj) => {
             obj.transform.reset();
         });
+        cloud.root.transform.reset();
 
         island.objs.root.transform.scaleUniform(500).translateY(-50);
 
@@ -1016,6 +1044,8 @@ function main() {
             obj.transform.rotateY(THETA);
             obj.transform.rotateX(PHI);
         });
+        cloud.root.transform.rotateY(THETA);
+        cloud.root.transform.rotateX(PHI);
         
         renderShadow();
         renderFull();
