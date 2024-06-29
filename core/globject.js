@@ -40,8 +40,6 @@ class GLObject {
 
         if (programInfo != null)
             this.programInfo = programInfo;
-        
-    
     }
 
     setup() {
@@ -97,7 +95,7 @@ class GLObject {
                 this.objectUniformConfig.applyAll();
         }
 
-        if (!this.isNullObject()) {
+        if (!this.isNullObject() && this._visibility) {
             this._GL.bindBuffer(this._GL.ARRAY_BUFFER, this._triangle_vbo);
             var size = 3;
             var type = this._GL.FLOAT;
@@ -125,9 +123,7 @@ class GLObject {
             this._GL.drawElements(this._mode, this._faces.length, this._GL.UNSIGNED_INT, 0);
         }
 
-        // this.createBoundingBoxObject();
         this._childs.forEach((child) => {
-            if (child._visibility)
             child.render(modelTransform);
         })
     }
@@ -211,12 +207,18 @@ class GLObject {
         obj.setDrawMode(mode!==null ? mode : obj._GL.TRIANGLES);
     }
 
-    setVisibility(isVisible) {
+    getVisibility() {
+        return this._visibility;
+    }
+
+    setVisibility(isVisible, propagate=true) {
         this._visibility = isVisible;
-        // Optionally, propagate visibility to children
-        this._childs.forEach((child) => {
-            child.setVisibility(isVisible);
-        });
+        if (propagate) {
+            // Propagate visibility to children
+            this._childs.forEach((child) => {
+                child.setVisibility(isVisible);
+            });
+        }
     }
 
     // Calculate the bounding box for the object
@@ -277,34 +279,31 @@ class GLObject {
             min: [minX, minY, minZ],
             max: [maxX, maxY, maxZ]
         };
-
     }
+
     // Create the bounding box object based on calculated bounding box
     createBoundingBoxObject(box=null) {
         let min, max;
 
         if (box == null) {
             this._boundary = this.calculateBoundingBox();
-            min = this._boundary.min, max = this._boundary.max;
+        } else {
+            this._boundary = {
+                min: [...box.min],
+                max: [...box.max],
+            };
         }
-        else {
-            min = box.min, max = box.max;
-        }
+        min = this._boundary.min, max = this._boundary.max;
+
         const vertices = [
-            min[0], min[1], min[2],  max[0], min[1], min[2],
-            max[0], min[1], min[2],  max[0], max[1], min[2],
-            max[0], max[1], min[2],  min[0], max[1], min[2],
-            min[0], max[1], min[2],  min[0], min[1], min[2],
-
-            min[0], min[1], max[2],  max[0], min[1], max[2],
-            max[0], min[1], max[2],  max[0], max[1], max[2],
-            max[0], max[1], max[2],  min[0], max[1], max[2],
-            min[0], max[1], max[2],  min[0], min[1], max[2],
-
-            min[0], min[1], min[2],  min[0], min[1], max[2],
-            max[0], min[1], min[2],  max[0], min[1], max[2],
-            max[0], max[1], min[2],  max[0], max[1], max[2],
-            min[0], max[1], min[2],  min[0], max[1], max[2]
+            min[0], min[1], min[2],  0, 0, 0,
+            min[0], min[1], max[2],  0, 0, 0,
+            min[0], max[1], max[2],  0, 0, 0,
+            min[0], max[1], min[2],  0, 0, 0,
+            max[0], min[1], min[2],  0, 0, 0,
+            max[0], min[1], max[2],  0, 0, 0,
+            max[0], max[1], max[2],  0, 0, 0,
+            max[0], max[1], min[2],  0, 0, 0
         ];
 
         const indices = [
@@ -316,8 +315,15 @@ class GLObject {
         this._boxObject = new GLObject(this._GL, vertices, indices);
         this._boxObject.setDrawMode(this._GL.LINES);
         this.addChild(this._boxObject);
-        this._boxObject.setVisibility(false);
+        this._boxObject.setVisibility(true);
         
+    }
+    //function to update bounding box at each transition
+    updateBoundingBox() {
+        if (this._boxObject != null) {
+            this.removeChild(this._boxObject);
+            this.createBoundingBoxObject();
+        }
     }
 }
 
