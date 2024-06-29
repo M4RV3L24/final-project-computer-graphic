@@ -19,8 +19,16 @@ function main() {
             }
             
         });
+    }
 
-
+    function changeMode(){
+        var ele = document.getElementById('modeText');
+        if(ele.innerHTML == 'Cinematic Mode'){
+            ele.innerHTML = 'Free Mode';
+        }
+        else{
+            ele.innerHTML = 'Cinematic Mode';
+        }
     }
 
     /*========================= CAPTURE EVENTS ========================= */
@@ -59,7 +67,24 @@ function main() {
         }
         if (e.key == "x") {
             viewMode ^= 1;
-            if(viewMode == 1) setCameraToCurrentPosition();
+            changeMode();
+            if(viewMode == 1){
+                setCameraToCurrentPosition();
+                document.body.requestPointerLock = document.body.requestPointerLock ||
+                                                   document.body.mozRequestPointerLock ||
+                                                   document.body.webkitRequestPointerLock;
+                document.body.requestPointerLock();
+            }
+            else{
+                if (document.exitPointerLock) {
+                    document.exitPointerLock();
+                } else if (document.mozExitPointerLock) {
+                    document.mozExitPointerLock();
+                } else if (document.webkitExitPointerLock) {
+                    document.webkitExitPointerLock();
+                }
+                document.body.style.cursor = 'default';
+            }
         }
     };
 
@@ -98,16 +123,6 @@ function main() {
             updateLookAtPos(dx, -dy);
         }
     }
-
-    // Request pointer lock on click
-    document.body.addEventListener('click', () => {
-        if(viewMode == 1){
-            document.body.requestPointerLock = document.body.requestPointerLock ||
-                                               document.body.mozRequestPointerLock ||
-                                               document.body.webkitRequestPointerLock;
-            document.body.requestPointerLock();
-        }
-    });
 
     // Listen for pointer lock change events
     document.addEventListener('pointerlockchange', pointerLockChange, false);
