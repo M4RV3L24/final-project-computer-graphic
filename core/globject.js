@@ -316,8 +316,16 @@ class GLObject {
         this._boxObject = new GLObject(this._GL, vertices, indices);
         this._boxObject.setDrawMode(this._GL.LINES);
         this.addChild(this._boxObject);
-        this._boxObject.setVisibility(false);
+        this._boxObject.setVisibility(true);
         
+    }
+    //function to update bounding box at each transition
+    updateBoundingBox() {
+        if (this._boxObject != null) {
+            this.removeChild(this._boxObject);
+            this.createBoundingBoxObject();
+        }
+
     }
 }
 
