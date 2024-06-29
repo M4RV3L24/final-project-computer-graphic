@@ -199,6 +199,11 @@ class Transform3 {
         return this;
     }
 
+    inverse() {
+        this._mat.inverse();
+        return this;
+    }
+
     matrix() {
         return this._mat.copy();
     }

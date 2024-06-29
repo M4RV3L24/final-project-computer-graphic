@@ -874,48 +874,27 @@ function main() {
     function isCameraCollidingWithObject(cameraPosition, object, worldTransform=null) {
         let modelTransform;
         
-        let box = object._boxObject;
+        let localTransform = object.transform;
         if (worldTransform != null) {
             modelTransform = worldTransform.copy();
-            modelTransform.matrixRef().matMul(box.transform.matrixRef());
+            modelTransform.matrixRef().matMul(localTransform.matrixRef());
         } else {
-            modelTransform = box.transform.copy();
+            modelTransform = localTransform.copy();
         }
 
-        
-        let minX = Number.MAX_SAFE_INTEGER, minY = Number.MAX_SAFE_INTEGER, minZ= Number.MAX_SAFE_INTEGER;
-        let maxX = Number.MIN_SAFE_INTEGER, maxY = Number.MIN_SAFE_INTEGER, maxZ = Number.MIN_SAFE_INTEGER;
-
-        const vertices = box._vertices;
-        for (let i = 0; i < vertices.length; i += 3) {
-            let x = vertices[i];
-            let y = vertices[i + 1];
-            let z = vertices[i + 2];
-
-            //apply current object transformation
-            [x, y, z] = modelTransform.applyToPoint(x, y, z);
-            
-            if (x < minX) minX = x;
-            if (y < minY) minY = y;
-            if (z < minZ) minZ = z;
-    
-            if (x > maxX) maxX = x;
-            if (y > maxY) maxY = y;
-            if (z > maxZ) maxZ = z;
-        }
-        // console.log(box._vertices);
-        return (cameraPosition[0] >= minX && cameraPosition[0] <= maxX) &&
-                (cameraPosition[1] >= minY && cameraPosition[1] <= maxY) &&
-                (cameraPosition[2] >= minZ && cameraPosition[2] <= maxZ);
+        let {min, max} = object._boundary;
+        cameraPosition = modelTransform.inverse().applyToPoint(...cameraPosition);
+        return (cameraPosition[0] >= min[0] && cameraPosition[0] <= max[0]) &&
+                (cameraPosition[1] >= min[1] && cameraPosition[1] <= max[1]) &&
+                (cameraPosition[2] >= min[2] && cameraPosition[2] <= max[2]);
     }
 
-    function updateCameraPosWithColsCheck(prevCameraPosition, prevCameraTarget, objects, renderProgramInfo) {
+    function updateCameraPosWithColsCheck(prevCameraPosition, prevCameraTarget) {
         let collisionDetected = false; // Flag to track collision
     
         // Check collision for new position
         for (const obj of objects) {
             if (obj._boxObject && obj._boundary) {
-                
                 if (isCameraCollidingWithObject(currentCameraPosition, obj)) {
                     console.log("Collision detected");
                     collisionDetected = true; // Set flag on collision
@@ -929,13 +908,7 @@ function main() {
             currentCameraPosition = prevCameraPosition;
             currentCameraTarget = prevCameraTarget;
         } 
-        let cameraMatrix = LIBS.look_at(currentCameraPosition, currentCameraTarget, [0, 1, 0]);
-        let viewDirection = Vector.sub(currentCameraTarget, currentCameraPosition).normalize().arr();
-        let viewMatrix = Matrix.fromGLMatrix(cameraMatrix, 4, 4).inverse().toGLMatrix();
-
-        renderProgramInfo.uniformConfig.setAndApplyUniformValue("VMatrix", false, viewMatrix);
-        renderProgramInfo.uniformConfig.setAndApplyUniformValue("view_direction", viewDirection);
-    
+        setCameraToCurrentPosition();
     }
 
     function setCameraToCurrentPosition(){
