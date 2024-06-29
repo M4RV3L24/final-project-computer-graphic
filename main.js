@@ -1032,12 +1032,12 @@ function main() {
 
         island.objs.root.transform.scaleUniform(500).translateY(-50);
 
-        // transitionLeonard.step(dt);
-        // transitionMoveLeonard.step(dt);
+        transitionLeonard.step(dt);
+        transitionMoveLeonard.step(dt);
         leonard.objs.root.transform.translateY(-20).translateX(90).translateZ(100);
 
-        // connyWalkTransition.step(dt);
-        // connyMoveTransition.step(dt);
+        connyWalkTransition.step(dt);
+        connyMoveTransition.step(dt);
         conny.objs.root.transform.scale(0.9, 0.9, 0.9).translateX(-90).translateZ(100);
 
         mountain.objs.root.transform.scaleUniform(60).translate(-1000, 50, 2000);
@@ -1045,15 +1045,15 @@ function main() {
         tree1.objs.root.transform.scaleUniform(4).translate(20, 40, -200);
         tree2.objs.root.transform.scaleUniform(4).translate(20, 80, -270);
         
-        // brownTransition.step(dt);
-        // brownTransition2.step(dt);
-        // brownWalkTransition.step(dt);
+        brownTransition.step(dt);
+        brownTransition2.step(dt);
+        brownWalkTransition.step(dt);
 
         brown.objs.root.transform.translateY(13).translateZ(100);
         baloon.root.transform.scaleUniform(1.2).rotateY(Math.PI/6).translate(-40, 200, -1500);
         cloud.root.transform.scaleUniform(.2).translate(20, -70, 300);
 
-        // cameraTransition.step(dt);
+        cameraTransition.step(dt);
 
         objects.forEach((obj) => {
             obj.transform.rotateY(THETA);
