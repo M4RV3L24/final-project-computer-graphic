@@ -315,8 +315,7 @@ class GLObject {
         this._boxObject = new GLObject(this._GL, vertices, indices);
         this._boxObject.setDrawMode(this._GL.LINES);
         this.addChild(this._boxObject);
-        this._boxObject.setVisibility(true);
-        
+        this._boxObject.setVisibility(false);
     }
     //function to update bounding box at each transition
     updateBoundingBox() {
