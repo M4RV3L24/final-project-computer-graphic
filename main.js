@@ -205,6 +205,11 @@ function main() {
 
     /*========================= OBJECTS ========================= */
     let island = createIsland(GL);
+   
+
+    const numberOfIslands = 15; // Adjust the number of islands as needed
+    const islands = []; // Array to hold the island objects
+
     let leonard = createLeonard(GL);
 
     let conny = createConny(GL);
@@ -216,6 +221,7 @@ function main() {
 
     let brown = createBrown(GL);
     let cloud = createCloud(GL);
+    
     let baloon = createBaloon(GL);
 
     objects = [
@@ -229,11 +235,37 @@ function main() {
         baloon.root
     ];
     
+    for (let i = 0; i < numberOfIslands; i++) {
+        // Assuming createIsland(GL) is your island creation function
+        var newIsland = createIsland(GL)
+        islands.push(newIsland.objs);
+        objects.push(newIsland.objs.root);
+        
+    }
+    
     objects.forEach(obj => {    
-        // obj.createBoundingBoxObject();
         obj.setup();
     });
     cloud.root.setup();
+
+    const numberOfClouds = 30
+    const clouds = []
+    for (let i = 0; i < numberOfClouds; i++) {
+        var cloudObject = createCloud(GL)
+        clouds.push(cloudObject);
+        cloudObject.root.setup();
+    }
+
+    const numberOfBaloons = 5
+    const baloons = []
+    for (let i = 0; i < numberOfBaloons; i++) {
+        var baloonObject = createBaloon(GL)
+        baloons.push(baloonObject);
+        baloonObject.root.setup();
+        objects.push(baloonObject.root);
+    }
+
+    
 
     const depthTextureSize = 2048;
 
@@ -323,8 +355,23 @@ function main() {
     islandDirtConfig.addUniform("color", "3fv", islandDirtColor);
     islandDirtConfig.addUniform("mat_shininess", "1f", islandShininess);
 
-    let islandGrass = [island.objs.grass];
-    let islandDirt = [island.objs.dirt1, island.objs.dirt2];
+    let islandGrass = 
+    [
+        island.objs.grass, 
+       
+    ];
+    let islandDirt = 
+    [
+        island.objs.dirt1, island.objs.dirt2,
+        
+    ];
+
+    for (let i = 0; i < numberOfIslands; i++) {
+        islandGrass.push(islands[i].grass)
+        islandDirt.push(islands[i].dirt1, islands[i].dirt2)
+    }
+
+    
 
     function setIslandConfig() {
         islandGrass.forEach((obj) => {
@@ -582,6 +629,14 @@ function main() {
     const lowerBaloon = [baloon.lowerBaloon];
     const rope = [baloon.rope1, baloon.rope2, baloon.rope3, baloon.rope4];
     const passangerSeat = [baloon.passangerSeatSide, baloon.passangerSeatBottom];
+
+    for(let i = 0; i<numberOfBaloons; i++){
+        outerBaloon.push(baloons[i].outerBaloon);
+        innerBaloon.push(baloons[i].innerBaloon);
+        lowerBaloon.push(baloons[i].lowerBaloon);
+        rope.push(baloons[i].rope1, baloons[i].rope2, baloons[i].rope3, baloons[i].rope4);
+        passangerSeat.push(baloons[i].passangerSeatSide, baloons[i].passangerSeatBottom);
+    }
     function setbrownConfig() {
         Object.values(brown.objs).forEach((obj) => {
             obj.objectUniformConfig = brownDefaultConfig;
@@ -589,9 +644,21 @@ function main() {
         Object.values(cloud).forEach((obj) => {
             obj.objectUniformConfig = cloudDefaultConfig;
         });
+
+        for (let i = 0; i < numberOfClouds; i++) {
+            Object.values(clouds[i]).forEach((obj) => {
+                obj.objectUniformConfig = cloudDefaultConfig;
+            })
+        }
         Object.values(baloon).forEach((obj) => {
             obj.objectUniformConfig = cloudDefaultConfig;
         });
+        for(let i = 0; i<numberOfBaloons; i++){
+            Object.values(baloons[i]).forEach((obj) => {
+                obj.objectUniformConfig = cloudDefaultConfig;
+            });
+        }
+
         brownBaseFace.forEach((obj) => {
             obj.objectUniformConfig = brownBaseFaceConfig;
         });
@@ -731,6 +798,9 @@ function main() {
             obj.programInfo = renderProgramInfo;
         });
         cloud.root.programInfo = renderProgramInfo;
+        clouds.forEach(cloud => {
+            cloud.root.programInfo = renderProgramInfo;
+        });
 
         setIslandConfig();
         setLeonardConfig();
@@ -748,6 +818,9 @@ function main() {
         GL.enable(GL.BLEND);
         renderProgramInfo.uniformConfig.setAndApplyUniformValue("mat_alpha", "1f", cloudAlpha);
         cloud.root.render();
+        clouds.forEach(cloud => {
+            cloud.root.render();
+        });
         GL.disable(GL.BLEND);
         renderProgramInfo.uniformConfig.setAndApplyUniformValue("mat_alpha", "1f", 1.);
     }
@@ -839,7 +912,13 @@ function main() {
     }
     function moveEnvObject({value}){
         cloud.root.transform.setTranslationX(value);
+        clouds.forEach(cloud => {
+            cloud.root.transform.setTranslationX(value);
+        })
         baloon.root.transform.setTranslationX(-value).setTranslationZ(value * 20);
+        for(let i = 0; i<numberOfBaloons; i++){
+            baloons[i].root.transform.setTranslationX(-value).setTranslationZ(value * 20);
+        }
     }
     function brownWalk({value}) {
         brown.objs.root.transform.setTranslationZ(value);
@@ -1027,6 +1106,41 @@ function main() {
     .add(updateCameraPosition, new VectorInterpolator([-200, 30, 420], [0, -30, 420]), 2000, Easing.quadraticInOut);
 
     let prevTime = 0, delay = 3000;
+    function getRandomInRange(min, max) {
+        return Math.random() * (max - min) + min;
+    }
+
+    // Generate random values for each island and store them
+    const islandTransforms = [];
+    for (let i = 0; i < numberOfIslands; i++) {
+        islandTransforms.push({
+            scale: getRandomInRange(300, 750),
+            translateY: getRandomInRange(-500, 500),
+            translateZ: getRandomInRange(-1000, -2500),
+            translateX: getRandomInRange(-700, 2000)
+        });
+    }
+
+    const cloudTransforms = []
+    for (let i = 0; i < numberOfClouds; i++) {
+        cloudTransforms.push({
+            scale: getRandomInRange(0.2, 1.0),
+            x: getRandomInRange(-2000, 2000),
+            y: getRandomInRange(-300, 300),
+            z: getRandomInRange(-500, -2000)
+        });
+    }
+
+    const baloonTransforms = []
+    for (let i = 0; i < numberOfBaloons; i++) {
+        baloonTransforms.push({
+            // scale: getRandomInRange(0.2, 1.0),
+            x: getRandomInRange(-1000, 1000),
+            y: getRandomInRange(-100, 500),
+            z: getRandomInRange(-1500, -4000)
+        });
+    }
+
     function animate(time) {
         /*========================= TRANSFORMATIONS ========================= */
         if (!drag) {
@@ -1044,9 +1158,21 @@ function main() {
             obj.transform.reset();
         });
         cloud.root.transform.reset();
+        clouds.forEach(cloud => {
+            cloud.root.transform.reset();
+        });
 
         island.objs.root.transform.scaleUniform(500).translateY(-50);
+        
+        for (let i = 0; i < numberOfIslands; i++) {
+            islands[i].root.transform
+            .scaleUniform(islandTransforms[i].scale) // Scale between 600 and 800
+            .translateY(islandTransforms[i].translateY) // translateY between -200 and 100
+            .translateZ(islandTransforms[i].translateZ) // translateZ between -1000 and -300
+            .translateX(islandTransforms[i].translateX)
+        }
 
+        
         transitionLeonard.step(dt);
         transitionMoveLeonard.step(dt);
         leonard.objs.root.transform.translateY(-20).translateX(90).translateZ(100);
@@ -1066,7 +1192,19 @@ function main() {
 
         brown.objs.root.transform.translateY(13).translateZ(100);
         baloon.root.transform.scaleUniform(1.2).rotateY(Math.PI/6).translate(-40, 200, -1500);
+        for (let i = 0; i < numberOfBaloons; i++) {
+            baloons[i].root.transform.scaleUniform(1.2).rotateY(Math.PI / 6).translate(baloonTransforms[i].x, baloonTransforms[i].y, baloonTransforms[i].z);
+        }
         cloud.root.transform.scaleUniform(.2).translate(20, -70, 300);
+        
+        for (let i = 0; i < numberOfClouds; i++) {
+            clouds[i].root.transform
+            .scaleUniform(cloudTransforms[i].scale) // Scale between 600 and 800
+            .translateX(cloudTransforms[i].x) // translateY between -200 and 100
+            .translateY(cloudTransforms[i].y) // translateZ between -1000 and -300
+            .translateZ(cloudTransforms[i].z)
+        }
+        
 
         cameraTransition.step(dt);
 
@@ -1076,6 +1214,10 @@ function main() {
         });
         cloud.root.transform.rotateY(THETA);
         cloud.root.transform.rotateX(PHI);
+        clouds.forEach(cloud => {
+            cloud.root.transform.rotateY(THETA);
+            cloud.root.transform.rotateX(PHI);
+        });
         
         renderShadow();
         renderFull();
