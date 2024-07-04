@@ -39,6 +39,9 @@ function main() {
     var dX = 0, dY = 0;
     var renderMode = 0;
     var viewMode = 0;
+    var isPaused = true;
+
+    
 
     var mouseDown = function (e) {
         drag = true;
@@ -102,6 +105,11 @@ function main() {
             if(e.key == "d"){
                 moveCamera("d");
             }
+        }
+
+        console.log(e.key);
+        if(e.key == ' '){
+            isPaused = !isPaused;
         }
     }
     
@@ -299,7 +307,7 @@ function main() {
     const bias = 0.01;
     const normalBias = 0.05;
 
-    const fogDensity = 0.0002;
+    const fogDensity = 0.00035;
 
     const lightProjMatrix = LIBS.get_ortho_proj(45, 1, 1, 1000);
     const lightViewMatrix = Transform3.translate(
@@ -571,7 +579,7 @@ function main() {
         brownRibbonColor = [139 / 255, 13 / 255, 9 / 255],
         brownLuckyCloverColor = [62 / 255, 160 / 255, 85 / 255],
         cloudDefaultColor = [255 / 255, 255 / 255, 255 / 255],
-        cloudAlpha = 0.8,
+        cloudAlpha = 0.6,
         outerBaloonColor = [112 / 255, 112 / 255, 112 / 255],
         innerBaloonColor = [234 / 255, 128 / 255, 12 / 255],
         lowerBaloonColor = [90 / 255, 90 / 255, 90 / 255],
@@ -1172,13 +1180,16 @@ function main() {
             .translateX(islandTransforms[i].translateX)
         }
 
-        
-        transitionLeonard.step(dt);
-        transitionMoveLeonard.step(dt);
+        if(!isPaused){
+            transitionLeonard.step(dt);
+            transitionMoveLeonard.step(dt);
+        }
         leonard.objs.root.transform.translateY(-20).translateX(90).translateZ(100);
 
-        connyWalkTransition.step(dt);
-        connyMoveTransition.step(dt);
+        if(!isPaused){
+            connyWalkTransition.step(dt);
+            connyMoveTransition.step(dt);
+        }
         conny.objs.root.transform.scale(0.9, 0.9, 0.9).translateX(-90).translateZ(100);
 
         mountain.objs.root.transform.scaleUniform(60).translate(-1000, 50, 2000);
@@ -1186,9 +1197,11 @@ function main() {
         tree1.objs.root.transform.scaleUniform(4).translate(20, 40, -200);
         tree2.objs.root.transform.scaleUniform(4).translate(20, 80, -270);
         
-        brownTransition.step(dt);
-        brownTransition2.step(dt);
-        brownWalkTransition.step(dt);
+        if(!isPaused){
+            brownTransition.step(dt);
+            brownTransition2.step(dt);
+            brownWalkTransition.step(dt);
+        }
 
         brown.objs.root.transform.translateY(13).translateZ(100);
         baloon.root.transform.scaleUniform(1.2).rotateY(Math.PI/6).translate(-40, 200, -1500);
@@ -1205,9 +1218,10 @@ function main() {
             .translateZ(cloudTransforms[i].z)
         }
         
-
-        cameraTransition.step(dt);
-
+        if(!isPaused){
+            cameraTransition.step(dt);
+        }
+        
         objects.forEach((obj) => {
             obj.transform.rotateY(THETA);
             obj.transform.rotateX(PHI);
