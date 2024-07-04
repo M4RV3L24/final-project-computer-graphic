@@ -4,13 +4,12 @@
 - Marvel Wilbert Odelio (C14220223)
 
 ## Documents
-Watch the demo here: https://youtu.be/yKXV_snfQnI
-
-Report: https://docs.google.com/document/d/1FBYv61zWzr9_iRFKbVQdodDMVboQfmspotKkKoyTneA/edit?usp=sharing
+Report:
+https://docs.google.com/document/d/1-6YpMqnTVpR9nJQ1PSrEHnMSTuF-QBpMWsj-HrBBt2c/edit?usp=drivesdk
 
 ## How to Run
 ### Live demo
-Checkout the live demo here: https://uts-grafkom-31.netlify.app/
+Checkout the live demo here: https://uas-grafkom-31.netlify.app/
 
 ### Self-host
 1. Clone this repository
