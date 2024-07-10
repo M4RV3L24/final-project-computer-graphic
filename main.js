@@ -3,23 +3,23 @@ function main() {
     CANVAS.width = window.innerWidth;
     CANVAS.height = window.innerHeight;
 
-    var visibilityToggle = document.getElementById('toggleBoundingBox').addEventListener("click", changeBoxVisibility);
+    // var visibilityToggle = document.getElementById('toggleBoundingBox').addEventListener("click", changeBoxVisibility);
 
-    function changeBoxVisibility() {
-        objects.forEach(obj => {
+    // function changeBoxVisibility() {
+    //     objects.forEach(obj => {
 
-            if (obj._boxObject) {
-                if (obj._boxObject._visibility) {
-                    obj._boxObject.setVisibility(false);
-                }
-                else {
-                    obj._boxObject.setVisibility(true);
-                }
+    //         if (obj._boxObject) {
+    //             if (obj._boxObject._visibility) {
+    //                 obj._boxObject.setVisibility(false);
+    //             }
+    //             else {
+    //                 obj._boxObject.setVisibility(true);
+    //             }
 
-            }
+    //         }
             
-        });
-    }
+    //     });
+    // }
 
     function changeMode(){
         var ele = document.getElementById('modeText');
